@@ -30,13 +30,6 @@ SPH::SPH(const unsigned n_new) {
     ro =new double[n];                     //Array to store the densitites of the particles
     p = new double[n];                     //Array to store the pressure on each particle
     vi = new double[n];                    //Array to store the norm of the velocity, used in the calculation of the kinetic energy
-    npRank = new int[np+1];                //Array to assign particles to each processor for the calculation of the forces
-
-    //Arrays to store the values that will be broadcasted to all of the processors at each time step
-    x_new = new double[n];                 
-    y_new = new double[n];
-    vx_new = new double[n];
-    vy_new = new double[n];
 
     //Array that will be broadcasted to the all the processors and will contain the above values
     xyv= new double[4*n];
@@ -92,22 +85,6 @@ double & SPH::operator < (double h_new){
 
 }
 
-
-//Definig the Overloading of | to pass the rank of the processor inside the class
-int & SPH::operator | (int rank_new){
-
-    rank = rank_new;
-    return rank;
-
-}
-
-//Definig the Overloading of ^ to pass the number of processors
-int & SPH::operator ^ (int np_new){
-
-    np = np_new;
-    return np;
-
-}
 
 /**Assigning values to x: The values of the positions on the
  * x-axis are stored in the first row of the vMatrix, and they are now assigned
@@ -195,7 +172,7 @@ void SPH::den(){
         for (int  j = 0; j < n; j++){
     
             q[i*n+j] = abs(r[i*n+j]*hinv);
-           
+
             if (q[i*n+j] < 1){
 
                 phi = pre*(1.0-q[i*n+j]*q[i*n+j])*(1.0-q[i*n+j]*q[i*n+j])*(1.0-q[i*n+j]*q[i*n+j]);
@@ -230,7 +207,7 @@ double SPH::FiP(double * x_y){
     double sum = 0.0;                    //Initializing the sumation
     double pre = (-30.0/(M_PI*h*h*h));   //precalculated value
 
-    for (int j = npRank[rank]; j < npRank[rank+1]; j++){
+    for (int j = 0; j < n; j++){
 
         
         if (i==j){ }
@@ -239,7 +216,8 @@ double SPH::FiP(double * x_y){
             if (q[i*n+j] < 1){
                
                 //Equation (5)
-                sum += (m/ro[j])*((p[i]+p[j])/2.0)*(pre*(x_y[i] - x_y[j]))*(((1.0-q[i*n+j])*(1.0-q[i*n+j]))/q[i*n+j]);}
+                sum += (m/ro[j])*((p[i]+p[j])/2.0)*(pre*(x_y[i] - x_y[j]))*(((1.0-q[i*n+j])*(1.0-q[i*n+j]))/q[i*n+j]);
+            }
 
             else{ }
                         
@@ -259,7 +237,7 @@ double phisq;
     double sum = 0.0;                       //Initializing the sumation
     double pre = (40.0/(M_PI*h*h*h*h));     //precalculated value
 
-    for (int j = npRank[rank]; j < npRank[rank+1]; j++){
+    for (int j = 0; j < n; j++){
 
         if (i==j){}
 
@@ -303,7 +281,7 @@ double SPH::v_x_y(double * v, double & Fip, double & Fiv, double & Fig){
 
     double a;
     a = (Fip + Fiv + Fig) / ro[i];
- 
+
     return v[i] + a * dt;
 
 }
@@ -333,97 +311,67 @@ void SPH::spatial(){
 
         //Gathering the forces calculated by the processors
 
-        Freduce[0]=FiP(x);
+        Fipx=FiP(x);
         
-        Freduce[1]=FiV(vx);
+        Fivx=FiV(vx);
         
-        Freduce[2]=FiP(y);
+        Fipy=FiP(y);
         
-        Freduce[3]=FiV(vy);
+        Fivy=FiV(vy);
 
-        //Adding the pieces of the forces and the result is stored in the root processor
-        MPI_Reduce(Freduce, Ftake, 4,MPI_DOUBLE, MPI_SUM,root, MPI_COMM_WORLD);
-        
-        if (rank == root){
+        Figy=FiG();
 
-            Fipx = Ftake[0];
-            Fivx = Ftake[1];
-            Fipy = Ftake[2];
-            Fivy = Ftake[3];
-            Figy=FiG();
+        //First step to initialise the scheme
+        if (t==0){
 
-            //First step to initialise the scheme
-            if (t==0){
+            vx[i] = vInit(vx,Fipx,Fivx,Figx);
+            x[i] = x[i] + vx[i] * dt; //inlined
+            vy[i] = vInit(vy,Fipy,Fivy,Figy);
+            y[i] = y[i] + vy[i] * dt; //inlined
+            
+        }
 
-                vx_new[i] = vInit(vx,Fipx,Fivx,Figx);
-                x_new[i] = x[i] + vx_new[i] * dt; //inlined
-                vy_new[i] = vInit(vy,Fipy,Fivy,Figy);
-                y_new[i] = y[i] + vy_new[i] * dt; //inlined
-                
-            }
+        //Leap frog scheme
+        else{
 
-            //Leap frog scheme
-            else{
-
-                vx_new[i] = v_x_y(vx, Fipx,Fivx,Figx);
-                x_new[i] = x[i] + vx_new[i] * dt; //inlined
-                vy_new[i] = v_x_y(vy,Fipy,Fivy,Figy);
-                y_new[i] = y[i] + vy_new[i] * dt; //inlined
-
-            }
-
-            //Boundary Conditions
-            if (x_new[i] < h){
-
-                x_new[i] = h;
-                vx_new[i] = -e*vx_new[i];
-            }
-
-            if (x_new[i] > 1.0-h){
-
-                x_new[i] = 1.0-h;
-                vx_new[i] = -e*vx_new[i];
-            }
-
-
-            if (y_new[i] < h){
-
-                y_new[i] = h;
-                vy_new[i] = -e*vy_new[i];
-            }
-
-            if (y_new[i] > 1.0-h){
-
-                y_new[i] = 1.0-h;
-                vy_new[i] = -e*vy_new[i];
-            }  
-
-            //After the last particle is calculated all the values are gathered to a single array
-            //to be passed at once to the communication function
-            if (i == n-1){
-
-                 for (int k = 0; k < n; k++){
-
-                    xyv[k] = x_new[k];
-                    xyv[n+k] = y_new[k];
-                    xyv[2*n+k] = vx_new[k];
-                    xyv[3*n+k] = vy_new[k];
-
-               }
-
-            }
+            vx[i] = v_x_y(vx, Fipx,Fivx,Figx);
+            x[i] = x[i] + vx[i] * dt; //inlined
+            vy[i] = v_x_y(vy,Fipy,Fivy,Figy);
+            y[i] = y[i] + vy[i] * dt; //inlined
 
         }
+
+        //Boundary Conditions
+        if (x[i] < h){
+
+            x[i] = h;
+            vx[i] = -e*vx[i];
+        }
+
+        if (x[i] > 1.0-h){
+
+            x[i] = 1.0-h;
+            vx[i] = -e*vx[i];
+        }
+
+
+        if (y[i] < h){
+
+            y[i] = h;
+            vy[i] = -e*vy[i];
+        }
+
+        if (y[i] > 1.0-h){
+
+            y[i] = 1.0-h;
+            vy[i] = -e*vy[i];
+        }  
+
+
+    }
   
-        if(i==n-1){
-
-            k = 4 * n;
-            //Broadcasting the new values to the rest of the processors
-            MPI_Bcast(xyv,k, MPI_DOUBLE, root, MPI_COMM_WORLD);
-
-        }    
-
-    }        
+       
+        
 }
 
 //Function to return the position x
@@ -466,21 +414,6 @@ double SPH::Ep(){
     
 }
 
-//Function that will help assign particles to each processor when iterating throught them in the 
-//functions that are used to calculate the pressure and the viscous forces
-void SPH::nprank(){
-
-    npRank[0] = 0;
-    npRank[np] = n;
-    int sum = 0;
-    int fl = int(ceil(n/np)); 
-
-    for (int r = 1; r < np; r++){
-
-            npRank[r] = npRank[r-1] + fl;
-    }
-
- }
 
  //Getting the new data calculated at each time step
  void SPH::getdata(){

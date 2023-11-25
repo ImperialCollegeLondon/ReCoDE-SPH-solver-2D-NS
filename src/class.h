@@ -21,10 +21,6 @@ private:
 
     double h;                               //Radius of influence
 
-    int rank;                               //Rank of processor
-
-    int np;                                 //Total number of processors
-
     double ** vMatrix = new double*[4];     //AlloCating space memory for the Matrix
 
     //Constants of the problem
@@ -43,10 +39,6 @@ public:
     double * vx;
     double * vy ;
     double * r ;
-    double * x_new;
-    double * y_new ;
-    double * vx_new;
-    double * vy_new ;
     int * npRank;
     double * ro;
     double * p ;
@@ -79,10 +71,6 @@ public:
     double & operator >> (double dt);  
 
     double & operator < (double h_new);
-
-    int & operator | (int rank_new);  
-
-    int & operator ^ (int np_new);  
 
     /**********MEMBER-FUNCTIONS*********/
     
@@ -121,8 +109,6 @@ public:
     double Ep();
 
     void mass();
-
-    void nprank();
 
     void getdata();
 

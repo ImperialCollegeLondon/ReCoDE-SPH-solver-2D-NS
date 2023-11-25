@@ -34,22 +34,7 @@ int dropletn(int n);
 
 //Start of the main programme
 int main(int argc, char* argv[]){
-
-    int rank;                                //Defining the rank for each processor
-
-    int np;                                  //Defining the number of processors
-
-    MPI_Init(&argc, &argv);                  //Initializing MPI
     
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);    //Using COMM_WORLD and obtain the rank of each processor
-    
-    MPI_Comm_size(MPI_COMM_WORLD, &np);      //Using COMM_WORLD and pass the number of processors to the variable np
-
-    const int root=0;                        //Defining the root processor that will gather the information and broadcast them later
-    
-    double t1, t2;
-    t1 = MPI_Wtime();
-
     //Process to obtain the directions provided by the user through the command line
     po::options_description desc("Allowed options");
      desc.add_options()
@@ -65,7 +50,7 @@ int main(int argc, char* argv[]){
         ("h", po::value<double>(), "take radius of influence")
     ;
 
-    po::variables_map vm;        
+    po::variables_map vm;    
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
 
@@ -189,25 +174,16 @@ int main(int argc, char* argv[]){
     //The function to calculate the mass of the partciles is called
     sph.mass();
 
-    /**These overloaded operators help the class to know about the rank of each processor and the total number
-     * of processors that participate in the procedure
-     **/ 
-    sph | rank;
-    sph ^ np; 
-
-    //Calling the function that splits the number of partciles in the appropriate intervals
-    sph.nprank();
-
     ofstream vOut("Positions-x-y.txt", ios::out | ios::trunc);
     ofstream vOut2("Energy-File.txt", ios::out | ios::trunc);
-    if (rank == root){
+    
 
-        vOut.precision(5);
-        vOut << "x" << "          " << "y"  << "\n" ;
-        vOut2.precision(5);
-        vOut2 << "t" << "      " << "Ek" << "       " << "Ep" << "     " << "Etotal"  << "\n" ;
+    vOut.precision(5);
+    vOut << "x" << "          " << "y"  << "\n" ;
+    vOut2.precision(5);
+    vOut2 << "t" << "      " << "Ek" << "       " << "Ep" << "     " << "Etotal"  << "\n" ;
 
-    }
+
 
     //Time integration loop
     for (int t = 0; t < T; t++){
@@ -219,33 +195,29 @@ int main(int argc, char* argv[]){
         sph.rVec(); 
         sph.den();   
         sph.spatial();
-        sph.getdata();
+        //sph.getdata();
      
-        //Calling the root processor to write in the files
-        if (rank == root){
+  
 
-            //Writing the energies on the Energy-File
-            vOut2 << t*dt << "  " << sph.Ek() << "  " << sph.Ep() << "  " << sph.Ep() + sph.Ek()  << "\n" ; 
+        //Writing the energies on the Energy-File
+        vOut2 << t*dt << "  " << sph.Ek() << "  " << sph.Ep() << "  " << sph.Ep() + sph.Ek()  << "\n" ; 
 
-                //Getting the posistions after the integration is completed
-                if(t==T-1){
+            //Getting the posistions after the integration is completed
+            if(t==T-1){
 
 
-                    for (int l = 0; l < n; l++){
+                for (int l = 0; l < n; l++){
 
-                        vOut << sph.retx(l) << " " << sph.rety(l)  << "\n" ; 
+                    vOut << sph.retx(l) << " " << sph.rety(l)  << "\n" ; 
 
-                    }
                 }
-            }  
+            }
+              
     }
 
 
-    t2 = MPI_Wtime();
 
     
-    std::cout<< "time: " << t2 - t1 << std::endl;
-    MPI_Finalize(); 
     return 0;
     
 }
@@ -344,7 +316,6 @@ void ic_dam_break(int n, SPH & sph){
 
             sph(0,i*el + j) = posx + double(rand())/ RAND_MAX/100000;
             sph(2,i*el + j) = 0.0;
-
         }
 
         posx += step;

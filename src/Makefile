@@ -17,4 +17,4 @@ SPH-SOLVER: SPH-main.o class.o
 .PHONY: clean
 
 clean:
-	rm SPH-SOLVER Energy-File.txt Positions-x-y.txt
+	rm SPH-SOLVER Energy-File.txt Positions-x-y.txt class.o SPH-main.o
