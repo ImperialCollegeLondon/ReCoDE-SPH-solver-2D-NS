@@ -1,0 +1,4 @@
+ic-dam-break  !Name of initial condition
+3	      !Integration time (s)
+1e-4	      !Timestep
+
