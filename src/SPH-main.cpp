@@ -114,52 +114,52 @@ int main(int argc, char* argv[]){
     if (vm.count("ic-one-particle")) {
 
         ic_one_particle(n,sph);
-        sph >> dt;
-        sph < h;
+        sph.dt = dt;
+        sph.h = h;
 
     }
 
     if (vm.count("ic-two-particles")) {
 
         ic_two_particles(n,sph);
-        sph >> dt;
-        sph < h;
+        sph.dt = dt;
+        sph.h = h;
     }
 
     if (vm.count("ic-three-particles")) {
 
 
         ic_three_particles(n,sph);
-        sph >> dt;
-        sph < h;
+        sph.dt = dt;
+        sph.h = h;
     }
 
     if (vm.count("ic-four-particles")) {
 
         ic_four_particles(n,sph);
-        sph >> dt;
-        sph < h;
+        sph.dt = dt;
+        sph.h = h;
     }
 
     if (vm.count("ic-dam-break")) {
 
         ic_dam_break(n,sph);
-        sph >> dt;
-        sph < h;
+        sph.dt = dt;
+        sph.h = h;
     }
 
     if (vm.count("ic-block-drop")) {
 
         ic_block_drop(n,n1,n2,sph);
-        sph >> dt;
-        sph < h;
+        sph.dt = dt;
+        sph.h = h;
     }
 
     if (vm.count("ic-droplet")) {
     
         ic_droplet(n1,sph);
-        sph >> dt;
-        sph < h;
+        sph.dt = dt;
+        sph.h = h;
         
     }
     
@@ -189,7 +189,7 @@ int main(int argc, char* argv[]){
     for (int t = 0; t < T; t++){
 
         //passing the specific "time" of the loop inside the class
-        sph > t;
+        sph.t = t;
         
         //In each iteration the disatnces between the particles are recalculated, as well as their densities
         sph.rVec(); 

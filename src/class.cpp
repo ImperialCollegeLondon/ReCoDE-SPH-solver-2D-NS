@@ -61,30 +61,6 @@ double & SPH::operator () (unsigned row, unsigned col){
     return vMatrix[row][col]; 
 }
 
-//Defining the Overloading of > to pass the number of the current time iteratiion to the class
-int & SPH::operator > (unsigned t_new){
-
-    t = t_new;
-    return t;
-
-}
-
-//Defining the Overloading of >> to pass the time-step inside tha class
-double & SPH::operator >> (double dt_new){
-
-    dt = dt_new;
-    return dt;
-
-}
-
-//Defining the Overloading of < to pass the radius of indfluence inside the class
-double & SPH::operator < (double h_new){
-
-    h = h_new;
-    return h;
-
-}
-
 
 /**Assigning values to x: The values of the positions on the
  * x-axis are stored in the first row of the vMatrix, and they are now assigned

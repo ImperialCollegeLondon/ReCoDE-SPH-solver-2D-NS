@@ -15,25 +15,8 @@ private:
 
     unsigned int n;                         //size of the Matrix
 
-    int t;                                  //time
-
-    double dt;                              //timestep
-
-    double h;                               //Radius of influence
-
     double ** vMatrix = new double*[4];     //AlloCating space memory for the Matrix
 
-    //Constants of the problem
-    double k =2000.0;
-    double roo = 1000.0; 
-    double m = 1.0;
-    double miou = 1.0;
-    double e = 0.5;
-    const double g = 9.81;
-    const int root = 0;
-
-public:
- 
     double * x;
     double * y ;
     double * vx;
@@ -52,6 +35,21 @@ public:
     double Figx=0.0;
     int i,j;
 
+    //Constants of the problem
+    double k =2000.0;
+    double roo = 1000.0; 
+    double m = 1.0;
+    double miou = 1.0;
+    double e = 0.5;
+    const double g = 9.81;
+    const int root = 0;
+
+public:
+
+    int t;                                  //time
+    double dt;                              //timestep
+    double h;                               //Radius of influence
+
 
     /******** CONSTRUCTORS/DESTRUCTOR********/
 
@@ -65,12 +63,6 @@ public:
     /**********OVERLOADINGS**********/
     
     double & operator () (unsigned row, unsigned col);
-
-    int & operator > (unsigned t);                            
-
-    double & operator >> (double dt);  
-
-    double & operator < (double h_new);
 
     /**********MEMBER-FUNCTIONS*********/
     
