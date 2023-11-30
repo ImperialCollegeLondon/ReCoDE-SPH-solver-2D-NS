@@ -15,6 +15,10 @@ private:
 
     unsigned int n;                         //size of the Matrix
 
+    int t;                                  //time
+    double dt;                              //timestep
+    double h;                               //Radius of influence
+
     double ** vMatrix = new double*[4];     //AlloCating space memory for the Matrix
 
     double * x;
@@ -43,12 +47,8 @@ private:
     double e = 0.5;
     const double g = 9.81;
     const int root = 0;
-
+    
 public:
-
-    int t;                                  //time
-    double dt;                              //timestep
-    double h;                               //Radius of influence
 
 
     /******** CONSTRUCTORS/DESTRUCTOR********/
@@ -66,6 +66,12 @@ public:
 
     /**********MEMBER-FUNCTIONS*********/
     
+    void set_time(double t);
+
+    void set_timestep(double dt);
+
+    void set_rad_infl(double h);
+
     void x0();
     
     void y0();

@@ -61,6 +61,26 @@ double & SPH::operator () (unsigned row, unsigned col){
     return vMatrix[row][col]; 
 }
 
+//Assigning value to t
+void SPH::set_time(double t){
+
+    this->t = t;
+    
+}
+
+//Assigning value to dt
+void SPH::set_timestep(double dt){
+
+    this->dt = dt;
+    
+}
+
+//Assigning value to h
+void SPH::set_rad_infl(double h){
+
+    this->h = h;
+    
+}
 
 /**Assigning values to x: The values of the positions on the
  * x-axis are stored in the first row of the vMatrix, and they are now assigned
