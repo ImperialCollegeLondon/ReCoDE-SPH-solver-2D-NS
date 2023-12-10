@@ -44,10 +44,10 @@ Uppon succesful execution the program will result in two files:
 
 ## Structure of the class
 
-The SPH class is initalised by using the number of particles (N) which is required to determine the size of the arrays in the constructor. Several operators have been overloaded so that the corresponding variables can be set inside the class. Specifically the operator "()" has been overloaded to place the particles in their initial conditions and to set their initial velocities, which are stored in a $4\times N$ matrix. The operator ">" to set the time of integration, the operator ">>" to set the time-step and "<" to set the radius of influence. The class has three main functions for the temporal integration:
+The SPH class is initialised by using the number of particles (N) which is required to determine the size of the arrays in the constructor. Several operators have been overloaded so that the corresponding variables can be set inside the class. Specifically the operator "()" has been overloaded to place the particles in their initial conditions and to set their initial velocities, which are stored in a $4\times N$ matrix. The operator ">" to set the time of integration, the operator ">>" to set the time-step and "<" to set the radius of influence. The class has three main functions for the temporal integration:
 
-• rVec: Calculates the distances between the particels .
+• rVec(): Calculates the distances between the particels .
 
-• den: Updates the density.
+• den(): Updates the density.
 
-• spatial: Calculates all the forces between the particles and updates their positions based on the leapfrog scheme.
+• spatial(): Calculates all the forces between the particles and updates their positions based on the leapfrog scheme. This function is responsible for calling all the other functions of the class.
