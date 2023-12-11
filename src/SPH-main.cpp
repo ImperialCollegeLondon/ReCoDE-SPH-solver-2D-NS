@@ -51,6 +51,38 @@ int main(int argc, char *argv[]) {
       "T", po::value<double>(), "take integration time")(
       "dt", po::value<double>(), "take time-step")("h", po::value<double>(),
                                                    "take radius of influence");
+//Start of the main programme
+int main(int argc, char* argv[]){
+
+    int rank;                                //Defining the rank for each processor
+
+    int np;                                  //Defining the number of processors
+
+    MPI_Init(&argc, &argv);                  //Initializing MPI
+    
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);    //Using COMM_WORLD and obtain the rank of each processor
+    
+    MPI_Comm_size(MPI_COMM_WORLD, &np);      //Using COMM_WORLD and pass the number of processors to the variable np
+
+    const int root=0;                        //Defining the root processor that will gather the information and broadcast them later
+    
+    double t1, t2;
+    t1 = MPI_Wtime();
+
+    //Process to obtain the directions provided by the user through the command line
+    po::options_description desc("Allowed options");
+     desc.add_options()
+        ("ic-one-particle","take an initial condition for the case of one particle")
+        ("ic-two-particles","take an initial condition for the case of two particles")
+        ("ic-three-particles","take an initial condition for the case of three particles")
+        ("ic-four-particles","take an initial condition for the case of four particles")
+        ("ic-dam-break","take an initial condition for the case of dam break")
+        ("ic-block-drop","take an initial condition for the case of block drop")
+        ("ic-droplet","take an initial condition for the case of droplet")
+        ("T", po::value<double>(), "take integration time")
+        ("dt", po::value<double>(), "take time-step")
+        ("h", po::value<double>(), "take radius of influence")
+    ;
 
   po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, desc), vm);
