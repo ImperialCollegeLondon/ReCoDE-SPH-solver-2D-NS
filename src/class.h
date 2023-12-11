@@ -8,108 +8,103 @@
 
 using namespace std;
 
-
-class SPH{
+class SPH {
 
 private:
+  unsigned int n; // size of the Matrix
 
-    unsigned int n;                         //size of the Matrix
+  int t; // time
 
-    int t;                                  //time
+  double dt; // timestep
 
-    double dt;                              //timestep
+  double h; // Radius of influence
 
-    double h;                               //Radius of influence
+  double **vMatrix = new double *[4]; // AlloCating space memory for the Matrix
 
-    double ** vMatrix = new double*[4];     //AlloCating space memory for the Matrix
-
-    //Constants of the problem
-    double k =2000.0;
-    double roo = 1000.0; 
-    double m = 1.0;
-    double miou = 1.0;
-    double e = 0.5;
-    const double g = 9.81;
-    const int root = 0;
+  // Constants of the problem
+  double k = 2000.0;
+  double roo = 1000.0;
+  double m = 1.0;
+  double miou = 1.0;
+  double e = 0.5;
+  const double g = 9.81;
+  const int root = 0;
 
 public:
- 
-    double * x;
-    double * y ;
-    double * vx;
-    double * vy ;
-    double * r ;
-    int * npRank;
-    double * ro;
-    double * p ;
-    double * vi;
-    double * q;
-    double * Freduce = new double[4];
-    double * Ftake = new double[4];
-    double * xyv ;
-    double E_k,E_p;                                 //Energies
-    double Fip,Fiv,Fig,Fipx,Fivx,Fipy,Fivy,Figy;    //Forces
-    double Figx=0.0;
-    int i,j;
+  double *x;
+  double *y;
+  double *vx;
+  double *vy;
+  double *r;
+  int *npRank;
+  double *ro;
+  double *p;
+  double *vi;
+  double *q;
+  double *Freduce = new double[4];
+  double *Ftake = new double[4];
+  double *xyv;
+  double E_k, E_p;                                    // Energies
+  double Fip, Fiv, Fig, Fipx, Fivx, Fipy, Fivy, Figy; // Forces
+  double Figx = 0.0;
+  int i, j;
 
+  /******** CONSTRUCTORS/DESTRUCTOR********/
 
-    /******** CONSTRUCTORS/DESTRUCTOR********/
+  SPH() = default; // Default constructor
 
-    SPH() = default;                                           //Default constructor
+  ~SPH(); // Destructor
 
-    ~SPH();                                                    //Destructor
-    
-    SPH(const unsigned n_new);                                 //User defined constructor for allocating the dimensions of the Matrix
+  SPH(const unsigned n_new); // User defined constructor for allocating the
+                             // dimensions of the Matrix
 
+  /**********OVERLOADINGS**********/
 
-    /**********OVERLOADINGS**********/
-    
-    double & operator () (unsigned row, unsigned col);
+  double &operator()(unsigned row, unsigned col);
 
-    int & operator > (unsigned t);                            
+  int &operator>(unsigned t);
 
-    double & operator >> (double dt);  
+  double &operator>>(double dt);
 
-    double & operator < (double h_new);
+  double &operator<(double h_new);
 
-    /**********MEMBER-FUNCTIONS*********/
-    
-    void x0();
-    
-    void y0();
-    
-    void vx0();
-    
-    void vy0();
+  /**********MEMBER-FUNCTIONS*********/
 
-    void rVec();
+  void x0();
 
-    void den();
+  void y0();
 
-    void pressure();
+  void vx0();
 
-    double FiP(double * x_y);
+  void vy0();
 
-    double FiV(double * v);
+  void rVec();
 
-    double FiG();
+  void den();
 
-    double vInit(double * v,double & Fip, double & Fiv, double & Fig);
+  void pressure();
 
-    double v_x_y(double * v, double & Fip, double & Fiv, double & Fig);
+  double FiP(double *x_y);
 
-    void spatial();
+  double FiV(double *v);
 
-    double rety(int l);
+  double FiG();
 
-    double retx(int l);
+  double vInit(double *v, double &Fip, double &Fiv, double &Fig);
 
-    double Ek();
+  double v_x_y(double *v, double &Fip, double &Fiv, double &Fig);
 
-    double Ep();
+  void spatial();
 
-    void mass();
+  double rety(int l);
 
-    void getdata();
+  double retx(int l);
 
+  double Ek();
+
+  double Ep();
+
+  void mass();
+
+  void getdata();
 };
