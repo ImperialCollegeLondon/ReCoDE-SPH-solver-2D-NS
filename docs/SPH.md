@@ -1,4 +1,4 @@
-# Smooth particle hydrodynamics (SPH)
+# Smooth Particle Hydrodynamics (SPH)
 Smooth particle hydrodynamics (SPH) is a branch of computational fluid dynamics, which belongs in the category of particle-based and mesh-free methods. It was first developed for astrophyscial flows related problems and has gained an increasing popularity over the last few years due to its very good applicabilty and easy extensibility in problems describing free surface and multiplhase flows in both simple and complex geometries.
 
 In the SPH formulation, the fluid is being discretised by ficticious particles whose interpolated properties can approximate any function f(x) that is of interest over a domain $\Omega$.
