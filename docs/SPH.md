@@ -4,23 +4,23 @@ Smooth particle hydrodynamics (SPH) is a branch of computational fluid dynamics,
 In the SPH formulation, the fluid is being discretised by ficticious particles whose interpolated properties can approximate any function f(x) that is of interest over a domain $\Omega$.
 
 
- $$f(x) \sim \int_{\Omega} f(x')W(x-x',h)dx'$$
+$$f(x) \sim \int_{\Omega} f(x')W(x-x',h)dx'$$
 
 
 In this  W is a kernel function and h is defined as the smoothing length that characterizes the size of the support domain of the kernel. The discrete equivalent of the above expression can be written as:
 
- $$f(x_i) = \sum_{j}^{N} \frac{m_j}{\rho_{j}} f_j W_{ij} $$
+$$f(x_i) = \sum_{j}^{N} \frac{m_j}{\rho_{j}} f_j W_{ij} $$
 
 The kernel function provides the weight which is assigned to each particle based on their distance from the point of interest (i.e. the point where the function f(x) is to be evaluated). The movement of the particles obeys Newton's second law of motion and the forces applied on the particles are being calculated as explained above.
 
 More information on SPH and its applications can be found in the following resources
 
-• http://dx.doi.org/10.1098/rspa.2019.0801
-• https://doi.org/10.3389/fams.2021.797455
-• https://www.ansys.com/en-gb/blog/what-is-sph-simulation
-• https://www.dive-solutions.de/blog/sph-basics
-• https://doi.org/10.5194/gmd-11-2691-2018
-• https://arxiv.org/pdf/2104.00537.pdf
+- http://dx.doi.org/10.1098/rspa.2019.0801
+- https://doi.org/10.3389/fams.2021.797455
+- https://www.ansys.com/en-gb/blog/what-is-sph-simulation
+- https://www.dive-solutions.de/blog/sph-basics
+- https://doi.org/10.5194/gmd-11-2691-2018
+- https://arxiv.org/pdf/2104.00537.pdf
 
 # The algorithm
 In this exemplar the following algorithm which describes the solution steps of a 2D formulation of the Navier-Stokes equation is implemented:
@@ -50,7 +50,7 @@ $$p_i = k(\rho_{i} −\rho_{0})$$
 where $\rho_{0}$ is a resting density and k is a gas constant.
 
 
-## Calculation of pressure forces
+## Calculation of pressure force
 
 The force exerted on the particle due to pressure from neighbouring fluid particles is calculated as
 
@@ -62,7 +62,7 @@ $$\nabla(\phi_{p})(r_{ij} ,h) = − 30 \pi h^3 r_{ij} \frac{(1−q)^2}{q}$$
 
 while otherwise it is set to 0.
 
-### Calculation of viscous forces
+### Calculation of viscous force
 
 The force acting on each particle due to viscous effects is calculated as
 
@@ -99,4 +99,4 @@ $$a_i = Fp_i + Fv_i + Fg_i ρ_i$$
 
 $$v^{\frac{1}{2}}_i = v^{0}_i + a_i \frac{∆t}{2} x^{1}_i = x^{0}_i + v^{\frac{1}{2}}_i \delta{t}$$
 
-To ensure convergence in time a time-step of $\delta{t}$ = 10−4 is suggested.
+To ensure convergence in time a time-step of $\delta{t} = 10^{−4}$ is suggested.
