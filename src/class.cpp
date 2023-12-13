@@ -11,8 +11,8 @@ SPH::SPH(const unsigned n_new) {
 
   for (int i = 0; i < 4; i++) {
 
-    vMatrix[i] = new double[n]; // Initializing an array that will be used to
-                                // pass and stor the values of the initial
+    vMatrix[i] = new double[n]; // Array that will be used to
+                                // pass and store the values of the initial
                                 // positions and velocities inside the class
   }
 
@@ -51,13 +51,13 @@ SPH::~SPH() {
   delete[] xyv;
 }
 
-// Defining the Overloading of ()
+// Overloading of ()
 double &SPH::operator()(unsigned row, unsigned col) {
 
   return vMatrix[row][col];
 }
 
-// Defining the Overloading of > to pass the number of the current time
+// Overloading of > to pass the number of the current time
 // iteratiion to the class
 int &SPH::operator>(unsigned t_new) {
 
@@ -65,14 +65,14 @@ int &SPH::operator>(unsigned t_new) {
   return t;
 }
 
-// Defining the Overloading of >> to pass the time-step inside tha class
+// Overloading of >> to pass the time-step inside tha class
 double &SPH::operator>>(double dt_new) {
 
   dt = dt_new;
   return dt;
 }
 
-// Defining the Overloading of < to pass the radius of indfluence inside the
+// Overloading of < to pass the radius of indfluence inside the
 // class
 double &SPH::operator<(double h_new) {
 
@@ -80,7 +80,7 @@ double &SPH::operator<(double h_new) {
   return h;
 }
 
-/**Assigning values to x: The values of the positions on the
+/**Assig values to x: The values of the positions on the
  * x-axis are stored in the first row of the vMatrix, and they are now assigned
  * to a single vector **/
 void SPH::x0() {
@@ -91,7 +91,7 @@ void SPH::x0() {
   }
 }
 
-/**Assigning values to y: The values of the positions on the
+/**Assign values to y: The values of the positions on the
  * y-axis are stored int he second row of the vMatrix, and they are now assigned
  * to a single vector **/
 void SPH::y0() {
@@ -102,7 +102,7 @@ void SPH::y0() {
   }
 }
 
-/**Assigning values to vx: The values of the initial velocities in the x
+/**Assign values to vx: The values of the initial velocities in the x
  * direction are stored int the third row of the vMatrix, and they are now
  * assigned to a single vector **/
 void SPH::vx0() {
@@ -113,7 +113,7 @@ void SPH::vx0() {
   }
 }
 
-/**Assigning values to vy: The values of the initial velocities in the x
+/**Assign values to vy: The values of the initial velocities in the x
  * direction are stored int the fourth row of the vMatrix, and they are now
  * assigned to a single vector **/
 void SPH::vy0() {
@@ -124,7 +124,7 @@ void SPH::vy0() {
   }
 }
 
-// Creating a funcation to calculate the matrix with rij
+// Function to calculate the matrix with rij
 void SPH::rVec() {
 
   double dx;
@@ -142,15 +142,14 @@ void SPH::rVec() {
   }
 }
 
-// creating the function for density
-
+// Function for density
 void SPH::den() {
 
   double phi;
   double pre = (4.0 / (M_PI * h * h)); // Precalculated value
   double hinv = 1.0 / h;               // This is to avoid many divisions
 
-  // finding φ
+  // find φ
   for (int i = 0; i < n; i++) {
 
     ro[i] = 0;
@@ -177,8 +176,7 @@ void SPH::den() {
   }
 }
 
-// creating the function for the pressure
-
+// Function for the pressure
 void SPH::pressure() {
 
   for (int i = 0; i < n; i++) {
@@ -210,7 +208,6 @@ double SPH::FiP(double *x_y) {
   }
 
   // Equation (4)
-
   return -sum;
 }
 
@@ -237,11 +234,10 @@ double SPH::FiV(double *v) {
   }
 
   // Equation (6)
-
   return -miou * sum;
 }
 
-// Creating the function for the gravity force
+// Function for the gravity force
 double SPH::FiG() { return -ro[i] * g; }
 
 // Function for initialisation of the time integration scheme - velocity
@@ -285,7 +281,6 @@ void SPH::spatial() {
     pressure();
 
     // Gathering the forces calculated by the processors
-
     Fipx = FiP(x);
 
     Fivx = FiV(vx);
@@ -374,7 +369,7 @@ double SPH::Ep() {
   return m * g * sum;
 }
 
-// Getting the new data calculated at each time step
+// Function to get the new data calculated at each time step
 void SPH::getdata() {
 
   for (int k = 0; k < n; k++) {
