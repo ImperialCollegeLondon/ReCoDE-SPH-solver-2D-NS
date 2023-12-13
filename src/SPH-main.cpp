@@ -1,4 +1,4 @@
-// This is a main programme to run the SPH simulation
+// This is a main program to run the SPH simulation
 
 #include "class.h"
 #include <boost/program_options.hpp>
@@ -9,7 +9,6 @@
 #include <iterator>
 
 namespace po = boost::program_options;
-using namespace std;
 
 /**Functions for the validation cases
  *(explantations are provided at their implementation bellow the main programme)
@@ -36,21 +35,21 @@ int main(int argc, char *argv[]) {
 
   // Process to obtain the directions provided by the user 
   po::options_description desc("Allowed options");
-  desc.add_options()("init_condition", po::value<string>(),
+  desc.add_options()("init_condition", po::value<std::string>(),
                      "take an initial condition")("T", po::value<double>(),
                                                   "take integration time")(
       "dt", po::value<double>(), "take time-step")("h", po::value<double>(),
                                                    "take radius of influence");
 
   po::variables_map vm;
-  ifstream inputFile;
+  std::ifstream inputFile;
   inputFile.open("../exec/inputs/case.txt");
 
   if (inputFile.is_open()) {
     po::store(po::parse_config_file(inputFile, desc), vm);
     inputFile.close();
   } else {
-    cerr << "Error opening file: inputs.txt" << endl;
+    std::cerr << "Error opening file: inputs.txt" << std::endl;
     return 1;
   }
 
@@ -67,13 +66,13 @@ int main(int argc, char *argv[]) {
 
   int T = int(T1 / dt) + 1; // Transform time in seconds to iterations
 
-  map<string, int> initConditionToParticlesMap = {
+  std::map<std::string, int> initConditionToParticlesMap = {
       {"ic-one-particle", 1},      {"ic-two-particles", 2},
       {"ic-three-particles", 3},   {"ic-four-particles", 4},
       {"ic-dam-break", n3},        {"ic-block-drop", n1 * n2},
       {"ic-droplet", dropletn(n3)}};
 
-  n = initConditionToParticlesMap[vm["init_condition"].as<string>()];
+  n = initConditionToParticlesMap[vm["init_condition"].as<std::string>()];
 
   // Define the solver object (called sph)
   // In its definition, the number of particles is required
@@ -85,7 +84,7 @@ int main(int argc, char *argv[]) {
    **/
 
   // Create map to associate function names with function pointers
-  map<string, function<void(int, SPH &)>> functionMap = {
+  std::map<std::string, std::function<void(int, SPH &)>> functionMap = {
       {"ic-one-particle", ic_one_particle},
       {"ic-two-particles", ic_two_particles},
       {"ic-three-particles", ic_three_particles},
@@ -94,12 +93,12 @@ int main(int argc, char *argv[]) {
       {"ic-droplet", ic_droplet}};
 
   // Get the function pointer from the map
-  auto initFunc = functionMap.find(vm["init_condition"].as<string>());
+  auto initFunc = functionMap.find(vm["init_condition"].as<std::string>());
   if (initFunc != functionMap.end()) {
     int n_particles = n;
 
     // The ic-droplet case requires a different n argument.
-    if (vm["init_condition"].as<string>() == "ic-droplet") {
+    if (vm["init_condition"].as<std::string>() == "ic-droplet") {
       n_particles = n3;
     }
     initFunc->second(n_particles, sph);
@@ -109,12 +108,12 @@ int main(int argc, char *argv[]) {
     /**The ic-block-drop case is not in the map because it has two
      * additional parameters, so it requires a different case.
      **/
-    if (vm["init_condition"].as<string>() == "ic-block-drop") {
+    if (vm["init_condition"].as<std::string>() == "ic-block-drop") {
       ic_block_drop(n, n1, n2, sph);
       sph >> dt;
       sph < h;
     } else {
-      cerr << "Error: Function not found!" << endl;
+      std::cerr << "Error: Function not found!" << std::endl;
       return 1;
     }
   }
@@ -131,8 +130,8 @@ int main(int argc, char *argv[]) {
   // Calculate the mass of the partciles
   sph.mass();
 
-  ofstream vOut("Positions-x-y.txt", ios::out | ios::trunc);
-  ofstream vOut2("Energy-File.txt", ios::out | ios::trunc);
+  std::ofstream vOut("Positions-x-y.txt", std::ios::out | std::ios::trunc);
+  std::ofstream vOut2("Energy-File.txt", std::ios::out | std::ios::trunc);
 
   vOut.precision(5);
   vOut << "x"

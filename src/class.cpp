@@ -3,7 +3,6 @@
 #include <cstring>
 #include <fstream>
 #include <iomanip>
-using namespace std;
 
 // Defining the user defined constructor
 SPH::SPH(const unsigned n_new) {
@@ -158,7 +157,7 @@ void SPH::den() {
 
     for (int j = 0; j < n; j++) {
 
-      q[i * n + j] = abs(r[i * n + j] * hinv);
+      q[i * n + j] = std::abs(r[i * n + j] * hinv);
 
       if (q[i * n + j] < 1) {
 

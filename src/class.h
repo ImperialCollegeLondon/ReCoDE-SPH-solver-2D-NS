@@ -6,8 +6,6 @@
  * can be found in the file : class.cpp
  **/
 
-using namespace std;
-
 class SPH {
 
 private:
