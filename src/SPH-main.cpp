@@ -127,7 +127,7 @@ int main(int argc, char *argv[]) {
   sph.vx0();
   sph.vy0();
 
-  // Calculate the mass of the partciles
+  // Calculate the mass of the particles
   sph.mass();
 
   std::ofstream vOut("Positions-x-y.txt", std::ios::out | std::ios::trunc);
