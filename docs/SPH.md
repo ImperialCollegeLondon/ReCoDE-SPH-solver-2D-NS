@@ -95,7 +95,7 @@ $$x^{(t+1)}_i = x^{t}_i + v^{t+ \frac{1}{2}}_i \delta{t}$$
 
 However, because the velocity is calculated at half-steps, we need to initialise the scheme on the first time step by instead doing:
 
-$$a_i = Fp_i + Fv_i + Fg_i ρ_i$$
+$$a_i = Fp_i + Fv_i + Fg_i \rho_{i}$$
 
 $$v^{\frac{1}{2}}_i = v^{0}_i + a_i \frac{∆t}{2} x^{1}_i = x^{0}_i + v^{\frac{1}{2}}_i \delta{t}$$
 
