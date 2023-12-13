@@ -25,7 +25,7 @@ More information on SPH and its applications can be found in the following resou
 # The algorithm
 In this exemplar the following algorithm which describes the solution steps of a 2D formulation of the Navier-Stokes equation is implemented:
 
-### Density 
+## Density 
 
 The density of the fluid associated with each particle i is approximated as
 
@@ -41,7 +41,7 @@ $$\phi_{d}(r_{ij},h) = \frac{4}{\pi h^2{(1 −q^2)^3}}$$
 
 while otherwise it is set to 0.
  
-### Pressure
+## Pressure
 
 The pressure is being calculated based on the ideal gas law
 
@@ -62,7 +62,7 @@ $$\nabla(\phi_{p})(r_{ij} ,h) = − 30 \pi h^3 r_{ij} \frac{(1−q)^2}{q}$$
 
 while otherwise it is set to 0.
 
-### Viscous force
+## Viscous force
 
 The force acting on each particle due to viscous effects is calculated as
 
@@ -76,14 +76,14 @@ $$\nabla^{2} \phi v(r_i,h) = 40 \pi h^4 (1 −q)$$
 
 while otherwise it is set to 0.
 
-### Gravity force: 
+## Gravity force: 
 
 Finally, the force due to gravity is calculated as
 
 $$Fg_i = (0, −\rho_{i}g)$$
 
 
-### Time integration
+## Time integration
 
 Advancing the particles in time is performed explicitly via the use of a leap-frog scheme which provides improved stability characteristics.  Here we use the superscript in brackets to denote the time-level.
 
