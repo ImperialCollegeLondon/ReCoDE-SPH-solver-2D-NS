@@ -1,11 +1,8 @@
-
 #include "class.h"
 #include <cmath>
 #include <cstring>
 #include <fstream>
 #include <iomanip>
-#include <iostream>
-#include <mpi.h>
 using namespace std;
 
 // Defining the user defined constructor
@@ -32,7 +29,7 @@ SPH::SPH(const unsigned n_new) {
   ro = new double[n];    // Array to store the densitites of the particles
   p = new double[n];     // Array to store the pressure on each particle
   vi = new double[n];    // Array to store the norm of the velocity, used in the
-                      // calculation of the kinetic energy
+                         // calculation of the kinetic energy
 
   // Array that will be broadcasted to the all the processors and will contain
   // the above values

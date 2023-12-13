@@ -1,5 +1,4 @@
-CXX=mpicxx
-CXXFLAGS =-std=c++11
+CXXFLAGS =-std=c++17
 
 LDLIBS = -lboost_program_options -Wall -O3
 

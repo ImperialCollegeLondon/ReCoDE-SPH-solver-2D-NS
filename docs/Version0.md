@@ -4,6 +4,22 @@
 
 The code in `v0` contains a serial C++ implementation of the algorithm described in `SPH.md`. The variables which are associated with the particles' positions, velocities and forces, are stored as members of an object called `SPH`. Furthermore, the functions which manifest the steps of the aforementioned algorithm are declared as the methods of this `SPH` class. It must be noted that although the produced results are correct, the herein version contains a lot of mistakes and wrong practices which will be explained (and improved/corrected) in more depth in the chapters to follow. 
 
+## Compiling the and executing code
+
+The list of requirements for the v0 code is:
+
+- A `C++17` version 
+- The `boost_program_options` library
+
+To compile the user has to simply type:
+
+- `make clean`
+- `make`
+
+This will produce an executable called SPH-SOLVER in the src folder and the user needs to type:
+
+- `./SPH-SOLVER`
+
 ## Files
 This version of the code displays a serial implementation of the SPH algorithm in C++. It comprises two `*.cpp` files and their corresponding header (`*.h`) files. The code is accompanied by two input text files, one for the input variables of the executed case and one for the initial condition of the particles in the domain. 
 
@@ -27,8 +43,6 @@ The SPH class is initialised by using the number of particles (`N`) which is req
 - `den()`: Updates the density.
 
 - `spatial()`: Calculates all the forces between the particles and updates their positions based on the leapfrog scheme. 
-
-## Compiling the code
 
 ## Input Parameters
 
