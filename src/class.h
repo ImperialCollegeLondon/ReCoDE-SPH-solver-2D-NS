@@ -19,8 +19,6 @@ private:
     double dt;                              //timestep
     double h;                               //Radius of influence
 
-    double ** vMatrix = new double*[4];     //AlloCating space memory for the Matrix
-
     double * x;
     double * y ;
     double * vx;
@@ -59,10 +57,9 @@ public:
     
     SPH(const unsigned n_new);                                 //User defined constructor for allocating the dimensions of the Matrix
 
-
     /**********OVERLOADINGS**********/
     
-    double & operator () (unsigned row, unsigned col);
+    double& operator () (unsigned row, unsigned col);
 
     /**********MEMBER-FUNCTIONS*********/
     
@@ -71,6 +68,18 @@ public:
     void set_timestep(double dt);
 
     void set_rad_infl(double h);
+
+    /*Setter Functions.
+    * input: Value to be stores
+    * pos  : Position to be stored at
+    */
+    void set_x(const double input, const size_t pos);
+
+    void set_y(const double input, const size_t pos);
+
+    void set_vx(const double input, const size_t pos);
+
+    void set_vy(const double input, const size_t pos);
 
     void x0();
     

@@ -15,12 +15,6 @@ SPH::SPH(const unsigned n_new) {
 
     n = n_new;
 
-    for (int i = 0; i < 4; i++){
-
-        vMatrix[i] = new double[n];        //Initializing an array that will be used to pass and stor the values 
-                                           //of the initial positions and velocities inside the class
-    }
-
     x = new double[n];                     //Array to store the positions in x of the particles   
     y = new double[n];                     //Array to store the positions in y of the particles 
     vx = new double[n];                    //Array to store the values of the velocity in x of the particles 
@@ -40,7 +34,6 @@ SPH::SPH(const unsigned n_new) {
 //Destructor
 SPH::~SPH()
 {
-    delete[] vMatrix;
     delete[] ro;
     delete[] p;
     delete[] r;
@@ -56,9 +49,25 @@ SPH::~SPH()
 }
 
 //Defining the Overloading of ()
-double & SPH::operator () (unsigned row, unsigned col){
-
-    return vMatrix[row][col]; 
+double& SPH::operator () (unsigned row, unsigned col){
+    switch(row) {
+        case 0:
+            return this->x[col];
+            break;
+        case 1:
+            return this->y[col];
+            break;
+        case 2:
+            return this->vx[col];
+            break;
+        case 3:
+            return this->vy[col];
+            break;
+        default:
+            // Vyron-TODO: This needs proper exception handling, try-throw-catch
+            std::cerr << "ERROR: Out of bounds on row selection" << std::endl;
+            abort();
+    }
 }
 
 //Assigning value to t
@@ -82,53 +91,39 @@ void SPH::set_rad_infl(double h){
     
 }
 
-/**Assigning values to x: The values of the positions on the
- * x-axis are stored in the first row of the vMatrix, and they are now assigned
- * to a single vector **/
-void SPH::x0(){
+// Vyron-TODO: Huge opportunity for templating here, all these functions
+// do the same thing. Also, proper exception handling for this.
 
-    for (int i = 0; i < n; i++){
-
-        x[i] = vMatrix[0][i];
-        
+void SPH::set_x(const double input, const size_t pos) {
+    if (pos >= n) {
+        std::cerr << "ERROR: Out-of-bounds for x position" << std::endl;
+        abort();
     }
+    this->x[pos] = input;
 }
 
- /**Assigning values to y: The values of the positions on the
- * y-axis are stored int he second row of the vMatrix, and they are now assigned
- * to a single vector **/
-void SPH::y0(){
-
-    for (int i = 0; i < n; i++){
-
-        y[i] = vMatrix[1][i];    
-        
+void SPH::set_y(const double input, const size_t pos) {
+    if (pos >= n) {
+        std::cerr << "ERROR: Out-of-bounds for y position" << std::endl;
+        abort();
     }
+    this->y[pos] = input;
 }
 
-/**Assigning values to vx: The values of the initial velocities in the x direction
- * are stored int the third row of the vMatrix, and they are now assigned
- * to a single vector **/
-void SPH::vx0(){
-
-    for (int i = 0; i < n; i++){
-
-        vx[i] = vMatrix[2][i];
-        
+void SPH::set_vx(const double input, const size_t pos) {
+    if (pos >= n) {
+        std::cerr << "ERROR: Out-of-bounds for vx" << std::endl;
+        abort();
     }
+    this->vx[pos] = input;
 }
 
-/**Assigning values to vy: The values of the initial velocities in the x direction
- * are stored int the fourth row of the vMatrix, and they are now assigned
- * to a single vector **/
-void SPH::vy0(){
-
-    for (int i = 0; i < n; i++){
-
-        vy[i] = vMatrix[3][i];
-        
-
+ void SPH::set_vy(const double input, const size_t pos) {
+    if (pos >= n) {
+        std::cerr << "ERROR: Out-of-bounds for vy" << std::endl;
+        abort();
     }
+    this->vy[pos] = input;
 }
 
 //Creating a funcation to calculate the matrix with rij

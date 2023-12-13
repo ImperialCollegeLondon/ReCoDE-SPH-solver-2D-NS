@@ -12,7 +12,7 @@ namespace po = boost::program_options;
 using namespace std;
 
 
-/**defining functions for the validation cases 
+/**Forward declaration of the validation cases 
  *(explantations are provided at their implementation bellow the main programme)
  **/
 
@@ -162,14 +162,6 @@ int main(int argc, char* argv[]){
         sph.set_rad_infl(h);
         
     }
-    
-    /**This is a step that helps to split the original matrix through which the values of the 
-     * initial coordinates and the initial velocities were introduced inside the class.
-     **/
-    sph.x0();
-    sph.y0();
-    sph.vx0();
-    sph.vy0();
 
     //The function to calculate the mass of the partciles is called
     sph.mass();
