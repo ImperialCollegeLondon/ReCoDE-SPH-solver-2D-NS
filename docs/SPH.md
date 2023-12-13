@@ -89,7 +89,7 @@ Advancing the particles in time is performed explicitly via the use of a leap-fr
 
 $$a_i = Fp_i + Fv_i + Fg_i \rho_{i}$$
 
-$$v^{t + \frac{1}{2}}_i = v^{t−\frac{1}{2}}_i + a_{i} \delta{t}$$
+$$v^{t + \frac{1}{2}}_i = v^{t−\frac{1}{2}}_i + a_i \delta{t}$$
 
 $$x^{t+1}_i = x^{t}_i + v^{t+ \frac{1}{2}}_i \delta{t}$$
 
