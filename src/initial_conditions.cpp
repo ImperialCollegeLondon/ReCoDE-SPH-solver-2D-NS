@@ -1,5 +1,5 @@
-#include "class.h"
 #include "initial_conditions.h"
+#include "class.h"
 #include <cmath>
 
 // ========== Initial Conditions ==========

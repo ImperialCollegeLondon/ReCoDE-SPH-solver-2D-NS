@@ -12,7 +12,9 @@ namespace po = boost::program_options;
 
 SPH initialise(int &n, int &T, double &h, double &dt);
 void init_output_files(std::ofstream &vOut, std::ofstream &vOut2);
-void time_integration(SPH &sph,int &n, int &T, double &h, double &dt,std::ofstream &vOut, std::ofstream &vOut2);
+void time_integration(SPH &sph, int &n, int &T, double &h, double &dt,
+                      std::ofstream &vOut, std::ofstream &vOut2);
+
 // Start of the main programme
 int main(int argc, char *argv[]) {
 
@@ -22,23 +24,24 @@ int main(int argc, char *argv[]) {
   double h;
   double dt;
 
-  // Read input files, initialise the sph class and the parameters of the problem
-  SPH sph = initialise(n,T,h,dt);
+  // Read input files, initialise the sph class and the parameters of the
+  // problem
+  SPH sph = initialise(n, T, h, dt);
 
   // Declare and initialise the output files
   std::ofstream vOut("Positions-x-y.txt", std::ios::out | std::ios::trunc);
   std::ofstream vOut2("Energy-File.txt", std::ios::out | std::ios::trunc);
-  init_output_files(vOut,vOut2);
+  init_output_files(vOut, vOut2);
 
   // Time integration loop
-  time_integration(sph,n,T,h,dt,vOut,vOut2);
+  time_integration(sph, n, T, h, dt, vOut, vOut2);
 
   return 0;
 }
 
-SPH initialise(int &n, int &T, double &h, double &dt){
+SPH initialise(int &n, int &T, double &h, double &dt) {
 
-  // Process to obtain the directions provided by the user 
+  // Process to obtain the directions provided by the user
   po::options_description desc("Allowed options");
   desc.add_options()("init_condition", po::value<std::string>(),
                      "take an initial condition")("T", po::value<double>(),
@@ -63,9 +66,9 @@ SPH initialise(int &n, int &T, double &h, double &dt){
   int n2 = 25;  // required for ic-block-drop
   int n3 = 400; // required for ic-dam-break and ic-droplet
 
-  double T1 = vm["T"].as<double>();  // Total integration time
-  dt = vm["dt"].as<double>(); // Time step dt
-  h = vm["h"].as<double>();   // Radius of influence
+  double T1 = vm["T"].as<double>(); // Total integration time
+  dt = vm["dt"].as<double>();       // Time step dt
+  h = vm["h"].as<double>();         // Radius of influence
 
   T = int(T1 / dt) + 1; // Transform time in seconds to iterations
 
@@ -76,7 +79,6 @@ SPH initialise(int &n, int &T, double &h, double &dt){
       {"ic-droplet", dropletn(n3)}};
 
   n = initConditionToParticlesMap[vm["init_condition"].as<std::string>()];
-
 
   // Define the solver object (called sph)
   // In its definition, the number of particles is required
@@ -121,22 +123,22 @@ SPH initialise(int &n, int &T, double &h, double &dt){
     }
   }
 
-    /** Split the original matrix through which the values of the
+  /** Split the original matrix through which the values of the
    * initial coordinates and the initial velocities were introduced
    * inside the class.
    **/
-    sph.x0();
-    sph.y0();
-    sph.vx0();
-    sph.vy0();
+  sph.x0();
+  sph.y0();
+  sph.vx0();
+  sph.vy0();
 
-    // Calculate the mass of the particles
-    sph.mass();
-  
+  // Calculate the mass of the particles
+  sph.mass();
+
   return sph;
 }
 
-void init_output_files(std::ofstream &vOut, std::ofstream &vOut2){
+void init_output_files(std::ofstream &vOut, std::ofstream &vOut2) {
 
   vOut.precision(5);
   vOut << "x"
@@ -152,10 +154,10 @@ void init_output_files(std::ofstream &vOut, std::ofstream &vOut2){
         << "     "
         << "Etotal"
         << "\n";
-
 }
 
-void time_integration(SPH &sph,int &n, int &T, double &h, double &dt,std::ofstream &vOut, std::ofstream &vOut2){
+void time_integration(SPH &sph, int &n, int &T, double &h, double &dt,
+                      std::ofstream &vOut, std::ofstream &vOut2) {
 
   for (int t = 0; t < T; t++) {
 
@@ -182,5 +184,4 @@ void time_integration(SPH &sph,int &n, int &T, double &h, double &dt,std::ofstre
       }
     }
   }
-
 }
