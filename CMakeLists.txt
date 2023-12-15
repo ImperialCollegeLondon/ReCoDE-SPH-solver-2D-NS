@@ -16,5 +16,5 @@ set(SOURCES
 find_package(Boost COMPONENTS program_options REQUIRED)
 if(Boost_FOUND)
     add_executable(SPH_SOLVER src/SPH-main.cpp ${SOURCES})
-    target_link_libraries(SPH_SOLVER Boost::program_options)
+    target_link_libraries(SPH_SOLVER PRIVATE Boost::program_options)
 endif()
