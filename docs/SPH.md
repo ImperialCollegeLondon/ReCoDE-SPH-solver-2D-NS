@@ -105,6 +105,6 @@ $$x^{(t+1)}_i = x^{t}_i + v^{t+ \frac{1}{2}}_i \delta{t}$$
 
 However, because the velocity is calculated at half-steps, we need to initialise the scheme on the first time step using:
 
-$$v^{\frac{1}{2}}_i = v^{0}_i + a_i^0 \frac{∆t^{2}}{2}$$
+$$v^{\frac{1}{2}}_i = v^{0}_i + a_i^0 \frac{∆t}{2}$$
 
 where $∆t$ is the time step size. To ensure convergence, a small time-step is required. A value of $∆t = 10^{−4}$s is suggested.
