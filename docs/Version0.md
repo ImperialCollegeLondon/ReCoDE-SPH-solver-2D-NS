@@ -2,7 +2,7 @@
 
 ## Overview
 
-The code in `v0` contains a serial C++ implementation of the algorithm described in `SPH.md`. The variables which are associated with the particles' positions, velocities and forces, are stored as members of an object called `SPH`. Furthermore, the functions which manifest the steps of the aforementioned algorithm are declared as the methods of this `SPH` class. It must be noted that although the produced results are correct, the herein version contains a lot of mistakes and wrong practices which will be explained (and improved/corrected) in more depth in the chapters to follow. 
+The code in `v0` contains a serial C++ implementation of the algorithm described in `SPH.md`. The variables which are associated with the particles' positions, velocities and forces, are stored as members of an object called `SPH`. Furthermore, the functions which manifest the steps of the aforementioned algorithm are declared as the methods of this `SPH` class. It must be noted that although the produced results are correct, this version will be improved upon in chapters which follow. At each step, the improvements will be explained in terms of how they work and the motivation for their implementation.
 
 ## Compiling the and executing code
 
@@ -11,12 +11,12 @@ The list of requirements for the v0 code is:
 - A `C++17` version 
 - The `boost_program_options` library
 
-To compile the user has to simply type:
+To compile the user has to simply type the following commands in the terminal:
 
 - `make clean`
 - `make`
 
-This will produce an executable called SPH-SOLVER in the src folder and the user needs to type:
+This will produce an executable called `SPH-SOLVER` in the src folder and the user needs to type:
 
 - `./SPH-SOLVER`
 
@@ -32,13 +32,13 @@ This version of the code displays a serial implementation of the SPH algorithm i
 
 ## Main program
 
-The main program of the code (i.e. main-SPH.cpp) is used to read the input files, export the output files, initialise the SPH class and perform the time integration by calling the SPH object's methods.
+The main program of the code (i.e. `main-SPH.cpp`) is used to read the input files, export the output files, initialise the SPH class and perform the time integration by calling the SPH object's methods.
 
 ## Structure of the class
 
 The SPH class is initialised by using the number of particles (`N`) which is required to determine the size of the arrays in the constructor. Several operators have been overloaded so that the corresponding variables can be set inside the class. Specifically the operator `()` has been overloaded to place the particles in their initial conditions and to set their initial velocities, which are stored in a $4\times N$ matrix. The operator `>` to set the time of integration, the operator `>>` to set the time-step and `<` to set the radius of influence. The class has three main functions for the temporal integration:
 
-- `rVec()`: Calculates the distances between the particels .
+- `rVec()`: Calculates the distances between the particles .
 
 - `den()`: Updates the density.
 
@@ -46,8 +46,10 @@ The SPH class is initialised by using the number of particles (`N`) which is req
 
 ## Input Parameters
 
+The input parameters are stored in the `case.txt` file in the `exec/inputs` folder. There are a number of values a user must specify in this file in order to run the code. This is done by using the `key = value` format (e.g. `dt=1e-4`). Each value should be set on its own line and can be in any order. Comments can be added by using the `#` symbol. The input parameters are described below.
+
 ### Initial conditions
-As stated earlier, the SPH class is initialised in the SPH-main.cpp file where one of the following initial conditions can be specified by the user from the `case.txt` file:
+The code is designed to simulate one of a number of different scenarios, defined by the input key `init_conditions` in `case.txt`. The user can choose between the following initial conditions:
 
 - A single particle (`ic-one-particle`) at : (0.5, 0.5) to test the correctness of time integration and gravity forcing, as well as the bottom boundary condition.
 
@@ -63,23 +65,31 @@ As stated earlier, the SPH class is initialised in the SPH-main.cpp file where o
 
 -  A Droplet (`ic-droplet`): particles occupying a circle of radius 0.1, centred at the point $[0.5,0.7]$
 
-## Time integration
-In the same file the user can specify the time of integration `T` as well as the timestep `dt`.
+For instance to set the initial condition to a single particle the user should type `init_conditions = ic-one-particle` in the `case.txt` file.
 
-The time integration loop is being executed in the main program where the SPH functions are being called and the output files are being written. 
+### Simulation Duration
+The duration of the simulation can be set in units of seconds with the input key `T`. For instance, a simulation of 10 seconds can be set by typing `T = 10` in the `case.txt` file.
+
+### Time-step
+
+The time-step `dt` can be set in units of seconds with the input key `dt`. For instance, a time-step of 0.0001 seconds can be set by typing `dt = 1e-4` in the `case.txt` file.
 
 ### Radius of Influence
-The last input parameter that the user can specify in the `case.txt` file is the radius of influence `h`. This parameter dictates the maximum distance in which an entity (particle or domain boundary) has an influence in the behavior of another entity.
+The last input parameter that the user can specify in the `case.txt` file is the radius of influence `h` in units of m. This parameter dictates the maximum distance in which an entity (particle or domain boundary) has an influence in the behavior of another entity.
 
-### Reading Inputs
-The aforementioned parameters are expected by the program, and therefore, while reading the `case.txt` file, the `<boost/program_options.hpp>` library is used to map those parameters to their values, which are finally stored in their corresponding variables. This practice consitutes in making the input reading process more flexible and error-proof. The user can specify the input parameters in the `case.txt` file in any order, as long as they are given as `key = value` pairs.
+## Reading Inputs
+The aforementioned parameters are expected by the program, and therefore, while reading the `case.txt` file, the `<boost/program_options.hpp>` library is used to map those parameters to their values, which are finally stored in their corresponding variables. This practice constitutes in making the input reading process more flexible and error-proof.
 
 ## Domain Initialization
 After storing the input values, the initial condition is used to determine the number of particles (n), as well as to initialize the domain in the `sph` object. In order to avoid the use of multiple `if` statements, two map objects are used to map the different conditions to their corresponding number of particles and their corresponding initialization function.
 
+## Time Integration
+
+The time integration loop is being executed in the main program where the SPH functions are being called and the output files are being written. 
+
 ## Outputs
 
-Uppon succesful execution the program will result in two files:
+Upon successful execution the program will result in two files:
 
 - One for the Energies (Total, Kinetic, Potential) at each time step.
 
