@@ -1,19 +1,13 @@
 // This is a main program to run the SPH simulation
 #include "class.h"
 #include "initial_conditions.h"
+#include "main_prof_funcs.h"
 #include <boost/program_options.hpp>
 #include <cmath>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
-
-namespace po = boost::program_options;
-
-SPH initialise(int &n, int &T, double &h, double &dt);
-void init_output_files(std::ofstream &vOut, std::ofstream &vOut2);
-void time_integration(SPH &sph, int &n, int &T, double &h, double &dt,
-                      std::ofstream &vOut, std::ofstream &vOut2);
 
 // Start of the main programme
 int main(int argc, char *argv[]) {

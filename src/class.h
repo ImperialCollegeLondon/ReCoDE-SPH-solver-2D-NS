@@ -5,7 +5,8 @@
  * Details on the functions, the arrays and the overloadings
  * can be found in the file : class.cpp
  **/
-
+#ifndef CLASS_H
+#define CLASS_H
 class SPH {
 
 private:
@@ -106,3 +107,5 @@ public:
 
   void getdata();
 };
+
+#endif
