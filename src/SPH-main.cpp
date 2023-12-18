@@ -13,27 +13,37 @@
 int main(int argc, char *argv[]) {
 
   // Declare the parameters of the problem
-  int n;
-  int T;
+  int nb_particles; // number of particles
+  int total_iter;   // total number of itterations required for the time
+                  // integration
   double h;
   double dt;
 
   // Read input files, initialise the sph class and the parameters of the
   // problem
-  SPH sph = initialise(n, T, h, dt);
+  SPH sph = initialise(nb_particles, total_iter, h, dt);
+
+  std ::cout << "Initialisation finished -- OK"
+             << "\n";
 
   // Declare and initialise the output files
   std::ofstream vOut("Positions-x-y.txt", std::ios::out | std::ios::trunc);
   std::ofstream vOut2("Energy-File.txt", std::ios::out | std::ios::trunc);
   init_output_files(vOut, vOut2);
 
+  std ::cout << "Output files created -- OK"
+             << "\n";
+
   // Time integration loop
-  time_integration(sph, n, T, h, dt, vOut, vOut2);
+  time_integration(sph, nb_particles, total_iter, h, dt, vOut, vOut2);
+
+  std ::cout << "SPH-SOLVER exectuted succesfully -- OK"
+             << "\n";
 
   return 0;
 }
 
-SPH initialise(int &n, int &T, double &h, double &dt) {
+SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
 
   // Process to obtain the directions provided by the user
   po::options_description desc("Allowed options");
@@ -60,11 +70,12 @@ SPH initialise(int &n, int &T, double &h, double &dt) {
   int n2 = 25;  // required for ic-block-drop
   int n3 = 400; // required for ic-dam-break and ic-droplet
 
-  double T1 = vm["T"].as<double>(); // Total integration time
-  dt = vm["dt"].as<double>();       // Time step dt
-  h = vm["h"].as<double>();         // Radius of influence
+  double total_time = vm["T"].as<double>(); // Total integration time
+  dt = vm["dt"].as<double>();               // Time step dt
+  h = vm["h"].as<double>();                 // Radius of influence
 
-  T = int(T1 / dt) + 1; // Transform time in seconds to iterations
+  total_iter =
+      int(total_time / dt) + 1; // Transform time in seconds to iterations
 
   std::map<std::string, int> initConditionToParticlesMap = {
       {"ic-one-particle", 1},      {"ic-two-particles", 2},
@@ -72,11 +83,12 @@ SPH initialise(int &n, int &T, double &h, double &dt) {
       {"ic-dam-break", n3},        {"ic-block-drop", n1 * n2},
       {"ic-droplet", dropletn(n3)}};
 
-  n = initConditionToParticlesMap[vm["init_condition"].as<std::string>()];
+  nb_particles =
+      initConditionToParticlesMap[vm["init_condition"].as<std::string>()];
 
   // Define the solver object (called sph)
   // In its definition, the number of particles is required
-  SPH sph(n);
+  SPH sph(nb_particles);
 
   /**After the number of partciles is introduced inside the class and
    * therefore the appropriate matrices are initialized, the particles
@@ -95,7 +107,7 @@ SPH initialise(int &n, int &T, double &h, double &dt) {
   // Get the function pointer from the map
   auto initFunc = functionMap.find(vm["init_condition"].as<std::string>());
   if (initFunc != functionMap.end()) {
-    int n_particles = n;
+    int n_particles = nb_particles;
 
     // The ic-droplet case requires a different n argument.
     if (vm["init_condition"].as<std::string>() == "ic-droplet") {
@@ -109,7 +121,7 @@ SPH initialise(int &n, int &T, double &h, double &dt) {
      * additional parameters, so it requires a different case.
      **/
     if (vm["init_condition"].as<std::string>() == "ic-block-drop") {
-      ic_block_drop(n, n1, n2, sph);
+      ic_block_drop(nb_particles, n1, n2, sph);
       sph >> dt;
       sph < h;
     } else {
@@ -121,13 +133,13 @@ SPH initialise(int &n, int &T, double &h, double &dt) {
    * initial coordinates and the initial velocities were introduced
    * inside the class.
    **/
-  sph.x0();
-  sph.y0();
-  sph.vx0();
-  sph.vy0();
+  sph.position_x_init();
+  sph.position_y_init();
+  sph.velocity_x_init();
+  sph.velocity_y_init();
 
   // Calculate the mass of the particles
-  sph.mass();
+  sph.calc_mass();
 
   return sph;
 }
@@ -150,31 +162,37 @@ void init_output_files(std::ofstream &vOut, std::ofstream &vOut2) {
         << "\n";
 }
 
-void time_integration(SPH &sph, int &n, int &T, double &h, double &dt,
-                      std::ofstream &vOut, std::ofstream &vOut2) {
+void time_integration(SPH &sph, int &nb_particles, int &total_iter, double &h,
+                      double &dt, std::ofstream &vOut, std::ofstream &vOut2) {
 
-  for (int t = 0; t < T; t++) {
+  std ::cout << "Time integration started -- OK"
+             << "\n";
+
+  for (int t = 0; t < total_iter; t++) {
 
     // Pass the specific "time" of the loop inside the class
     sph > t;
 
     // In each iteration the disatnces between the particles are recalculated,
     // as well as their densities
-    sph.rVec();
-    sph.den();
+    sph.calc_particle_distance();
+    sph.calc_density();
     sph.spatial();
     // sph.getdata();
 
     // Write energies on the Energy-File
-    vOut2 << t * dt << "  " << sph.Ek() << "  " << sph.Ep() << "  "
-          << sph.Ep() + sph.Ek() << "\n";
+    vOut2 << t * dt << "  " << sph.return_kinetic_energy() << "  "
+          << sph.return_potential_energy() << "  "
+          << sph.return_potential_energy() + sph.return_kinetic_energy()
+          << "\n";
 
     // Get the posistions after integration is completed
-    if (t == T - 1) {
+    if (t == total_iter - 1) {
 
-      for (int l = 0; l < n; l++) {
+      for (int l = 0; l < nb_particles; l++) {
 
-        vOut << sph.retx(l) << " " << sph.rety(l) << "\n";
+        vOut << sph.return_position_x(l) << " " << sph.return_position_y(l)
+             << "\n";
       }
     }
   }

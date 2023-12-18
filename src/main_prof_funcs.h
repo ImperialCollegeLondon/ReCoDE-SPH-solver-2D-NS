@@ -1,4 +1,4 @@
-//Definition of the functions called by the main program
+// Definition of the functions called by the main program
 #ifndef MAIN_H
 #define MAIN_H
 

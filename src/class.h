@@ -10,7 +10,7 @@
 class SPH {
 
 private:
-  unsigned int n; // size of the Matrix
+  unsigned int nb_particles; // size of the Matrix
 
   int t; // time
 
@@ -21,31 +21,28 @@ private:
   double **vMatrix = new double *[4]; // AlloCating space memory for the Matrix
 
   // Constants of the problem
-  double k = 2000.0;
-  double roo = 1000.0;
-  double m = 1.0;
-  double miou = 1.0;
-  double e = 0.5;
-  const double g = 9.81;
-  const int root = 0;
+  double gas_constant = 2000.0;
+  double density_resting = 1000.0;
+  double mass_assumed = 1.0;
+  double viscosity = 1.0;
+  double coeff_restitution = 0.5;
+  const double acceleration_gravity = 9.81;
 
 public:
-  double *x;
-  double *y;
-  double *vx;
-  double *vy;
-  double *r;
-  int *npRank;
-  double *ro;
-  double *p;
-  double *vi;
+  double *position_x;
+  double *position_y;
+  double *velocity_x;
+  double *velocity_y;
+  double *distance;
+  double *particle_density;
+  double *particle_pressure;
+  double *particle_speed;
   double *q;
-  double *Freduce = new double[4];
-  double *Ftake = new double[4];
-  double *xyv;
-  double E_k, E_p;                                    // Energies
-  double Fip, Fiv, Fig, Fipx, Fivx, Fipy, Fivy, Figy; // Forces
-  double Figx = 0.0;
+  double force_pressure, force_viscous, force_gravity;
+  double force_pressure_x, force_pressure_y;
+  double force_viscous_x, force_viscous_y;
+  double force_gravity_y;
+  double force_gravity_x = 0.0;
   int i, j;
 
   /******** CONSTRUCTORS/DESTRUCTOR********/
@@ -69,43 +66,43 @@ public:
 
   /**********MEMBER-FUNCTIONS*********/
 
-  void x0();
+  void position_x_init();
 
-  void y0();
+  void position_y_init();
 
-  void vx0();
+  void velocity_x_init();
 
-  void vy0();
+  void velocity_y_init();
 
-  void rVec();
+  void calc_particle_distance();
 
-  void den();
+  void calc_density();
 
-  void pressure();
+  void calc_pressure();
 
-  double FiP(double *x_y);
+  double calc_pressure_force(double *x_y);
 
-  double FiV(double *v);
+  double calc_viscous_force(double *velocity);
 
-  double FiG();
+  double calc_gravity_force();
 
-  double vInit(double *v, double &Fip, double &Fiv, double &Fig);
+  double scheme_init(double *velocity, double &force_pressure,
+                     double &force_viscous, double &force_gravity);
 
-  double v_x_y(double *v, double &Fip, double &Fiv, double &Fig);
+  double velocity_integration(double *velocity, double &force_pressure,
+                              double &force_viscous, double &force_gravity);
 
   void spatial();
 
-  double rety(int l);
+  double return_position_x(int l);
 
-  double retx(int l);
+  double return_position_y(int l);
 
-  double Ek();
+  double return_kinetic_energy();
 
-  double Ep();
+  double return_potential_energy();
 
-  void mass();
-
-  void getdata();
+  void calc_mass();
 };
 
 #endif

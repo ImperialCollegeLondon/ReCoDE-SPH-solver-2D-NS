@@ -1,4 +1,4 @@
-//Functions to create the initial conditions
+// Functions to create the initial conditions
 #ifndef IC_H
 #define IC_H
 #include "class.h"
