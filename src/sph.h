@@ -91,7 +91,7 @@ public:
   void calc_pressure();
 
   // Function to calculate the pressure force
-  double calc_pressure_force(int index_i, double *x_y);
+  double calc_pressure_force(int index_i, double *position);
 
   // Function to calculate the viscous force
   double calc_viscous_force(int index_i, double *velocity);

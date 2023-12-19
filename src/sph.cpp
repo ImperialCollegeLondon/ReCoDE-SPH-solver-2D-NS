@@ -127,7 +127,7 @@ void SPH::calc_pressure() {
   }
 }
 
-double SPH::calc_pressure_force(int index_i, double *x_y) {
+double SPH::calc_pressure_force(int index_i, double *position) {
 
   double sum = 0.0;                          // Initializing the sumation
   double pre = (-30.0 / (M_PI * h * h * h)); // precalculated value
@@ -141,7 +141,7 @@ double SPH::calc_pressure_force(int index_i, double *x_y) {
 
         sum += (mass_assumed / particle_density[j]) *
                ((particle_pressure[index_i] + particle_pressure[j]) / 2.0) *
-               (pre * (x_y[index_i] - x_y[j])) *
+               (pre * (position[index_i] - position[j])) *
                (((1.0 - distance_q[index_i * nb_particles + j]) *
                  (1.0 - distance_q[index_i * nb_particles + j])) /
                 distance_q[index_i * nb_particles + j]);
