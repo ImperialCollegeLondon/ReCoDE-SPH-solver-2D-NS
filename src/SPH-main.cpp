@@ -1,7 +1,7 @@
 // This is a main program to run the SPH simulation
-#include "class.h"
 #include "initial_conditions.h"
-#include "main_prof_funcs.h"
+#include "main_prog_funcs.h"
+#include "sph.h"
 #include <boost/program_options.hpp>
 #include <cmath>
 #include <fstream>
@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
   // Declare the parameters of the problem
   int nb_particles; // number of particles
   int total_iter;   // total number of itterations required for the time
-                  // integration
+                    // integration
   double h;
   double dt;
 
@@ -114,29 +114,20 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
       n_particles = n3;
     }
     initFunc->second(n_particles, sph);
-    sph >> dt;
-    sph < h;
+    sph.set_timestep(dt);
+    sph.set_rad_infl(h);
   } else {
     /**The ic-block-drop case is not in the map because it has two
      * additional parameters, so it requires a different case.
      **/
     if (vm["init_condition"].as<std::string>() == "ic-block-drop") {
       ic_block_drop(nb_particles, n1, n2, sph);
-      sph >> dt;
-      sph < h;
+      sph.set_timestep(dt);
+      sph.set_rad_infl(h);
     } else {
       std::cerr << "Error: Function not found!" << std::endl;
     }
   }
-
-  /** Split the original matrix through which the values of the
-   * initial coordinates and the initial velocities were introduced
-   * inside the class.
-   **/
-  sph.position_x_init();
-  sph.position_y_init();
-  sph.velocity_x_init();
-  sph.velocity_y_init();
 
   // Calculate the mass of the particles
   sph.calc_mass();
@@ -162,8 +153,8 @@ void init_output_files(std::ofstream &vOut, std::ofstream &vOut2) {
         << "\n";
 }
 
-void time_integration(SPH &sph, int &nb_particles, int &total_iter, double &h,
-                      double &dt, std::ofstream &vOut, std::ofstream &vOut2) {
+void time_integration(SPH &sph, int nb_particles, int total_iter, double h,
+                      double dt, std::ofstream &vOut, std::ofstream &vOut2) {
 
   std ::cout << "Time integration started -- OK"
              << "\n";
@@ -171,7 +162,7 @@ void time_integration(SPH &sph, int &nb_particles, int &total_iter, double &h,
   for (int t = 0; t < total_iter; t++) {
 
     // Pass the specific "time" of the loop inside the class
-    sph > t;
+    sph.set_time(t);
 
     // In each iteration the disatnces between the particles are recalculated,
     // as well as their densities

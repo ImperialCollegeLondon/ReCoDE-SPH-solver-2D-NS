@@ -24,8 +24,11 @@ This will produce an executable called SPH-SOLVER in the src folder and the user
 This version of the code displays a serial implementation of the SPH algorithm in C++. It comprises two `*.cpp` files and their corresponding header (`*.h`) files. The code is accompanied by two input text files, one for the input variables of the executed case and one for the initial condition of the particles in the domain. 
 
 - `src/main-SPH.cpp`
-- `src/class.cpp`
-- `src/class.h`
+- `src/sph.cpp`
+- `src/sph.h`
+- `src/initial_conditions.cpp`
+- `src/initial_conditions.h`
+- `src/main_prog_funcs.h`
 - `src/Makefile`
 - `exec/inputs/case.txt`
 - `exec/inputs/domain.txt`

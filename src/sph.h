@@ -5,8 +5,8 @@
  * Details on the functions, the arrays and the overloadings
  * can be found in the file : class.cpp
  **/
-#ifndef CLASS_H
-#define CLASS_H
+#ifndef SPH_H
+#define SPH_H
 class SPH {
 
 private:
@@ -18,33 +18,43 @@ private:
 
   double h; // Radius of influence
 
-  double **vMatrix = new double *[4]; // AlloCating space memory for the Matrix
-
   // Constants of the problem
-  double gas_constant = 2000.0;
-  double density_resting = 1000.0;
-  double mass_assumed = 1.0;
-  double viscosity = 1.0;
-  double coeff_restitution = 0.5;
+  const double gas_constant = 2000.0;
+  const double density_resting = 1000.0;
+  const double viscosity = 1.0;
+  const double coeff_restitution = 0.5;
   const double acceleration_gravity = 9.81;
 
-public:
+  // Positions
   double *position_x;
   double *position_y;
+
+  // Velocities
   double *velocity_x;
   double *velocity_y;
-  double *distance;
-  double *particle_density;
-  double *particle_pressure;
   double *particle_speed;
-  double *q;
+
+  // Distances
+  double *distance;   // Array to store the distances between the particles
+  double *distance_q; // Array to store the values of the normalised distance q
+
+  // Mass
+  double mass_assumed = 1.0;
+
+  // Density
+  double *particle_density;
+
+  // Pressure
+  double *particle_pressure;
+
+  // Forces
   double force_pressure, force_viscous, force_gravity;
   double force_pressure_x, force_pressure_y;
   double force_viscous_x, force_viscous_y;
   double force_gravity_y;
   double force_gravity_x = 0.0;
-  int i, j;
 
+public:
   /******** CONSTRUCTORS/DESTRUCTOR********/
 
   SPH() = default; // Default constructor
@@ -58,21 +68,14 @@ public:
 
   double &operator()(unsigned row, unsigned col);
 
-  int &operator>(unsigned t);
-
-  double &operator>>(double dt);
-
-  double &operator<(double h_new);
-
   /**********MEMBER-FUNCTIONS*********/
 
-  void position_x_init();
+  // Setter Functions.
+  void set_time(double t);
 
-  void position_y_init();
+  void set_timestep(double dt);
 
-  void velocity_x_init();
-
-  void velocity_y_init();
+  void set_rad_infl(double h);
 
   void calc_particle_distance();
 
@@ -80,17 +83,18 @@ public:
 
   void calc_pressure();
 
-  double calc_pressure_force(double *x_y);
+  double calc_pressure_force(int index_i, double *x_y);
 
-  double calc_viscous_force(double *velocity);
+  double calc_viscous_force(int index_i, double *velocity);
 
-  double calc_gravity_force();
+  double calc_gravity_force(int index_i);
 
-  double scheme_init(double *velocity, double &force_pressure,
+  double scheme_init(int index_i, double *velocity, double &force_pressure,
                      double &force_viscous, double &force_gravity);
 
-  double velocity_integration(double *velocity, double &force_pressure,
-                              double &force_viscous, double &force_gravity);
+  double velocity_integration(int index_i, double *velocity,
+                              double &force_pressure, double &force_viscous,
+                              double &force_gravity);
 
   void spatial();
 

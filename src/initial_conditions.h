@@ -1,7 +1,7 @@
 // Functions to create the initial conditions
 #ifndef IC_H
 #define IC_H
-#include "class.h"
+#include "sph.h"
 
 void ic_one_particle(int n, SPH &sph);
 
