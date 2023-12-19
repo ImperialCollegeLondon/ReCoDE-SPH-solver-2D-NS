@@ -127,24 +127,24 @@ void SPH::calc_pressure() {
   }
 }
 
-double SPH::calc_pressure_force(int index_i, double *position) {
+double SPH::calc_pressure_force(int particle_index, double *position) {
 
   double sum = 0.0;                          // Initializing the sumation
   double pre = (-30.0 / (M_PI * h * h * h)); // precalculated value
 
   for (int j = 0; j < nb_particles; j++) {
 
-    if (index_i == j) {
+    if (particle_index == j) {
     } else {
 
-      if (distance_q[index_i * nb_particles + j] < 1) {
+      if (distance_q[particle_index * nb_particles + j] < 1) {
 
         sum += (mass_assumed / particle_density[j]) *
-               ((particle_pressure[index_i] + particle_pressure[j]) / 2.0) *
-               (pre * (position[index_i] - position[j])) *
-               (((1.0 - distance_q[index_i * nb_particles + j]) *
-                 (1.0 - distance_q[index_i * nb_particles + j])) /
-                distance_q[index_i * nb_particles + j]);
+               ((particle_pressure[particle_index] + particle_pressure[j]) / 2.0) *
+               (pre * (position[particle_index] - position[j])) *
+               (((1.0 - distance_q[particle_index * nb_particles + j]) *
+                 (1.0 - distance_q[particle_index * nb_particles + j])) /
+                distance_q[particle_index * nb_particles + j]);
       }
 
       else {
@@ -155,7 +155,7 @@ double SPH::calc_pressure_force(int index_i, double *position) {
   return -sum;
 }
 
-double SPH::calc_viscous_force(int index_i, double *v) {
+double SPH::calc_viscous_force(int particle_index, double *v) {
 
   double phisq;
 
@@ -164,15 +164,15 @@ double SPH::calc_viscous_force(int index_i, double *v) {
 
   for (int j = 0; j < nb_particles; j++) {
 
-    if (index_i == j) {
+    if (particle_index == j) {
     }
 
     else {
 
-      if (distance_q[index_i * nb_particles + j] < 1) {
+      if (distance_q[particle_index * nb_particles + j] < 1) {
 
-        sum += (mass_assumed / particle_density[j]) * (v[index_i] - v[j]) *
-               (pre * (1.0 - distance_q[index_i * nb_particles + j]));
+        sum += (mass_assumed / particle_density[j]) * (v[particle_index] - v[j]) *
+               (pre * (1.0 - distance_q[particle_index * nb_particles + j]));
       }
     }
   }
@@ -180,30 +180,30 @@ double SPH::calc_viscous_force(int index_i, double *v) {
   return -viscosity * sum;
 }
 
-double SPH::calc_gravity_force(int index_i) {
-  return -particle_density[index_i] * acceleration_gravity;
+double SPH::calc_gravity_force(int particle_index) {
+  return -particle_density[particle_index] * acceleration_gravity;
 }
 
-double SPH::scheme_init(int index_i, double *velocity, double &force_pressure,
+double SPH::scheme_init(int particle_index, double *velocity, double &force_pressure,
                         double &force_viscous, double &force_gravity) {
 
   double acceleration;
 
   acceleration = (force_pressure + force_viscous + force_gravity) /
-                 particle_density[index_i];
+                 particle_density[particle_index];
 
-  return velocity[index_i] + acceleration * dt * 0.5;
+  return velocity[particle_index] + acceleration * dt * 0.5;
 }
 
-double SPH::velocity_integration(int index_i, double *velocity,
+double SPH::velocity_integration(int particle_index, double *velocity,
                                  double &force_pressure, double &force_viscous,
                                  double &force_gravity) {
 
   double acceleration;
   acceleration = (force_pressure + force_viscous + force_gravity) /
-                 particle_density[index_i];
+                 particle_density[particle_index];
 
-  return velocity[index_i] + acceleration * dt;
+  return velocity[particle_index] + acceleration * dt;
 }
 
 void SPH::calc_mass() {

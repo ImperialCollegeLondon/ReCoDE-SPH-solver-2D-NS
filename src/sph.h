@@ -91,20 +91,20 @@ public:
   void calc_pressure();
 
   // Function to calculate the pressure force
-  double calc_pressure_force(int index_i, double *position);
+  double calc_pressure_force(int particle_index, double *position);
 
   // Function to calculate the viscous force
-  double calc_viscous_force(int index_i, double *velocity);
+  double calc_viscous_force(int particle_index, double *velocity);
 
   // Function to calculate the gravity force
-  double calc_gravity_force(int index_i);
+  double calc_gravity_force(int particle_index);
 
   // Function to initialise the time integration scheme - velocity
-  double scheme_init(int index_i, double *velocity, double &force_pressure,
+  double scheme_init(int particle_index, double *velocity, double &force_pressure,
                      double &force_viscous, double &force_gravity);
 
   // Function for time integration - velocity
-  double velocity_integration(int index_i, double *velocity,
+  double velocity_integration(int particle_index, double *velocity,
                               double &force_pressure, double &force_viscous,
                               double &force_gravity);
 
