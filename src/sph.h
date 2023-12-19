@@ -71,42 +71,60 @@ public:
   /**********MEMBER-FUNCTIONS*********/
 
   // Setter Functions.
+
+  // Assign value to t
   void set_time(double t);
 
+  // Assign value to dt
   void set_timestep(double dt);
 
+  // Assign value to h
   void set_rad_infl(double h);
 
+  // Function to calculate the matrix with rij
   void calc_particle_distance();
 
+  // Function to calculate the density
   void calc_density();
 
+  // Function to calculate the pressure
   void calc_pressure();
 
+  // Function to calculate the pressure force
   double calc_pressure_force(int index_i, double *x_y);
 
+  // Function to calculate the viscous force
   double calc_viscous_force(int index_i, double *velocity);
 
+  // Function to calculate the gravity force
   double calc_gravity_force(int index_i);
 
+  // Function to initialise the time integration scheme - velocity
   double scheme_init(int index_i, double *velocity, double &force_pressure,
                      double &force_viscous, double &force_gravity);
 
+  // Function for time integration - velocity
   double velocity_integration(int index_i, double *velocity,
                               double &force_pressure, double &force_viscous,
                               double &force_gravity);
 
+  // Function to find the mass of the particles before the simulation starts
+  void calc_mass();
+
+  // Function to perform the spatial iterations
   void spatial();
 
+  // Function to return the position x
   double return_position_x(int l);
 
+  // Function to return the position y
   double return_position_y(int l);
 
+  // Function to calculate the kinetic energy
   double return_kinetic_energy();
 
+  // Function to calculate the potential energy
   double return_potential_energy();
-
-  void calc_mass();
 };
 
 #endif

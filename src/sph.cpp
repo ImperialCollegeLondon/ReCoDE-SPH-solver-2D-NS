@@ -57,16 +57,12 @@ double &SPH::operator()(unsigned row, unsigned col) {
   }
 }
 
-// Assign value to t
 void SPH::set_time(double t) { this->t = t; }
 
-// Assign value to dt
 void SPH::set_timestep(double dt) { this->dt = dt; }
 
-// Assign value to h
 void SPH::set_rad_infl(double h) { this->h = h; }
 
-// Function to calculate the matrix with rij
 void SPH::calc_particle_distance() {
 
   double dx;
@@ -84,7 +80,6 @@ void SPH::calc_particle_distance() {
   }
 }
 
-// Function to calculate the density
 void SPH::calc_density() {
 
   double phi;
@@ -123,7 +118,6 @@ void SPH::calc_density() {
   }
 }
 
-// Function to calculate the pressure
 void SPH::calc_pressure() {
 
   for (int i = 0; i < nb_particles; i++) {
@@ -133,7 +127,6 @@ void SPH::calc_pressure() {
   }
 }
 
-// Function to calculate the pressure force
 double SPH::calc_pressure_force(int index_i, double *x_y) {
 
   double sum = 0.0;                          // Initializing the sumation
@@ -162,7 +155,6 @@ double SPH::calc_pressure_force(int index_i, double *x_y) {
   return -sum;
 }
 
-// Function to calculate the viscous force
 double SPH::calc_viscous_force(int index_i, double *v) {
 
   double phisq;
@@ -188,12 +180,10 @@ double SPH::calc_viscous_force(int index_i, double *v) {
   return -viscosity * sum;
 }
 
-// Function to calculate the gravity force
 double SPH::calc_gravity_force(int index_i) {
   return -particle_density[index_i] * acceleration_gravity;
 }
 
-// Function to initialise the time integration scheme - velocity
 double SPH::scheme_init(int index_i, double *velocity, double &force_pressure,
                         double &force_viscous, double &force_gravity) {
 
@@ -205,7 +195,6 @@ double SPH::scheme_init(int index_i, double *velocity, double &force_pressure,
   return velocity[index_i] + acceleration * dt * 0.5;
 }
 
-// Function for time integration - velocity
 double SPH::velocity_integration(int index_i, double *velocity,
                                  double &force_pressure, double &force_viscous,
                                  double &force_gravity) {
@@ -217,7 +206,6 @@ double SPH::velocity_integration(int index_i, double *velocity,
   return velocity[index_i] + acceleration * dt;
 }
 
-// Function to find the mass of the particles before the simulation starts
 void SPH::calc_mass() {
 
   calc_particle_distance();
@@ -231,7 +219,6 @@ void SPH::calc_mass() {
   mass_assumed = nb_particles * density_resting / sumden;
 }
 
-// Function to perform the spatial iterations
 void SPH::spatial() {
 
   int i;
@@ -301,13 +288,10 @@ void SPH::spatial() {
   }
 }
 
-// Function to return the position x
 double SPH::return_position_x(int l) { return position_x[l]; }
 
-// Function to return the position y
 double SPH::return_position_y(int l) { return position_y[l]; }
 
-// Function to calculate the kinetic energy
 double SPH::return_kinetic_energy() {
 
   double sum = 0;
@@ -322,7 +306,6 @@ double SPH::return_kinetic_energy() {
   return 0.5 * mass_assumed * sum;
 }
 
-// Function to calculate the potential energy
 double SPH::return_potential_energy() {
 
   double sum = 0;
