@@ -68,7 +68,7 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
 
   int n1 = 17;  // required for ic-block-drop
   int n2 = 25;  // required for ic-block-drop
-  int n3 = 400; // required for ic-dam-break and ic-droplet
+  int n3 = 100; // required for ic-dam-break and ic-droplet
 
   double total_time = vm["T"].as<double>(); // Total integration time
   dt = vm["dt"].as<double>();               // Time step dt
@@ -114,20 +114,21 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
       n_particles = n3;
     }
     initFunc->second(n_particles, sph);
-    sph.set_timestep(dt);
-    sph.set_rad_infl(h);
+    
   } else {
     /**The ic-block-drop case is not in the map because it has two
      * additional parameters, so it requires a different case.
      **/
     if (vm["init_condition"].as<std::string>() == "ic-block-drop") {
       ic_block_drop(nb_particles, n1, n2, sph);
-      sph.set_timestep(dt);
-      sph.set_rad_infl(h);
+
     } else {
       std::cerr << "Error: Function not found!" << std::endl;
     }
   }
+
+  sph.set_timestep(dt);
+  sph.set_rad_infl(h);
 
   // Calculate the mass of the particles
   sph.calc_mass();

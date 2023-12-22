@@ -20,7 +20,7 @@ SPH::SPH(const unsigned n_new) : nb_particles(n_new) {
 
   particle_pressure = new double[nb_particles];
 
-  particle_speed = new double[nb_particles];
+  particle_speed_sq = new double[nb_particles];
 }
 
 // Destructor
@@ -29,7 +29,7 @@ SPH::~SPH() {
   delete[] particle_pressure;
   delete[] distance;
   delete[] distance_q;
-  delete[] particle_speed;
+  delete[] particle_speed_sq;
   delete[] position_x;
   delete[] position_y;
   delete[] velocity_x;
@@ -83,8 +83,8 @@ void SPH::calc_particle_distance() {
 void SPH::calc_density() {
 
   double phi;
-  double pre = (4.0 / (M_PI * h * h)); // Precalculated value
-  double hinv = 1.0 / h;               // This is to avoid many divisions
+  double four_pi_h_2 = (4.0 / (M_PI * h * h));  // Precalculated value used to avoid multiple divisions and multiplications
+  double h_inverse = 1.0 / h;     // Precalculated value used to avoid multiple divisions
 
   // find φ
   for (int i = 0; i < nb_particles; i++) {
@@ -94,11 +94,11 @@ void SPH::calc_density() {
     for (int j = 0; j < nb_particles; j++) {
 
       distance_q[i * nb_particles + j] =
-          std::abs(distance[i * nb_particles + j] * hinv);
+          std::abs(distance[i * nb_particles + j] * h_inverse);
 
       if (distance_q[i * nb_particles + j] < 1) {
 
-        phi = pre *
+        phi = four_pi_h_2 *
               (1.0 - distance_q[i * nb_particles + j] *
                          distance_q[i * nb_particles + j]) *
               (1.0 - distance_q[i * nb_particles + j] *
@@ -130,25 +130,22 @@ void SPH::calc_pressure() {
 double SPH::calc_pressure_force(int particle_index, double *position) {
 
   double sum = 0.0;                          // Initializing the sumation
-  double pre = (-30.0 / (M_PI * h * h * h)); // precalculated value
+  double thirty_pi_h_3 = (-30.0 / (M_PI * h * h * h)); //Precalculated value used to avoid multiple divisions and multiplications
 
   for (int j = 0; j < nb_particles; j++) {
 
-    if (particle_index == j) {
-    } else {
+    if (particle_index != j) {
 
       if (distance_q[particle_index * nb_particles + j] < 1) {
 
         sum += (mass_assumed / particle_density[j]) *
                ((particle_pressure[particle_index] + particle_pressure[j]) / 2.0) *
-               (pre * (position[particle_index] - position[j])) *
+               (thirty_pi_h_3 * (position[particle_index] - position[j])) *
                (((1.0 - distance_q[particle_index * nb_particles + j]) *
                  (1.0 - distance_q[particle_index * nb_particles + j])) /
                 distance_q[particle_index * nb_particles + j]);
       }
 
-      else {
-      }
     }
   }
 
@@ -160,7 +157,7 @@ double SPH::calc_viscous_force(int particle_index, double *v) {
   double phisq;
 
   double sum = 0.0;                             // Initializing the sumation
-  double pre = (40.0 / (M_PI * h * h * h * h)); // precalculated value
+  double fourty_pi_h_4 = (40.0 / (M_PI * h * h * h * h)); //Precalculated value used to avoid multiple divisions and multiplications
 
   for (int j = 0; j < nb_particles; j++) {
 
@@ -172,7 +169,7 @@ double SPH::calc_viscous_force(int particle_index, double *v) {
       if (distance_q[particle_index * nb_particles + j] < 1) {
 
         sum += (mass_assumed / particle_density[j]) * (v[particle_index] - v[j]) *
-               (pre * (1.0 - distance_q[particle_index * nb_particles + j]));
+               (fourty_pi_h_4 * (1.0 - distance_q[particle_index * nb_particles + j]));
       }
     }
   }
@@ -297,10 +294,10 @@ double SPH::return_kinetic_energy() {
   double sum = 0;
   for (int i = 0; i < nb_particles; i++) {
 
-    particle_speed[i] =
+    particle_speed_sq[i] =
         velocity_x[i] * velocity_x[i] + velocity_y[i] * velocity_y[i];
 
-    sum += particle_speed[i];
+    sum += particle_speed_sq[i];
   }
 
   return 0.5 * mass_assumed * sum;
@@ -311,7 +308,7 @@ double SPH::return_potential_energy() {
   double sum = 0;
   for (int i = 0; i < nb_particles; i++) {
 
-    sum += position_y[i];
+    sum += position_y[i] - h;
   }
 
   return mass_assumed * acceleration_gravity * sum;

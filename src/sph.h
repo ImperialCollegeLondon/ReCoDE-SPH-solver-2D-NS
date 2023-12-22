@@ -32,7 +32,7 @@ private:
   // Velocities
   double *velocity_x;
   double *velocity_y;
-  double *particle_speed;
+  double *particle_speed_sq;
 
   // Distances
   double *distance;   // Array to store the distances between the particles
