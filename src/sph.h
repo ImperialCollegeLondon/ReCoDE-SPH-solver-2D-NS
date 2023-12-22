@@ -72,9 +72,6 @@ public:
 
   // Setter Functions.
 
-  // Assign value to t
-  void set_time(double t);
-
   // Assign value to dt
   void set_timestep(double dt);
 
@@ -100,8 +97,9 @@ public:
   double calc_gravity_force(int particle_index);
 
   // Function to initialise the time integration scheme - velocity
-  double scheme_init(int particle_index, double *velocity, double &force_pressure,
-                     double &force_viscous, double &force_gravity);
+  double scheme_init(int particle_index, double *velocity,
+                     double &force_pressure, double &force_viscous,
+                     double &force_gravity);
 
   // Function for time integration - velocity
   double velocity_integration(int particle_index, double *velocity,

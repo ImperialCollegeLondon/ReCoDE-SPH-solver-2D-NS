@@ -114,7 +114,7 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
       n_particles = n3;
     }
     initFunc->second(n_particles, sph);
-    
+
   } else {
     /**The ic-block-drop case is not in the map because it has two
      * additional parameters, so it requires a different case.
@@ -162,15 +162,11 @@ void time_integration(SPH &sph, int nb_particles, int total_iter, double h,
 
   for (int t = 0; t < total_iter; t++) {
 
-    // Pass the specific "time" of the loop inside the class
-    sph.set_time(t);
-
     // In each iteration the disatnces between the particles are recalculated,
     // as well as their densities
     sph.calc_particle_distance();
     sph.calc_density();
     sph.spatial();
-    // sph.getdata();
 
     // Write energies on the Energy-File
     vOut2 << t * dt << "  " << sph.return_kinetic_energy() << "  "
@@ -178,7 +174,7 @@ void time_integration(SPH &sph, int nb_particles, int total_iter, double h,
           << sph.return_potential_energy() + sph.return_kinetic_energy()
           << "\n";
 
-    // Get the posistions after integration is completed
+    // Get the positions after integration is completed
     if (t == total_iter - 1) {
 
       for (int l = 0; l < nb_particles; l++) {
