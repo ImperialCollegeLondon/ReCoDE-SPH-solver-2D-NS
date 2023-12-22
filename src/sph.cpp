@@ -224,7 +224,7 @@ void SPH::calc_mass() {
   mass_assumed = nb_particles * density_resting / sumden;
 }
 
-void SPH::spatial() {
+void SPH::particle_iterations() {
 
   int i;
 

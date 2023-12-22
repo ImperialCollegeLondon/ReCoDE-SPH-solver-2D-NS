@@ -109,8 +109,8 @@ public:
   // Function to find the mass of the particles before the simulation starts
   void calc_mass();
 
-  // Function to perform the spatial iterations
-  void spatial();
+  // Function to perform the particle iterations
+  void particle_iterations();
 
   // Function to return the position x
   double return_position_x(int l);
