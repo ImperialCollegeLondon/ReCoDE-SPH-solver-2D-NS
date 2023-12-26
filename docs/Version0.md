@@ -21,14 +21,14 @@ This will produce an executable called SPH-SOLVER in the src folder and the user
 - `./SPH-SOLVER`
 
 ## Files
-This version of the code displays a serial implementation of the SPH algorithm in C++. It comprises two `*.cpp` files and their corresponding header (`*.h`) files. The code is accompanied by two input text files, one for the input variables of the executed case and one for the initial condition of the particles in the domain. 
+This version of the code displays a serial implementation of the SPH algorithm in C++. It comprises three `*.cpp` files and their corresponding header (`*.h`) files. The code is accompanied by two input text files, one for the input variables of the executed case and the input parameters and one for the domain boundaries. 
 
 - `src/main-SPH.cpp`
 - `src/sph.cpp`
-- `src/sph.h`
 - `src/initial_conditions.cpp`
+- `src/main_prog_func.h`
+- `src/sph.h`
 - `src/initial_conditions.h`
-- `src/main_prog_funcs.h`
 - `src/Makefile`
 - `exec/inputs/case.txt`
 - `exec/inputs/domain.txt`
@@ -39,13 +39,13 @@ The main program of the code (i.e. main-SPH.cpp) is used to read the input files
 
 ## Structure of the class
 
-The SPH class is initialised by using the number of particles (`N`) which is required to determine the size of the arrays in the constructor. Several operators have been overloaded so that the corresponding variables can be set inside the class. Specifically the operator `()` has been overloaded to place the particles in their initial conditions and to set their initial velocities, which are stored in a $4\times N$ matrix. The operator `>` to set the time of integration, the operator `>>` to set the time-step and `<` to set the radius of influence. The class has three main functions for the temporal integration:
+The SPH class is initialised by using the number of particles (`N`) which is required to determine the size of the arrays in the constructor. The operator `()` has been overloaded to place the particles in their initial conditions and to set their initial velocities to the corresponding arrays. The class has three main functions for the temporal integration:
 
-- `rVec()`: Calculates the distances between the particels .
+- `SPH::calc_particle_distance()`: Calculates the distances between the particles.
 
-- `den()`: Updates the density.
+- `SPH::calc_density()`: Updates the density.
 
-- `spatial()`: Calculates all the forces between the particles and updates their positions based on the leapfrog scheme. 
+- `SPH::particle_iterations()`: Calculates all the forces acting on the particles and updates their positions based on the leapfrog scheme. 
 
 ## Input Parameters
 
@@ -64,21 +64,29 @@ As stated earlier, the SPH class is initialised in the SPH-main.cpp file where o
 
 -  A Block drop (`ic-block-drop`): a grid of particles occupying the region $[0.1,0.3]\times[0.3,0.6]$.
 
--  A Droplet (`ic-droplet`): particles occupying a circle of radius 0.1, centred at the point $[0.5,0.7]$
+-  A Droplet (`ic-droplet`): particles occupying a circle of radius 0.1, centered at the point $[0.5,0.7]$
 
-## Time integration
-In the same file the user can specify the time of integration `T` as well as the timestep `dt`.
+### Time integration
+In the same file the user can specify the time of integration `T` which is being translated to number of iterations, as well as the timestep `dt`.
 
-The time integration loop is being executed in the main program where the SPH functions are being called and the output files are being written. 
+
+For instance to set the initial condition to a single particle the user should type `init_conditions = ic-one-particle` in the `case.txt` file.
+
+### Simulation Duration
+The duration of the simulation can be set in units of seconds with the input key `T`. For instance, a simulation of 10 seconds can be set by typing `T = 10` in the `case.txt` file.
+
+### Time-step
+
+The time-step `dt` can be set in units of seconds with the input key `dt`. For instance, a time-step of 0.0001 seconds can be set by typing `dt = 1e-4` in the `case.txt` file.
 
 ### Radius of Influence
-The last input parameter that the user can specify in the `case.txt` file is the radius of influence `h`. This parameter dictates the maximum distance in which an entity (particle or domain boundary) has an influence in the behavior of another entity.
+The last input parameter that the user can specify in the `case.txt` file is the radius of influence `h` in units of m. This parameter dictates the maximum distance in which an entity (particle or domain boundary) has an influence in the behavior of another entity.
 
 ### Reading Inputs
-The aforementioned parameters are expected by the program, and therefore, while reading the `case.txt` file, the `<boost/program_options.hpp>` library is used to map those parameters to their values, which are finally stored in their corresponding variables. This practice consitutes in making the input reading process more flexible and error-proof. The user can specify the input parameters in the `case.txt` file in any order, as long as they are given as `key = value` pairs.
+The aforementioned parameters are expected by the program, and therefore, while reading the `case.txt` file in the function `initialise()` which is called by the main program, the `<boost/program_options.hpp>` library is used to map those parameters to their values, which are finally stored in their corresponding variables. This practice constitutes in making the input reading process more flexible and error-proof. The user can specify the input parameters in the `case.txt` file in any order, as long as they are given as `key = value` pairs.
 
-## Domain Initialization
-After storing the input values, the initial condition is used to determine the number of particles (n), as well as to initialize the domain in the `sph` object. In order to avoid the use of multiple `if` statements, two map objects are used to map the different conditions to their corresponding number of particles and their corresponding initialization function.
+## Class initialisation
+After storing the input values, the initial condition is used to determine the number of particles, as well as to declare the containers which store the information related to the particles' properties in the `sph` object and allocate memory. This is done in the constructor of the class where the containers are declared as `new` raw pointers and occupy memory that depends on the number of particles. To avoid the use of multiple `if` statements, two `std::map` objects are used to map the different conditions to their corresponding number of particles and their corresponding initialisation function.
 
 ## Outputs
 
