@@ -69,16 +69,20 @@ As stated earlier, the SPH class is initialised in the SPH-main.cpp file where o
 ### Time integration
 In the same file the user can specify the time of integration `T` which is being translated to number of iterations, as well as the timestep `dt`.
 
-The time integration loop is being executed in the function `time_integration()` called in the main program. In this, during every time step, the following SPH functions are being called: 
 
-- `SPH::calc_particle_distance()`
-- `SPH::calc_density()`
-- `SPH::particle_iterations()`
+For instance to set the initial condition to a single particle the user should type `init_conditions = ic-one-particle` in the `case.txt` file.
+
+### Simulation Duration
+The duration of the simulation can be set in units of seconds with the input key `T`. For instance, a simulation of 10 seconds can be set by typing `T = 10` in the `case.txt` file.
+
+### Time-step
+
+The time-step `dt` can be set in units of seconds with the input key `dt`. For instance, a time-step of 0.0001 seconds can be set by typing `dt = 1e-4` in the `case.txt` file.
 
 ### Radius of Influence
-The last input parameter that the user can specify in the `case.txt` file is the radius of influence `h`. This parameter dictates the maximum distance in which an entity (particle or domain boundary) has an influence in the behavior of another entity.
+The last input parameter that the user can specify in the `case.txt` file is the radius of influence `h` in units of m. This parameter dictates the maximum distance in which an entity (particle or domain boundary) has an influence in the behavior of another entity.
 
-## Reading Inputs
+### Reading Inputs
 The aforementioned parameters are expected by the program, and therefore, while reading the `case.txt` file in the function `initialise()` which is called by the main program, the `<boost/program_options.hpp>` library is used to map those parameters to their values, which are finally stored in their corresponding variables. This practice constitutes in making the input reading process more flexible and error-proof. The user can specify the input parameters in the `case.txt` file in any order, as long as they are given as `key = value` pairs.
 
 ## Initialisation
