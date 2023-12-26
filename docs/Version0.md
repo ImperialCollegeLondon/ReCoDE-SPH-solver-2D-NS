@@ -85,7 +85,7 @@ The last input parameter that the user can specify in the `case.txt` file is the
 ### Reading Inputs
 The aforementioned parameters are expected by the program, and therefore, while reading the `case.txt` file in the function `initialise()` which is called by the main program, the `<boost/program_options.hpp>` library is used to map those parameters to their values, which are finally stored in their corresponding variables. This practice constitutes in making the input reading process more flexible and error-proof. The user can specify the input parameters in the `case.txt` file in any order, as long as they are given as `key = value` pairs.
 
-## Initialisation
+## Class initialisation
 After storing the input values, the initial condition is used to determine the number of particles, as well as to declare the containers which store the information related to the particles' properties in the `sph` object and allocate memory. This is done in the constructor of the class where the containers are declared as `new` raw pointers and occupy memory that depends on the number of particles. To avoid the use of multiple `if` statements, two `std::map` objects are used to map the different conditions to their corresponding number of particles and their corresponding initialisation function.
 
 ## Outputs
