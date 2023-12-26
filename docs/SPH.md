@@ -7,9 +7,9 @@ In the SPH formulation, the fluid is being discretised by fictitious particles w
 $$f(x) \sim \int_{\Omega} f(x')W(x-x',h)dx'$$
 
 
-In this  W is a kernel function and h is defined as the smoothing length that characterizes the size of the support domain of the kernel. The discrete equivalent of the above expression can be written as:
+In this  W is a kernel function and h is defined as the smoothing length that characterizes the size of the support domain of the kernel. The discrete equivalent of the above expression for the $i^{th}$ particle can be written as:
 
-$$f(x_i) = \sum_{j}^{N} \frac{m_j}{\rho_{j}} f_j W_{ij} $$
+$$f_i = \sum_{j}^{N} \frac{m_j}{\rho_{j}} f_j W_{ij} $$
 
 The kernel function provides the weight which is assigned to each particle based on their distance from the point of interest (i.e. the point where the function f(x) is to be evaluated). The movement of the particles obeys Newton's second law of motion and the forces applied on the particles are being calculated as explained above.
 
@@ -31,16 +31,16 @@ The density of the fluid associated with each particle i is approximated as
 
 $$\rho_i = \sum_{j} m \phi_d(r_{ij} ,h)  $$
 
-where $r_{ij} = x_{i} −x_{j}$, $m$ is the mass of a particle and the kernel density function for density, $\phi_{d}(r_{ij},h)$ is given by 
+where $r_{ij} = x_{i} −x_{j}$ and $m$ is the mass of a particle and the kernel density function for density, $\phi_{d}(r_{ij},h)$ is given by 
 
 $$\phi_{d}(r_{ij},h) = \begin{cases}
 \frac{4}{\pi h^2{(1 −q_{ij}^2)^3}} & \text{if $q_{ij} < 1$}\\
 0 & \text{otherwise} 
 \end{cases}$$
 
-where $q_{ij}$ is the  distance between particle $i$ and particle $j$, normalised by the interaction radius, given by
+where $q_{ij}$ is the distance between particle $i$ and particle $j$, normalised by the interaction radius, given by
 
-$$q_{ij} = ||r_{ij}|| h $$
+$$q_{ij} = \frac{||r_{ij}||} {h} $$
  
 ## Pressure
 
@@ -53,11 +53,11 @@ where $\rho_{0}$ is a resting density and $k$ is a gas constant.
 
 ## Pressure force
 
-The force exerted on the particle due to pressure from neighbouring fluid particles is calculated as
+The force exerted on the particle due to pressure from neighboring fluid particles is calculated as
 
 $$F_{pi} = −\sum_{j} \frac{m}{\rho_{j}} \frac{(p_i + p_j)}{2} \nabla(\phi_{p})(r_{ij} ,h)$$ 
 
-where:
+where $\phi_d$ is the the kernel density function for pressure :
 
 $$\nabla(\phi_{p})(r_{ij} ,h) = \begin{cases}
 − 30 \pi h^3 r_{ij} \frac{(1−q)^2}{q} & \text{for } q_{ij} < 1 \text{ and } i \neq j\\
@@ -91,7 +91,7 @@ $$F_{gi} = (0, −\rho_{i}g)$$
 
 The acceleration of each particle is calculated as:
 
-$$a_i = F_{pi} + F_{vi} + F_{gi} \rho_{i}$$
+$$a_i =\frac{F_{pi} + F_{vi} + F_{gi}} {\rho_{i}}$$
 
 ## Time integration
 
@@ -108,3 +108,18 @@ However, because the velocity is calculated at half-steps, we need to initialise
 $$v^{\frac{1}{2}}_i = v^{0}_i + a_i^0 \frac{∆t}{2}$$
 
 where $∆t$ is the time step size. To ensure convergence, a small time-step is required. A value of $∆t = 10^{−4}$s is suggested.
+
+
+## Initial Condition
+
+To initialise the simulation, one or more particles must be specified. These should be evenly distributed. 
+
+Once the particles are placed, the particle densities should be evaluated with an assumed mass of m = 1 and the mass subsequently scaled so that the density is equal to the reference density:
+
+$$ m = \frac{N \rho_{0}}{\sum_{i} \rho_{i}} $$
+
+##  Boundary Conditions
+All the boundaries are solid walls with damped reflecting boundary conditions. If particles are within a distance h of the boundary, their velocity and position should be updated to reverse the motion of the particle and keep it within the domain. For example, on the right boundary, the x-component of position and velocity would be modified as
+
+$$ x  = 1 - h $$
+$$ u  = - eu $$ 
