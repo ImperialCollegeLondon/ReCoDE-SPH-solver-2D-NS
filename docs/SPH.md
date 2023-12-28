@@ -75,7 +75,7 @@ $$F_{vi} = −\mu \sum_{j} m\rho_{j} v_{ij} \nabla^{2} \phi v(r_i,h)$$
 
 where $v_{ij} = v_i −v_j$, $v_{i}$ is the velocity of particle i and $\mu$ is the dynamic viscosity.
 
-If $q < 1 $ and $i \neq j$
+If $q < 1$ and $i \neq j$
 
 $$\nabla^{2} \phi v(r_i,h) = 40 \pi h^4 (1 −q)$$
 
