@@ -99,7 +99,7 @@ We solve the equation as a function of time by finding the velocity and position
 
 We begin with the initial conditions of the system, which are the positions and velocities of the particles at time $t = 0$. We iteratively use the state of the system at time step $t$ to find the state of the system at time step $t + 1$ using a leap-frog scheme which provides improved stability characteristics.
 
-$$v^{t + \frac{1}{2}}_i = v^{t−\frac{1}{2}}_i + {a_{i}}^{t} \Delta{t}$$
+$$v^{t + \frac{1}{2}}_i = v^{t-\frac{1}{2}}_i + {a_{i}}^{t} \Delta{t}$$
 
 $$x^{(t+1)}_i = x^{t}_i + v^{t+ \frac{1}{2}}_i \Delta{t}$$
 
@@ -119,7 +119,7 @@ Once the particles are placed, the particle densities should be evaluated with a
 $$ m = \frac{N \rho_{0}}{\sum_{i} \rho_{i}} $$
 
 ##  Boundary Conditions
-All the boundaries are solid walls with damped reflecting boundary conditions. If particles are within a distance h of the boundary, their velocity and position should be updated to reverse the motion of the particle and keep it within the domain. For example, on the right boundary, the x-component of position and velocity would be modified as
+All the boundaries are solid walls with damped reflecting boundary conditions. If particles are within a distance h of the boundary, their velocity and position should be updated to reverse the motion of the particle and keep it within the domain. For example, on the right boundary, the x-component of position and velocity would be modified as:
 
 $$ x  = 1 - h $$
 $$ u  = - eu $$ 
