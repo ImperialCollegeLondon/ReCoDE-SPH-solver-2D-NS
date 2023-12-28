@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
 
   // Declare the parameters of the problem
   int nb_particles; // number of particles
-  int total_iter;   // total number of itterations required for the time
+  int total_iter;   // total number of iterations required for the time
                     // integration
   double h;
   double dt;
@@ -90,7 +90,7 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
   // In its definition, the number of particles is required
   SPH sph(nb_particles);
 
-  /**After the number of partciles is introduced inside the class and
+  /**After the number of particles is introduced inside the class and
    * therefore the appropriate matrices are initialized, the particles
    * are ordered in the correct positions
    **/

@@ -77,7 +77,7 @@ void ic_dam_break(int nb_particles, SPH &sph) {
   // Starting position in x
   double position_x = 0.01;
   double position_y;
-  // Assing the values in x for all particles
+  // Assign the values in x for all particles
   for (int i = 0; i < el; i++) {
     for (int j = 0; j < el; j++) {
       sph(0, i * el + j) = position_x + double(rand()) / RAND_MAX / 100000;
@@ -89,7 +89,7 @@ void ic_dam_break(int nb_particles, SPH &sph) {
   // For uniform distribution the step in y has to be equal to the step in x
   step = 0.19 / (el - 1);
 
-  // Assing values in y for all particles
+  // Assign values in y for all particles
   for (int i = 0; i < el; i++) {
     position_y = 0.01;
     for (int j = 0; j < el; j++) {
@@ -102,7 +102,7 @@ void ic_dam_break(int nb_particles, SPH &sph) {
 
 void ic_block_drop(int nb_particles, int n1, int n2, SPH &sph) {
 
-  // Distance between neighbouring particles in x and y
+  // Distance between neighboring particles in x and y
   // 0.2 is the total distance in x and 0.3 in y
   double dx = 0.2 / double((n1 - 1));
   double dy = 0.3 / double((n2 - 1));
@@ -112,7 +112,7 @@ void ic_block_drop(int nb_particles, int n1, int n2, SPH &sph) {
   double position_y;
   int kx, ky;
 
-  // Assing the values in x for all particles
+  // Assign the values in x for all particles
   for (int i = 0; i < n1; i++) {
     for (int j = 0; j < n2; j++) {
       kx = i * n2 + j;
@@ -122,7 +122,7 @@ void ic_block_drop(int nb_particles, int n1, int n2, SPH &sph) {
     position_x += dx;
   }
 
-  // Assing the values in y for all particles
+  // Assign the values in y for all particles
   for (int i = 0; i < n1; i++) {
     position_y = 0.3;
     for (int j = 0; j < n2; j++) {
