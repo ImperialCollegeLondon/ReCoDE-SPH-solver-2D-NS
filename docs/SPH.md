@@ -102,7 +102,7 @@ We begin with the initial conditions of the system, which are the positions and 
 
 $$x^{(t+1)}_i = x^{t}_i + v^{t+ \frac{1}{2}}_i \Delta{t}$$
 
-$$v^{t+\frac{1}{2}}_i = v^{t-\frac{1}{2}}_i + {a_{i}}^{t} \Delta{t}$$
+$$v^{t+\frac{1}{2}}_i$$
 
 
 However, because the velocity is calculated at half-steps, we need to initialise the scheme on the first time step using:
