@@ -99,10 +99,10 @@ We solve the equation as a function of time by finding the velocity and position
 
 We begin with the initial conditions of the system, which are the positions and velocities of the particles at time $t = 0$. We iteratively use the state of the system at time step $t$ to find the state of the system at time step $t + 1$ using a leap-frog scheme which provides improved stability characteristics.
 
+$$v^{t+\frac{1}{2}}_i = v^{t-\frac{1}{2}}_i + {a_i}^{t} \Delta{t}$$
+
 
 $$x^{(t+1)}_i = x^{t}_i + v^{t+ \frac{1}{2}}_i \Delta{t}$$
-
-$$v^{t+\frac{1}{2}}_i = v^{t-\frac{1}{2}}_i + {a_i}^{t} \Delta{t}$$
 
 
 However, because the velocity is calculated at half-steps, we need to initialise the scheme on the first time step using:
