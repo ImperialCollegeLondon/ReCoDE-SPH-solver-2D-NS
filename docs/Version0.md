@@ -50,7 +50,7 @@ The SPH class is initialised by using the number of particles (`N`) which is req
 ## Input Parameters
 
 ### Initial conditions
-As stated earlier, the SPH class is initialised in the SPH-main.cpp file where one of the following initial conditions can be specified by the user from the `case.txt` file:
+As stated earlier, the SPH class is initialised in the SPH-main.cpp file where one of the following initial conditions can be specified by the user from the `exec/inputs/case.txt` file:
 
 - A single particle (`ic-one-particle`) at : (0.5, 0.5) to test the correctness of time integration and gravity forcing, as well as the bottom boundary condition.
 
@@ -68,17 +68,17 @@ As stated earlier, the SPH class is initialised in the SPH-main.cpp file where o
 
 
 ### Simulation Duration
-The real simulated time can be set in units of seconds with the input key `T`. For instance, a simulation of 10 seconds can be set by typing `T = 10` in the `case.txt` file.
+The real simulated time can be set in units of seconds with the input key `T`. For instance, a simulation of 10 seconds can be set by typing `T = 10` in the `exec/inputs/case.txt` file.
 
 ### Time-step
 
-The time-step `dt` can be set in units of seconds with the input key `dt`. For instance, a time-step of 0.0001 seconds can be set by typing `dt = 1e-4` in the `case.txt` file.
+The time-step `dt` can be set in units of seconds with the input key `dt`. For instance, a time-step of 0.0001 seconds can be set by typing `dt = 1e-4` in the `exec/inputs/case.txt` file.
 
 ### Radius of Influence
-The last input parameter that the user can specify in the `case.txt` file is the radius of influence `h` in units of m. This parameter dictates the maximum distance in which an entity (particle or domain boundary) has an influence in the behavior of another entity.
+The last input parameter that the user can specify in the `exec/inputs/case.txt` file is the radius of influence `h` in units of m. This parameter dictates the maximum distance in which an entity (particle or domain boundary) has an influence in the behavior of another entity.
 
 ### Reading Inputs
-The aforementioned parameters are expected by the program, and therefore, while reading the `case.txt` file in the function `initialise()` which is called by the main program, the `<boost/program_options.hpp>` library is used to map those parameters to their values, which are finally stored in their corresponding variables. This practice constitutes in making the input reading process more flexible and error-proof. The user can specify the input parameters in the `case.txt` file in any order, as long as they are given as `key = value` pairs.
+The aforementioned parameters are expected by the program, and therefore, while reading the `exec/inputs/case.txt` file in the function `initialise()` which is called by the main program, the `<boost/program_options.hpp>` library is used to map those parameters to their values, which are finally stored in their corresponding variables. This practice constitutes in making the input reading process more flexible and error-proof. The user can specify the input parameters in the `exec/inputs/case.txt` file in any order, as long as they are given as `key = value` pairs.
 
 ## Class initialisation
 After storing the input values, the initial condition is used to determine the number of particles, as well as to declare the containers which store the information related to the particles' properties in the `sph` object and allocate memory. This is done in the constructor of the class where the containers are declared as `new` raw pointers and occupy memory that depends on the number of particles. To avoid the use of multiple `if` statements, two `std::map` objects are used to map the different conditions to their corresponding number of particles and their corresponding initialisation function.
@@ -87,7 +87,7 @@ After storing the input values, the initial condition is used to determine the n
 
 Uppon succesful execution the program will result in two files:
 
-- One for the Energies (Total, Kinetic, Potential) at each time step.
+- One for the Energies (Total, Kinetic, Potential) at each time step which can be plotted by using the script `post/plot_energies.ipynb`.
 
 - One for the final positions of the particles.
 
