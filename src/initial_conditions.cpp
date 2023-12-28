@@ -137,8 +137,8 @@ void ic_block_drop(int nb_particles, int n1, int n2, SPH &sph) {
 // Droplet
 void ic_droplet(int nb_particles, SPH &sph) {
 
-  double *position_x_i = new double[nb_particles];
-  double *position_y_i = new double[nb_particles];
+  double *position_x_store = new double[nb_particles];
+  double *position_y_store = new double[nb_particles];
   int el = pow(nb_particles, 0.5);
   int kx;
 
@@ -149,7 +149,7 @@ void ic_droplet(int nb_particles, SPH &sph) {
 
   for (int i = 0; i < el; i++) {
     for (int j = 0; j < el; j++) {
-      position_x_i[i * el + j] = position_x;
+      position_x_store[i * el + j] = position_x;
     }
     position_x += step;
   }
@@ -159,35 +159,35 @@ void ic_droplet(int nb_particles, SPH &sph) {
   for (int i = 0; i < el; i++) {
     position_y = 0.6;
     for (int j = 0; j < el; j++) {
-      position_y_i[i * el + j] = position_y;
+      position_y_store[i * el + j] = position_y;
       position_y += step;
     }
   }
   kx = 0;
   for (int i = 0; i < el; i++) {
     for (int j = 0; j < el; j++) {
-      if (sqrt(pow((position_y_i[i * el + j] - 0.7), 2) +
-               pow((position_x_i[i * el + j] - 0.5), 2)) <= 0.1) {
+      if (sqrt(pow((position_y_store[i * el + j] - 0.7), 2) +
+               pow((position_x_store[i * el + j] - 0.5), 2)) <= 0.1) {
         sph(0, kx) =
-            position_x_i[i * el + j] + double(rand()) / RAND_MAX / 100000;
+            position_x_store[i * el + j] + double(rand()) / RAND_MAX / 100000;
         sph(1, kx) =
-            position_y_i[i * el + j] + double(rand()) / RAND_MAX / 100000;
+            position_y_store[i * el + j] + double(rand()) / RAND_MAX / 100000;
         sph(2, kx) = 0;
         sph(3, kx) = 0;
         kx++;
       }
     }
   }
-  delete[] position_x_i;
-  delete[] position_y_i;
+  delete[] position_x_store;
+  delete[] position_y_store;
 }
 
 // Defines the number of particles that will be in the circular region
 int dropletn(int nb_particles) {
 
   // Process similar to dam break. Creates an initial square
-  double *position_x_i = new double[nb_particles];
-  double *position_y_i = new double[nb_particles];
+  double *position_x_store = new double[nb_particles];
+  double *position_y_store = new double[nb_particles];
   int el = pow(nb_particles, 0.5);
   double step = 0.2 / (el - 1);
   double position_x = 0.4;
@@ -195,7 +195,7 @@ int dropletn(int nb_particles) {
 
   for (int i = 0; i < el; i++) {
     for (int j = 0; j < el; j++) {
-      position_x_i[i * el + j] = position_x;
+      position_x_store[i * el + j] = position_x;
     }
     position_x += step;
   }
@@ -205,7 +205,7 @@ int dropletn(int nb_particles) {
   for (int i = 0; i < el; i++) {
     position_y = 0.6;
     for (int j = 0; j < el; j++) {
-      position_y_i[i * el + j] = position_y;
+      position_y_store[i * el + j] = position_y;
       position_y += step;
     }
   }
@@ -216,16 +216,16 @@ int dropletn(int nb_particles) {
   int count = 0;
   for (int i = 0; i < el; i++) {
     for (int j = 0; j < el; j++) {
-      if (sqrt(pow((position_y_i[i * el + j] - 0.7), 2) +
-               pow((position_x_i[i * el + j] - 0.5), 2)) <= 0.1) {
+      if (sqrt(pow((position_y_store[i * el + j] - 0.7), 2) +
+               pow((position_x_store[i * el + j] - 0.5), 2)) <= 0.1) {
         count++;
       } else {
         count += 0;
       }
     }
   }
-  delete[] position_x_i;
-  delete[] position_y_i;
+  delete[] position_x_store;
+  delete[] position_y_store;
 
   return count;
 }
