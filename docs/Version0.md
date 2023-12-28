@@ -66,14 +66,9 @@ As stated earlier, the SPH class is initialised in the SPH-main.cpp file where o
 
 -  A Droplet (`ic-droplet`): particles occupying a circle of radius 0.1, centered at the point $[0.5,0.7]$
 
-### Time integration
-In the same file the user can specify the time of integration `T` which is being translated to number of iterations, as well as the timestep `dt`.
-
-
-For instance to set the initial condition to a single particle the user should type `init_conditions = ic-one-particle` in the `case.txt` file.
 
 ### Simulation Duration
-The duration of the simulation can be set in units of seconds with the input key `T`. For instance, a simulation of 10 seconds can be set by typing `T = 10` in the `case.txt` file.
+The real simulated time can be set in units of seconds with the input key `T`. For instance, a simulation of 10 seconds can be set by typing `T = 10` in the `case.txt` file.
 
 ### Time-step
 
