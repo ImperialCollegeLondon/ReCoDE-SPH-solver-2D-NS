@@ -75,7 +75,7 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
   h = vm["h"].as<double>();                 // Radius of influence
 
   total_iter =
-      int(total_time / dt) + 1; // Transform time in seconds to iterations
+      ceil(total_time / dt); // Transform time in seconds to iterations
 
   std::map<std::string, int> initConditionToParticlesMap = {
       {"ic-one-particle", 1},      {"ic-two-particles", 2},
