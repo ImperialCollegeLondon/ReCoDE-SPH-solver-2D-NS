@@ -2,7 +2,7 @@
 
 ## Overview
 
-The code in `v0` contains a serial C++ implementation of the algorithm described in `SPH.md`. The variables which are associated with the particles' positions, velocities and forces, are stored as members of an object called `SPH`. Furthermore, the functions which manifest the steps of the aforementioned algorithm are declared as the methods of this `SPH` class. It must be noted that although the produced results are correct, the herein version contains a lot of mistakes and wrong practices which will be explained (and improved/corrected) in more depth in the chapters to follow. 
+The code in `v0` contains a serial C++ implementation of the algorithm described in `SPH.md`. The variables which are associated with the particles' positions, velocities and forces, are stored as members of an object called `SPH`. Furthermore, the functions which manifest the steps of the aforementioned algorithm are declared as the methods of this `SPH` class. It must be noted that although the produced results are correct, this version will be improved upon in chapters which follow. At each step, the improvements will be explained in terms of how they work and the motivation for their implementation.
 
 ## Compiling the and executing code
 
@@ -11,12 +11,12 @@ The list of requirements for the v0 code is:
 - A `C++17` version 
 - The `boost_program_options` library
 
-To compile the user has to simply type:
+To compile the user has to simply type the following commands in the terminal:
 
 - `make clean`
 - `make`
 
-This will produce an executable called SPH-SOLVER in the src folder and the user needs to type:
+This will produce an executable called `SPH-SOLVER` in the src folder and the user needs to type:
 
 - `./SPH-SOLVER`
 
@@ -35,7 +35,7 @@ This version of the code displays a serial implementation of the SPH algorithm i
 
 ## Main program
 
-The main program of the code (i.e. main-SPH.cpp) is used to read the input files, export the output files, initialise the SPH class and perform the time integration by calling the SPH object's methods.
+The main program of the code (i.e.`main-SPH.cpp`) is used to read the input files, export the output files, initialise the SPH class and perform the time integration by calling the SPH object's methods.
 
 ## Structure of the class
 
