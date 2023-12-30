@@ -80,28 +80,28 @@ The last input parameter that the user can specify in the `exec/inputs/case.txt`
 The aforementioned parameters are expected by the program, and therefore, while reading the `exec/inputs/case.txt` file in the function `initialise()` which is called by the main program, the `<boost/program_options.hpp>` library is used to map those parameters to their values, which are finally stored in their corresponding variables. This practice constitutes in making the input reading process more flexible and error-proof. The user can specify the input parameters in the `exec/inputs/case.txt` file in any order, as long as they are given as `key = value` pairs.
 
 ``` 
-  // Process to obtain the directions provided by the user
-  po::options_description desc("Allowed options");
-  desc.add_options()("init_condition", po::value<std::string>(),
-                     "take an initial condition")("T", po::value<double>(),
-                                                  "take integration time")(
-      "dt", po::value<double>(), "take time-step")("h", po::value<double>(),
-                                                   "take radius of influence");
+// Process to obtain the directions provided by the user
+po::options_description desc("Allowed options");
+desc.add_options()("init_condition", po::value<std::string>(),
+                    "take an initial condition")("T", po::value<double>(),
+                                                "take integration time")(
+    "dt", po::value<double>(), "take time-step")("h", po::value<double>(),
+                                                "take radius of influence");
 
-  po::variables_map vm;
-  std::ifstream inputFile;
-  inputFile.open("../exec/inputs/case.txt");
+po::variables_map vm;
+std::ifstream inputFile;
+inputFile.open("../exec/inputs/case.txt");
 
-  if (inputFile.is_open()) {
-    po::store(po::parse_config_file(inputFile, desc), vm);
-    inputFile.close();
-  } else {
-    std::cerr << "Error opening file: inputs.txt" << std::endl;
-  }
+if (inputFile.is_open()) {
+po::store(po::parse_config_file(inputFile, desc), vm);
+inputFile.close();
+} else {
+std::cerr << "Error opening file: inputs.txt" << std::endl;
+}
 
-  po::notify(vm);
-  
-  ```
+po::notify(vm);
+
+```
 
 ## Class initialisation
 After storing the input values, the initial condition is used to determine the number of particles, as well as to declare the containers which store the information related to the particles' properties in the `sph` object and allocate memory. This is done in the constructor of the class where the containers are declared as `new` raw pointers and occupy memory that depends on the number of particles. 
