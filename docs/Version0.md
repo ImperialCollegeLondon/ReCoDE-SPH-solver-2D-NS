@@ -194,7 +194,7 @@ The total number of timesteps is determined by the total integration time and th
 
 ```
 total_iter =
-      int(total_time / dt) + 1; // Transform time in seconds to iterations
+      ceil(total_time / dt); // Transform time in seconds to iterations
 ```
 ## Outputs
 
