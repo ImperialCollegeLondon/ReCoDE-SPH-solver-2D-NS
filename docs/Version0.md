@@ -202,7 +202,7 @@ Uppon succesful execution the program will result in two files:
 
 - One for the Energies (Total, Kinetic, Potential) which is written during every time step and the results be plotted by using the script `post/plot_energies.ipynb`.
 
-- One for the final positions of the particles which can be plotted by using the script `post/visualise_particles.ipynb`.
+- One for the final positions of the particles which can be plotted by using the script `post/visualize_particles.ipynb`.
 
 ```
 // Write energies on the Energy-File
