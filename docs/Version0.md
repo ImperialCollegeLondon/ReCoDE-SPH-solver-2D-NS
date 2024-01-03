@@ -8,28 +8,22 @@ The code in `v0` contains a serial C++ implementation of the algorithm described
 
 The list of requirements for the v0 code is:
 
-- A `C++17` version 
-- The `boost_program_options` library
+- A `C++20` version 
+- The `Boost` library
 
-To compile the user has to simply type the following commands in the terminal:
-
-- `make clean`
-- `make`
+To compile and build the user can follow the guide inside `CMake.md` under **Usage**.
 
 This will produce an executable called `SPH-SOLVER` in the src folder and the user needs to type:
 
-- `./SPH-SOLVER`
+- `./build/SPH-SOLVER`
 
 ## Files
 This version of the code displays a serial implementation of the SPH algorithm in C++. It comprises three `*.cpp` files and their corresponding header (`*.h`) files. The code is accompanied by two input text files, one for the input variables of the executed case and the input parameters and one for the domain boundaries. 
 
 - `src/main-SPH.cpp`
-- `src/sph.cpp`
-- `src/initial_conditions.cpp`
-- `src/main_prog_func.h`
-- `src/sph.h`
-- `src/initial_conditions.h`
-- `src/Makefile`
+- `src/class.cpp`
+- `src/class.h`
+- `src/CMakeLists.txt`
 - `exec/inputs/case.txt`
 
 ## Main program
