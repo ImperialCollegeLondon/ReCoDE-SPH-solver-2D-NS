@@ -36,21 +36,3 @@ For our purpose that is unesseccary since we only have two files.
 ## External Dependencies (Boost)
 
 CMake is great in fetching and linking any external dependency that the project might contain. It's especially helpful with Boost since it can use `find_package` and fetch the existing installation. When finding packages, it is best practise to include only the headers that the user would require (in our case `program_options`). In the case that Boost package is found, we can add the output executable (`SPH_SOLVER`) and link it to the `SOURCE` files we have declared earlier (CMake will go and fetch them automatically). For Boost to work though we have another step, we need to link Boost's libraries to the target (`SPH_SOLVER`). This can be done with the `target_link_libraries` command.
-
-## Usage
-
-The most used way to build with CMake and then compile a project is the following.
-1. Create a `build` directory inside the project root directory and then `cd` in it:
-```
-mkdir build; cd build
-```
-2. Build with cmake the target on the root directory (utilising `CMakeLists.txt`):
-```
-cmake ../src
-```
-3. Compile inside `build` directory using CMake
-```
-cmake --build .
-```
-
-That's it! The project binary can then be accessed (as long as the building and compilation finished smoothly) and executed inside `build` directory.

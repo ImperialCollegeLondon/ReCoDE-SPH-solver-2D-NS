@@ -11,7 +11,19 @@ The list of requirements for the v0 code is:
 - A `C++20` version 
 - The `Boost` library
 
-To compile and build the user can follow the guide inside `CMake.md` under **Usage**.
+The most used way to build with CMake and then compile a project is the following.
+1. Create a `build` directory inside the project root directory and then `cd` in it:
+```
+mkdir build; cd build
+```
+2. Build with cmake the target on the root directory (utilising `CMakeLists.txt`):
+```
+cmake ../src
+```
+3. Compile inside `build` directory using CMake
+```
+cmake --build .
+```
 
 This will produce an executable called `SPH-SOLVER` in the `build` folder and the user needs to type:
 
@@ -20,7 +32,7 @@ This will produce an executable called `SPH-SOLVER` in the `build` folder and th
 ## Files
 This version of the code displays a serial implementation of the SPH algorithm in C++. It comprises three `*.cpp` files and their corresponding header (`*.h`) files. The code is accompanied by two input text files, one for the input variables of the executed case and the input parameters and one for the domain boundaries. 
 
-- `src/main-SPH.cpp`
+- `src/SPH-main.cpp`
 - `src/sph.cpp`
 - `src/initial_conditions.cpp`
 - `src/main_prog_func.h`
@@ -31,7 +43,7 @@ This version of the code displays a serial implementation of the SPH algorithm i
 
 ## Main program
 
-The main program of the code (i.e.`main-SPH.cpp`) is used to read the input files, export the output files, initialise the SPH class and perform the time integration by calling the SPH object's methods.
+The main program of the code (i.e.`SPH-main.cpp`) is used to read the input files, export the output files, initialise the SPH class and perform the time integration by calling the SPH object's methods.
 
 ## Structure of the class
 
