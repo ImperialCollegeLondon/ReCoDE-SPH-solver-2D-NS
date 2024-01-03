@@ -13,7 +13,7 @@ The list of requirements for the v0 code is:
 
 To compile and build the user can follow the guide inside `CMake.md` under **Usage**.
 
-This will produce an executable called `SPH-SOLVER` in the src folder and the user needs to type:
+This will produce an executable called `SPH-SOLVER` in the `build` folder and the user needs to type:
 
 - `./build/SPH-SOLVER`
 
@@ -21,8 +21,11 @@ This will produce an executable called `SPH-SOLVER` in the src folder and the us
 This version of the code displays a serial implementation of the SPH algorithm in C++. It comprises three `*.cpp` files and their corresponding header (`*.h`) files. The code is accompanied by two input text files, one for the input variables of the executed case and the input parameters and one for the domain boundaries. 
 
 - `src/main-SPH.cpp`
-- `src/class.cpp`
-- `src/class.h`
+- `src/sph.cpp`
+- `src/initial_conditions.cpp`
+- `src/main_prog_func.h`
+- `src/sph.h`
+- `src/initial_conditions.h`
 - `src/CMakeLists.txt`
 - `exec/inputs/case.txt`
 
