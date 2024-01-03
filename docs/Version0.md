@@ -29,6 +29,13 @@ This will produce an executable called `SPH-SOLVER` in the `build` folder and th
 
 - `./build/SPH-SOLVER`
 
+To clean the `build` directory, the user can use the following command:
+```
+cmake --build . --target clean
+```
+
+This will effectively delete the binary and Makefile from the `build` directory.
+
 ## Files
 This version of the code displays a serial implementation of the SPH algorithm in C++. It comprises three `*.cpp` files and their corresponding header (`*.h`) files. The code is accompanied by two input text files, one for the input variables of the executed case and the input parameters and one for the domain boundaries. 
 

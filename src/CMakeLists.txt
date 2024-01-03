@@ -9,8 +9,11 @@ set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/../build)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 set(SOURCES
-    class.cpp
-    class.h)
+    sph.cpp
+    sph.h
+    initial_conditions.cpp
+    initial_conditions.h
+    main_prog_funcs.h)
 
 find_package(Boost COMPONENTS program_options REQUIRED)
 if(Boost_FOUND)
