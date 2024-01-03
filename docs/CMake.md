@@ -46,7 +46,7 @@ mkdir build; cd build
 ```
 2. Build with cmake the target on the root directory (utilising `CMakeLists.txt`):
 ```
-cmake ..
+cmake ../src
 ```
 3. Compile inside `build` directory using CMake
 ```
