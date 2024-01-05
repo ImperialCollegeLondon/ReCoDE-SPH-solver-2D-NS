@@ -2,11 +2,12 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include "sph.h"
 #include <boost/program_options.hpp>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+
+#include "sph.h"
 
 namespace po = boost::program_options;
 

@@ -1,7 +1,4 @@
 // This is a main program to run the SPH simulation
-#include "initial_conditions.h"
-#include "main_prog_funcs.h"
-#include "sph.h"
 #include <boost/program_options.hpp>
 #include <cmath>
 #include <fstream>
@@ -9,13 +6,16 @@
 #include <iostream>
 #include <iterator>
 
+#include "initial_conditions.h"
+#include "main_prog_funcs.h"
+#include "sph.h"
+
 // Start of the main programme
 int main(int argc, char *argv[]) {
-
   // Declare the parameters of the problem
-  int nb_particles; // number of particles
-  int total_iter;   // total number of iterations required for the time
-                    // integration
+  int nb_particles;  // number of particles
+  int total_iter;    // total number of iterations required for the time
+                     // integration
   double h;
   double dt;
 
@@ -44,7 +44,6 @@ int main(int argc, char *argv[]) {
 }
 
 SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
-
   // Process to obtain the directions provided by the user
   po::options_description desc("Allowed options");
   desc.add_options()("init_condition", po::value<std::string>(),
@@ -66,16 +65,16 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
 
   po::notify(vm);
 
-  int n1 = 17;  // required for ic-block-drop
-  int n2 = 25;  // required for ic-block-drop
-  int n3 = 100; // required for ic-dam-break and ic-droplet
+  int n1 = 17;   // required for ic-block-drop
+  int n2 = 25;   // required for ic-block-drop
+  int n3 = 100;  // required for ic-dam-break and ic-droplet
 
-  double total_time = vm["T"].as<double>(); // Total integration time
-  dt = vm["dt"].as<double>();               // Time step dt
-  h = vm["h"].as<double>();                 // Radius of influence
+  double total_time = vm["T"].as<double>();  // Total integration time
+  dt = vm["dt"].as<double>();                // Time step dt
+  h = vm["h"].as<double>();                  // Radius of influence
 
   total_iter =
-      ceil(total_time / dt); // Transform time in seconds to iterations
+      ceil(total_time / dt);  // Transform time in seconds to iterations
 
   std::map<std::string, int> initConditionToParticlesMap = {
       {"ic-one-particle", 1},      {"ic-two-particles", 2},
@@ -137,7 +136,6 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
 }
 
 void init_output_files(std::ofstream &vOut, std::ofstream &vOut2) {
-
   vOut.precision(5);
   vOut << "x"
        << "          "
@@ -156,12 +154,10 @@ void init_output_files(std::ofstream &vOut, std::ofstream &vOut2) {
 
 void time_integration(SPH &sph, int nb_particles, int total_iter, double h,
                       double dt, std::ofstream &vOut, std::ofstream &vOut2) {
-
   std ::cout << "Time integration started -- OK"
              << "\n";
 
   for (int t = 0; t < total_iter; t++) {
-
     // In each iteration the disatnces between the particles are recalculated,
     // as well as their densities
     sph.calc_particle_distance();
@@ -176,9 +172,7 @@ void time_integration(SPH &sph, int nb_particles, int total_iter, double h,
 
     // Get the positions after integration is completed
     if (t == total_iter - 1) {
-
       for (int l = 0; l < nb_particles; l++) {
-
         vOut << sph.return_position_x(l) << " " << sph.return_position_y(l)
              << "\n";
       }
