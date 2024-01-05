@@ -4,5 +4,4 @@
 # Ignore .o files
 *.o
 
-# Ignore executable
-SPH-SOLVER
+exec/build/

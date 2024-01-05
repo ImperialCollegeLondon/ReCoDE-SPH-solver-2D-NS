@@ -8,33 +8,47 @@ The code in `v0` contains a serial C++ implementation of the algorithm described
 
 The list of requirements for the v0 code is:
 
-- A `C++17` version 
-- The `boost_program_options` library
+- A `C++20` version 
+- The `Boost` library
 
-To compile the user has to simply type the following commands in the terminal:
+To compile the code, the user has to change the working directory to `exec/build` and then type in the terminal:
 
-- `make clean`
-- `make`
+```
+cmake ../src
+```
 
-This will produce an executable called `SPH-SOLVER` in the src folder and the user needs to type:
+and finally:
+
+```
+cmake --build .
+```
+
+This will produce an executable called `SPH-SOLVER` in the `exec/build` folder. To execute the code, the user needs to type in the terminal:
 
 - `./SPH-SOLVER`
+
+To clean the `build` directory, the user can use the following command:
+```
+cmake --build . --target clean
+```
+
+This will effectively delete the binary from the `build` directory.
 
 ## Files
 This version of the code displays a serial implementation of the SPH algorithm in C++. It comprises three `*.cpp` files and their corresponding header (`*.h`) files. The code is accompanied by two input text files, one for the input variables of the executed case and the input parameters and one for the domain boundaries. 
 
-- `src/main-SPH.cpp`
+- `src/SPH-main.cpp`
 - `src/sph.cpp`
 - `src/initial_conditions.cpp`
 - `src/main_prog_func.h`
 - `src/sph.h`
 - `src/initial_conditions.h`
-- `src/Makefile`
+- `src/CMakeLists.txt`
 - `exec/inputs/case.txt`
 
 ## Main program
 
-The main program of the code (i.e.`main-SPH.cpp`) is used to read the input files, export the output files, initialise the SPH class and perform the time integration by calling the SPH object's methods.
+The main program of the code (i.e.`SPH-main.cpp`) is used to read the input files, export the output files, initialise the SPH class and perform the time integration by calling the SPH object's methods.
 
 ## Structure of the class
 
