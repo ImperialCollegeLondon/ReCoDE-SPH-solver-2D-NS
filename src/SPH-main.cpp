@@ -55,7 +55,7 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
 
   po::variables_map vm;
   std::ifstream inputFile;
-  inputFile.open("../exec/inputs/case.txt");
+  inputFile.open("../inputs/case.txt");
 
   if (inputFile.is_open()) {
     po::store(po::parse_config_file(inputFile, desc), vm);

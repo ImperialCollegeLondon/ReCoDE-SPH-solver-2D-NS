@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 project(SPH_SOLVER)
 
 # Set binary path
-set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/../build)
+set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/../exec/build)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 set(SOURCES

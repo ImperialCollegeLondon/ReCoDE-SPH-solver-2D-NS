@@ -11,30 +11,28 @@ The list of requirements for the v0 code is:
 - A `C++20` version 
 - The `Boost` library
 
-The most used way to build with CMake and then compile a project is the following.
-1. Create a `build` directory inside the project root directory and then `cd` in it:
-```
-mkdir build; cd build
-```
-2. Build with cmake the target on the root directory (utilising `CMakeLists.txt`):
+To compile the code, the user has to change the working directory to `exec/build` and then type in the terminal:
+
 ```
 cmake ../src
 ```
-3. Compile inside `build` directory using CMake
+
+and finally:
+
 ```
 cmake --build .
 ```
 
-This will produce an executable called `SPH-SOLVER` in the `build` folder and the user needs to type:
+This will produce an executable called `SPH-SOLVER` in the `exec/build` folder. To execute the code, the user needs to type in the terminal:
 
-- `./build/SPH-SOLVER`
+- `./SPH-SOLVER`
 
 To clean the `build` directory, the user can use the following command:
 ```
 cmake --build . --target clean
 ```
 
-This will effectively delete the binary and Makefile from the `build` directory.
+This will effectively delete the binary from the `build` directory.
 
 ## Files
 This version of the code displays a serial implementation of the SPH algorithm in C++. It comprises three `*.cpp` files and their corresponding header (`*.h`) files. The code is accompanied by two input text files, one for the input variables of the executed case and the input parameters and one for the domain boundaries. 

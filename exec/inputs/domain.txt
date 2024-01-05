@@ -1,4 +1,0 @@
-0.0 #Left boundary
-0.0 #Lower boundary
-1.0 #Right boundary
-1.0 #Upper boundary
