@@ -6,10 +6,11 @@ jobs:
     name: clang-format check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: jidicula/clang-format-action@v4.11.0
-      with:
-        clang-format-version: '17'
-        check-path: 'src'
-        fallback-style: 'Google' # change this if we change style in repo
-      
+      - name: Get repository
+        uses: actions/checkout@v2
+      - name: Check formatting
+        uses: jidicula/clang-format-action@v4.11.0
+        with:
+          clang-format-version: '17'
+          check-path: 'src'
+          fallback-style: 'Google' # change this if we change style in repo
