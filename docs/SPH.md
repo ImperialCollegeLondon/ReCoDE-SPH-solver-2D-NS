@@ -60,7 +60,7 @@ $$F_{pi} = −\sum_{j} \frac{m}{\rho_{j}} \frac{(p_i + p_j)}{2} \nabla(\phi_{p})
 where $\phi_d$ is the the kernel density function for pressure :
 
 $$\nabla(\phi_{p})(r_{ij} ,h) = \begin{cases}
-− 30 \pi h^3 r_{ij} \frac{(1−q)^2}{q} & \text{for } q_{ij} < 1 \text{ and } i \neq j\\
+− 30 \pi h^3 r_{ij} \frac{(1−q_{ij})^2}{q_{ij}} & \text{for } q_{ij} < 1 \text{ and } i \neq j\\
 0 & \text{otherwise}
 \end{cases}
 $$
