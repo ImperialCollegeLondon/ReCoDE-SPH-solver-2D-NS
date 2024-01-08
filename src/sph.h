@@ -7,7 +7,11 @@
  **/
 #ifndef SPH_H
 #define SPH_H
+
+#include "sph_calc.h" // TODO(Vyron): Cyclic dependencies here
 class SPH {
+
+friend class SPH_Calc; // TODO(Vyron): Is this really the best way ?
 
 private:
   unsigned int nb_particles; // size of the Matrix
@@ -70,6 +74,7 @@ public:
 
   /**********MEMBER-FUNCTIONS*********/
 
+    // TODO(Vyron): Many of these below need to be inlined and if it's possible constexpr
   // Setter Functions.
 
   // Assign value to dt
@@ -77,24 +82,6 @@ public:
 
   // Assign value to h
   void set_rad_infl(double h);
-
-  // Function to calculate the matrix with rij
-  void calc_particle_distance();
-
-  // Function to calculate the density
-  void calc_density();
-
-  // Function to calculate the pressure
-  void calc_pressure();
-
-  // Function to calculate the pressure force
-  double calc_pressure_force(int particle_index, double *position);
-
-  // Function to calculate the viscous force
-  double calc_viscous_force(int particle_index, double *velocity);
-
-  // Function to calculate the gravity force
-  double calc_gravity_force(int particle_index);
 
   // Function to initialise the time integration scheme - velocity
   double scheme_init(int particle_index, double *velocity,
@@ -106,17 +93,14 @@ public:
                               double &force_pressure, double &force_viscous,
                               double &force_gravity);
 
-  // Function to find the mass of the particles before the simulation starts
-  void calc_mass();
-
   // Function to perform the particle iterations
   void particle_iterations();
 
   // Function to return the position x
-  double return_position_x(int l);
+  double get_position_x(int l) const;
 
   // Function to return the position y
-  double return_position_y(int l);
+  double get_position_y(int l) const;
 
   // Function to calculate the kinetic energy
   double return_kinetic_energy();

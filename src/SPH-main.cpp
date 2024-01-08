@@ -2,6 +2,7 @@
 #include "initial_conditions.h"
 #include "main_prog_funcs.h"
 #include "sph.h"
+#include "sph_calc.h"
 #include <boost/program_options.hpp>
 #include <cmath>
 #include <fstream>
@@ -159,13 +160,13 @@ void time_integration(SPH &sph, int nb_particles, int total_iter, double h,
 
   std ::cout << "Time integration started -- OK"
              << "\n";
-
+  SPH_Calc* sph_calc;
   for (int t = 0; t < total_iter; t++) {
 
-    // In each iteration the disatnces between the particles are recalculated,
+    // In each iteration the distances between the particles are recalculated,
     // as well as their densities
-    sph.calc_particle_distance();
-    sph.calc_density();
+    sph_calc->calc_particle_distance(sph);
+    sph_calc->calc_density(sph);
     sph.particle_iterations();
 
     // Write energies on the Energy-File
@@ -179,7 +180,7 @@ void time_integration(SPH &sph, int nb_particles, int total_iter, double h,
 
       for (int l = 0; l < nb_particles; l++) {
 
-        vOut << sph.return_position_x(l) << " " << sph.return_position_y(l)
+        vOut << sph.get_position_x(l) << " " << sph.get_position_y(l)
              << "\n";
       }
     }
