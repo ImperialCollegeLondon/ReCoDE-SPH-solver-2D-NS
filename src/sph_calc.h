@@ -5,27 +5,29 @@
 
 class SPH_Calc {
   public:
-    SPH_Calc() = default;
-    ~SPH_Calc() = default;
+    // This should be a purely calculations function. All methods are
+    // going to be static and no object should be created.
+    SPH_Calc() = delete;
+    ~SPH_Calc() = delete;
 
     // Function to calculate the matrix with rij
-    void calc_particle_distance(SPH&);
+    static void calc_particle_distance(SPH&);
 
     // Function to calculate the density
-    void calc_density(SPH&);
+    static void calc_density(SPH&);
 
     // Function to calculate the pressure
-    void calc_pressure(SPH&);
+    static void calc_pressure(SPH&);
 
     // Function to calculate the pressure force
-    double calc_pressure_force(SPH&, int particle_index, double *position);
+    static double calc_pressure_force(SPH&, int particle_index, double *position);
 
     // Function to calculate the viscous force
-    double calc_viscous_force(SPH&, int particle_index, double *velocity);
+    static double calc_viscous_force(SPH&, int particle_index, double *velocity);
 
     // Function to calculate the gravity force
-    double calc_gravity_force(SPH&, int particle_index);
+    static double calc_gravity_force(SPH&, int particle_index);
 
     // Function to find the mass of the particles before the simulation starts
-    void calc_mass(SPH&);
+    static void calc_mass(SPH&);
 };

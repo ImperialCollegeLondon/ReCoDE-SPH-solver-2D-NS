@@ -132,7 +132,7 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
   sph.set_rad_infl(h);
 
   // Calculate the mass of the particles
-  sph.calc_mass();
+  SPH_Calc::calc_mass(sph);
 
   return sph;
 }
@@ -165,8 +165,8 @@ void time_integration(SPH &sph, int nb_particles, int total_iter, double h,
 
     // In each iteration the distances between the particles are recalculated,
     // as well as their densities
-    sph_calc->calc_particle_distance(sph);
-    sph_calc->calc_density(sph);
+    SPH_Calc::calc_particle_distance(sph);
+    SPH_Calc::calc_density(sph);
     sph.particle_iterations();
 
     // Write energies on the Energy-File

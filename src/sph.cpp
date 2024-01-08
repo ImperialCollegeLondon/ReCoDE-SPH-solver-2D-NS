@@ -1,4 +1,5 @@
 #include "sph.h"
+#include "sph_calc.h"
 #include <cmath>
 #include <cstring>
 #include <fstream>
@@ -87,21 +88,20 @@ double SPH::velocity_integration(int particle_index, double *velocity,
 void SPH::particle_iterations() {
 
   int i;
-  SPH_Calc* sph_calc;
   for (i = 0; i < nb_particles; i++) {
 
-    sph_calc->calc_pressure(*this);
+    SPH_Calc::calc_pressure(*this);
 
     // Gathering the forces calculated by the processors
-    force_pressure_x = sph_calc->calc_pressure_force(*this, i, position_x);
+    force_pressure_x = SPH_Calc::calc_pressure_force(*this, i, position_x);
 
-    force_viscous_x = sph_calc->calc_viscous_force(*this, i, velocity_x);
+    force_viscous_x = SPH_Calc::calc_viscous_force(*this, i, velocity_x);
 
-    force_pressure_y = sph_calc->calc_pressure_force(*this, i, position_y);
+    force_pressure_y = SPH_Calc::calc_pressure_force(*this, i, position_y);
 
-    force_viscous_y = sph_calc->calc_viscous_force(*this, i, velocity_y);
+    force_viscous_y = SPH_Calc::calc_viscous_force(*this, i, velocity_y);
 
-    force_gravity_y = sph_calc->calc_gravity_force(*this, i);
+    force_gravity_y = SPH_Calc::calc_gravity_force(*this, i);
 
     // First step to initialise the scheme
     if (t == 0) {

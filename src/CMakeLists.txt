@@ -11,6 +11,8 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(SOURCES
     sph.cpp
     sph.h
+    sph_calc.cpp
+    sph_calc.h
     initial_conditions.cpp
     initial_conditions.h
     main_prog_funcs.h)

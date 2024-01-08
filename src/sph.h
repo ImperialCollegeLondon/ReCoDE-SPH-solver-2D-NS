@@ -8,7 +8,7 @@
 #ifndef SPH_H
 #define SPH_H
 
-#include "sph_calc.h" // TODO(Vyron): Cyclic dependencies here
+//#include "sph_calc.h" // TODO(Vyron): Cyclic dependencies here
 class SPH {
 
 friend class SPH_Calc; // TODO(Vyron): Is this really the best way ?
