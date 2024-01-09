@@ -1,6 +1,109 @@
 #include "sph_calc.h"
 #include <cmath>
 
+void SPH_Calc::particle_iterations(SPH& data) {
+
+  int i;
+  for (i = 0; i < data.nb_particles; i++) {
+
+    calc_pressure(data);
+
+    // Gathering the forces
+    data.force_pressure_x = calc_pressure_force(data, i, data.position_x);
+
+    data.force_viscous_x = calc_viscous_force(data, i, data.velocity_x);
+
+    data.force_pressure_y = calc_pressure_force(data, i, data.position_y);
+
+    data.force_viscous_y = calc_viscous_force(data, i, data.velocity_y);
+
+    data.force_gravity_y = calc_gravity_force(data, i);
+
+    // Update the position of the particle
+    update_position(data,i);
+
+    // Boundary Conditions
+    boundaries(data, i);
+  }
+}
+
+void SPH_Calc::update_position(SPH& data,int particle_index){
+
+  // First step to initialise the scheme
+    if (data.t == 0) {
+
+      data.velocity_x[particle_index] = scheme_init(data, particle_index, data.velocity_x, data.force_pressure_x,
+                                  data.force_viscous_x, data.force_gravity_x);
+      data.position_x[particle_index] = data.position_x[particle_index] + data.velocity_x[particle_index] * data.dt; 
+      data.velocity_y[particle_index] = scheme_init(data,particle_index, data.velocity_y, data.force_pressure_y,
+                                  data.force_viscous_y, data.force_gravity_y);
+      data.position_y[particle_index] = data.position_y[particle_index] + data.velocity_y[particle_index] * data.dt; 
+
+    }
+
+    // Leap frog scheme
+    else {
+
+      data.velocity_x[particle_index] = velocity_integration(data, particle_index, data.velocity_x, data.force_pressure_x,
+                                           data.force_viscous_x, data.force_gravity_x);
+      data.position_x[particle_index] = data.position_x[particle_index] + data.velocity_x[particle_index] * data.dt; 
+      data.velocity_y[particle_index] = velocity_integration(data,particle_index, data.velocity_y, data.force_pressure_y,
+                                           data.force_viscous_y, data.force_gravity_y);
+      data.position_y[particle_index] = data.position_y[particle_index] + data.velocity_y[particle_index] * data.dt; 
+    }
+
+}
+
+double SPH_Calc::scheme_init(SPH& data,int particle_index, double *velocity,
+                        double &force_pressure, double &force_viscous,
+                        double &force_gravity) {
+
+  double acceleration;
+
+  acceleration = (force_pressure + force_viscous + force_gravity) /
+                 data.particle_density[particle_index];
+
+  return velocity[particle_index] + acceleration * data.dt * 0.5;
+}
+
+double SPH_Calc::velocity_integration(SPH& data,int particle_index, double *velocity,
+                                 double &force_pressure, double &force_viscous,
+                                 double &force_gravity) {
+
+  double acceleration;
+  acceleration = (force_pressure + force_viscous + force_gravity) /
+                 data.particle_density[particle_index];
+
+  return velocity[particle_index] + acceleration * data.dt;
+}
+
+void SPH_Calc::boundaries(SPH& data,int particle_index) {
+
+if (data.position_x[particle_index] < data.h) {
+
+      data.position_x[particle_index] = data.h;
+     data. velocity_x[particle_index] = -data.coeff_restitution * data.velocity_x[particle_index];
+    }
+
+    if (data.position_x[particle_index] > 1.0 - data.h) {
+
+     data. position_x[particle_index] = 1.0 - data.h;
+      data.velocity_x[particle_index] = -data.coeff_restitution * data.velocity_x[particle_index];
+    }
+
+    if (data.position_y[particle_index] < data.h) {
+
+      data.position_y[particle_index] = data.h;
+      data.velocity_y[particle_index] = -data.coeff_restitution * data.velocity_y[particle_index];
+    }
+
+    if (data.position_y[particle_index] > 1.0 - data.h) {
+
+      data.position_y[particle_index] = 1.0 - data.h;
+      data.velocity_y[particle_index] = -data.coeff_restitution * data.velocity_y[particle_index];
+    }
+}
+
 void SPH_Calc::calc_particle_distance(SPH& data) {
 
   double dx;

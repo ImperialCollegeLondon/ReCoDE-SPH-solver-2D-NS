@@ -167,7 +167,7 @@ void time_integration(SPH &sph, int nb_particles, int total_iter, double h,
     // as well as their densities
     SPH_Calc::calc_particle_distance(sph);
     SPH_Calc::calc_density(sph);
-    sph.particle_iterations();
+    SPH_Calc::particle_iterations(sph);
 
     // Write energies on the Energy-File
     vOut2 << t * dt << "  " << sph.return_kinetic_energy() << "  "

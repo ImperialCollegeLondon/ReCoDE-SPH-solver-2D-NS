@@ -83,19 +83,6 @@ public:
   // Assign value to h
   void set_rad_infl(double h);
 
-  // Function to initialise the time integration scheme - velocity
-  double scheme_init(int particle_index, double *velocity,
-                     double &force_pressure, double &force_viscous,
-                     double &force_gravity);
-
-  // Function for time integration - velocity
-  double velocity_integration(int particle_index, double *velocity,
-                              double &force_pressure, double &force_viscous,
-                              double &force_gravity);
-
-  // Function to perform the particle iterations
-  void particle_iterations();
-
   // Function to return the position x
   double get_position_x(int l) const;
 

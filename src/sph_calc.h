@@ -10,6 +10,23 @@ class SPH_Calc {
     SPH_Calc() = delete;
     ~SPH_Calc() = delete;
 
+    // Function to perform the particle iterations
+    static void particle_iterations(SPH&);
+
+    static void update_position(SPH&, int particle_index);
+    // Function to initialise the time integration scheme - velocity
+    static double scheme_init(SPH&,int particle_index, double *velocity,
+                      double &force_pressure, double &force_viscous,
+                      double &force_gravity);
+
+    // Function for time integration - velocity
+    static double velocity_integration(SPH&,int particle_index, double *velocity,
+                                double &force_pressure, double &force_viscous,
+                                double &force_gravity);
+
+    // Function to treat the boundaries
+    static void boundaries(SPH&, int particle_index);
+
     // Function to calculate the matrix with rij
     static void calc_particle_distance(SPH&);
 
