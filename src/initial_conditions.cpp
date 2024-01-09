@@ -1,75 +1,75 @@
 #include "initial_conditions.h"
-#include "sph.h"
+#include "particles.h"
 #include <cmath>
 
 // ========== Initial Conditions ==========
 
-void ic_one_particle(int nb_particles, SPH &sph) {
+void ic_one_particle(int nb_particles, particles &fluid) {
 
-  sph(0, 0) = 0.5;
-  sph(1, 0) = 0.5;
-  sph(2, 0) = 0.0;
-  sph(3, 0) = 0.0;
+  fluid(0, 0) = 0.5;
+  fluid(1, 0) = 0.5;
+  fluid(2, 0) = 0.0;
+  fluid(3, 0) = 0.0;
 }
 
-void ic_two_particles(int nb_particles, SPH &sph) {
+void ic_two_particles(int nb_particles, particles &fluid) {
 
-  sph(0, 0) = 0.5;
-  sph(0, 1) = 0.5;
+  fluid(0, 0) = 0.5;
+  fluid(0, 1) = 0.5;
 
-  sph(1, 0) = 0.5;
-  sph(1, 1) = 0.01;
+  fluid(1, 0) = 0.5;
+  fluid(1, 1) = 0.01;
 
-  sph(2, 0) = 0.0;
-  sph(2, 1) = 0.0;
+  fluid(2, 0) = 0.0;
+  fluid(2, 1) = 0.0;
 
-  sph(3, 0) = 0.0;
-  sph(3, 1) = 0.0;
+  fluid(3, 0) = 0.0;
+  fluid(3, 1) = 0.0;
 }
 
-void ic_three_particles(int nb_particles, SPH &sph) {
+void ic_three_particles(int nb_particles, particles &fluid) {
 
-  sph(0, 0) = 0.5;
-  sph(0, 1) = 0.495;
-  sph(0, 2) = 0.505;
+  fluid(0, 0) = 0.5;
+  fluid(0, 1) = 0.495;
+  fluid(0, 2) = 0.505;
 
-  sph(1, 0) = 0.5;
-  sph(1, 1) = 0.01;
-  sph(1, 2) = 0.01;
+  fluid(1, 0) = 0.5;
+  fluid(1, 1) = 0.01;
+  fluid(1, 2) = 0.01;
 
-  sph(2, 0) = 0.0;
-  sph(2, 1) = 0.0;
-  sph(2, 2) = 0.0;
+  fluid(2, 0) = 0.0;
+  fluid(2, 1) = 0.0;
+  fluid(2, 2) = 0.0;
 
-  sph(3, 0) = 0.0;
-  sph(3, 1) = 0.0;
-  sph(3, 2) = 0.0;
+  fluid(3, 0) = 0.0;
+  fluid(3, 1) = 0.0;
+  fluid(3, 2) = 0.0;
 }
 
-void ic_four_particles(int nb_particles, SPH &sph) {
+void ic_four_particles(int nb_particles, particles &fluid) {
 
-  sph(0, 0) = 0.505;
-  sph(0, 1) = 0.515;
-  sph(0, 2) = 0.51;
-  sph(0, 3) = 0.5;
+  fluid(0, 0) = 0.505;
+  fluid(0, 1) = 0.515;
+  fluid(0, 2) = 0.51;
+  fluid(0, 3) = 0.5;
 
-  sph(1, 0) = 0.5;
-  sph(1, 1) = 0.5;
-  sph(1, 2) = 0.45;
-  sph(1, 3) = 0.45;
+  fluid(1, 0) = 0.5;
+  fluid(1, 1) = 0.5;
+  fluid(1, 2) = 0.45;
+  fluid(1, 3) = 0.45;
 
-  sph(2, 0) = 0.0;
-  sph(2, 1) = 0.0;
-  sph(2, 2) = 0.0;
-  sph(2, 3) = 0.0;
+  fluid(2, 0) = 0.0;
+  fluid(2, 1) = 0.0;
+  fluid(2, 2) = 0.0;
+  fluid(2, 3) = 0.0;
 
-  sph(3, 0) = 0.0;
-  sph(3, 1) = 0.0;
-  sph(3, 2) = 0.0;
-  sph(3, 3) = 0.0;
+  fluid(3, 0) = 0.0;
+  fluid(3, 1) = 0.0;
+  fluid(3, 2) = 0.0;
+  fluid(3, 3) = 0.0;
 }
 
-void ic_dam_break(int nb_particles, SPH &sph) {
+void ic_dam_break(int nb_particles, particles &fluid) {
 
   int el = pow(nb_particles, 0.5);
   // Initial distance between the particles in both directions
@@ -80,8 +80,8 @@ void ic_dam_break(int nb_particles, SPH &sph) {
   // Assign the values in x for all particles
   for (int i = 0; i < el; i++) {
     for (int j = 0; j < el; j++) {
-      sph(0, i * el + j) = position_x + double(rand()) / RAND_MAX / 100000;
-      sph(2, i * el + j) = 0.0;
+      fluid(0, i * el + j) = position_x + double(rand()) / RAND_MAX / 100000;
+      fluid(2, i * el + j) = 0.0;
     }
     position_x += step;
   }
@@ -93,14 +93,14 @@ void ic_dam_break(int nb_particles, SPH &sph) {
   for (int i = 0; i < el; i++) {
     position_y = 0.01;
     for (int j = 0; j < el; j++) {
-      sph(1, i * el + j) = position_y + double(rand()) / RAND_MAX / 100000;
-      sph(3, i * el + j) = 0.0;
+      fluid(1, i * el + j) = position_y + double(rand()) / RAND_MAX / 100000;
+      fluid(3, i * el + j) = 0.0;
       position_y += step;
     }
   }
 }
 
-void ic_block_drop(int nb_particles, int n1, int n2, SPH &sph) {
+void ic_block_drop(int nb_particles, int n1, int n2, particles &fluid) {
 
   // Distance between neighboring particles in x and y
   // 0.2 is the total distance in x and 0.3 in y
@@ -116,8 +116,8 @@ void ic_block_drop(int nb_particles, int n1, int n2, SPH &sph) {
   for (int i = 0; i < n1; i++) {
     for (int j = 0; j < n2; j++) {
       kx = i * n2 + j;
-      sph(0, kx) = position_x + double(rand()) / RAND_MAX / 100000;
-      sph(2, kx) = 0.0;
+      fluid(0, kx) = position_x + double(rand()) / RAND_MAX / 100000;
+      fluid(2, kx) = 0.0;
     }
     position_x += dx;
   }
@@ -127,15 +127,15 @@ void ic_block_drop(int nb_particles, int n1, int n2, SPH &sph) {
     position_y = 0.3;
     for (int j = 0; j < n2; j++) {
       ky = i * n2 + j;
-      sph(1, ky) = position_y + double(rand()) / RAND_MAX / 100000;
-      sph(3, ky) = 0.0;
+      fluid(1, ky) = position_y + double(rand()) / RAND_MAX / 100000;
+      fluid(3, ky) = 0.0;
       position_y += dy;
     }
   }
 }
 
 // Droplet
-void ic_droplet(int nb_particles, SPH &sph) {
+void ic_droplet(int nb_particles, particles &fluid) {
 
   double *position_x_store = new double[nb_particles];
   double *position_y_store = new double[nb_particles];
@@ -168,12 +168,12 @@ void ic_droplet(int nb_particles, SPH &sph) {
     for (int j = 0; j < el; j++) {
       if (sqrt(pow((position_y_store[i * el + j] - 0.7), 2) +
                pow((position_x_store[i * el + j] - 0.5), 2)) <= 0.1) {
-        sph(0, kx) =
+        fluid(0, kx) =
             position_x_store[i * el + j] + double(rand()) / RAND_MAX / 100000;
-        sph(1, kx) =
+        fluid(1, kx) =
             position_y_store[i * el + j] + double(rand()) / RAND_MAX / 100000;
-        sph(2, kx) = 0;
-        sph(3, kx) = 0;
+        fluid(2, kx) = 0;
+        fluid(3, kx) = 0;
         kx++;
       }
     }

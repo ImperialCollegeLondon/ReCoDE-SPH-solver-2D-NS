@@ -1,92 +1,245 @@
 #include "sph.h"
-#include "sph_calc.h"
 #include <cmath>
-#include <cstring>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
 
-// User defined constructor
-SPH::SPH(const unsigned n_new) : nb_particles(n_new) {
+void sph::particle_iterations(particles& data) {
 
-  position_x = new double[nb_particles];
-  position_y = new double[nb_particles];
-  velocity_x = new double[nb_particles];
-  velocity_y = new double[nb_particles];
+  int i;
+  for (i = 0; i < data.nb_particles; i++) {
 
-  distance = new double[nb_particles * nb_particles];
-  distance_q = new double[nb_particles * nb_particles];
+    calc_pressure(data);
 
-  particle_density = new double[nb_particles];
+    // Gathering the forces
+    data.force_pressure_x = calc_pressure_force(data, i, data.position_x);
 
-  particle_pressure = new double[nb_particles];
+    data.force_viscous_x = calc_viscous_force(data, i, data.velocity_x);
 
-  particle_speed_sq = new double[nb_particles];
-}
+    data.force_pressure_y = calc_pressure_force(data, i, data.position_y);
 
-// Destructor
-SPH::~SPH() {
-  delete[] particle_density;
-  delete[] particle_pressure;
-  delete[] distance;
-  delete[] distance_q;
-  delete[] particle_speed_sq;
-  delete[] position_x;
-  delete[] position_y;
-  delete[] velocity_x;
-  delete[] velocity_y;
-}
+    data.force_viscous_y = calc_viscous_force(data, i, data.velocity_y);
 
-// Overloading of ()
-double &SPH::operator()(unsigned row, unsigned col) {
-  switch (row) {
-  case 0:
-    return this->position_x[col];
-    break;
-  case 1:
-    return this->position_y[col];
-    break;
-  case 2:
-    return this->velocity_x[col];
-    break;
-  case 3:
-    return this->velocity_y[col];
-    break;
-  default:
-    std::cerr << "ERROR: Out of bounds on row selection" << std::endl;
-    abort();
+    data.force_gravity_y = calc_gravity_force(data, i);
+
+    // Update the position of the particle
+    update_position(data,i);
+
+    // Boundary Conditions
+    boundaries(data, i);
   }
 }
 
-void SPH::set_timestep(double dt) { this->dt = dt; }
+void sph::update_position(particles& data,int particle_index){
 
-void SPH::set_rad_infl(double h) { this->h = h; }
+  // First step to initialise the scheme
+    if (data.t == 0) {
 
-double SPH::get_position_x(int l) const { return position_x[l]; }
+      data.velocity_x[particle_index] = scheme_init(data, particle_index, data.velocity_x, data.force_pressure_x,
+                                  data.force_viscous_x, data.force_gravity_x);
+      data.position_x[particle_index] = data.position_x[particle_index] + data.velocity_x[particle_index] * data.dt; 
+      data.velocity_y[particle_index] = scheme_init(data,particle_index, data.velocity_y, data.force_pressure_y,
+                                  data.force_viscous_y, data.force_gravity_y);
+      data.position_y[particle_index] = data.position_y[particle_index] + data.velocity_y[particle_index] * data.dt; 
 
-double SPH::get_position_y(int l) const { return position_y[l]; }
+    }
 
-double SPH::return_kinetic_energy() {
+    // Leap frog scheme
+    else {
 
-  double sum = 0;
-  for (int i = 0; i < nb_particles; i++) {
+      data.velocity_x[particle_index] = velocity_integration(data, particle_index, data.velocity_x, data.force_pressure_x,
+                                           data.force_viscous_x, data.force_gravity_x);
+      data.position_x[particle_index] = data.position_x[particle_index] + data.velocity_x[particle_index] * data.dt; 
+      data.velocity_y[particle_index] = velocity_integration(data,particle_index, data.velocity_y, data.force_pressure_y,
+                                           data.force_viscous_y, data.force_gravity_y);
+      data.position_y[particle_index] = data.position_y[particle_index] + data.velocity_y[particle_index] * data.dt; 
+    }
 
-    particle_speed_sq[i] =
-        velocity_x[i] * velocity_x[i] + velocity_y[i] * velocity_y[i];
-
-    sum += particle_speed_sq[i];
-  }
-
-  return 0.5 * mass_assumed * sum;
 }
 
-double SPH::return_potential_energy() {
+double sph::scheme_init(particles& data,int particle_index, double *velocity,
+                        double &force_pressure, double &force_viscous,
+                        double &force_gravity) {
 
-  double sum = 0;
-  for (int i = 0; i < nb_particles; i++) {
+  double acceleration;
 
-    sum += position_y[i] - h;
+  acceleration = (force_pressure + force_viscous + force_gravity) /
+                 data.particle_density[particle_index];
+
+  return velocity[particle_index] + acceleration * data.dt * 0.5;
+}
+
+double sph::velocity_integration(particles& data,int particle_index, double *velocity,
+                                 double &force_pressure, double &force_viscous,
+                                 double &force_gravity) {
+
+  double acceleration;
+  acceleration = (force_pressure + force_viscous + force_gravity) /
+                 data.particle_density[particle_index];
+
+  return velocity[particle_index] + acceleration * data.dt;
+}
+
+void sph::boundaries(particles& data,int particle_index) {
+
+if (data.position_x[particle_index] < data.h) {
+
+      data.position_x[particle_index] = data.h;
+     data. velocity_x[particle_index] = -data.coeff_restitution * data.velocity_x[particle_index];
+    }
+
+    if (data.position_x[particle_index] > 1.0 - data.h) {
+
+     data. position_x[particle_index] = 1.0 - data.h;
+      data.velocity_x[particle_index] = -data.coeff_restitution * data.velocity_x[particle_index];
+    }
+
+    if (data.position_y[particle_index] < data.h) {
+
+      data.position_y[particle_index] = data.h;
+      data.velocity_y[particle_index] = -data.coeff_restitution * data.velocity_y[particle_index];
+    }
+
+    if (data.position_y[particle_index] > 1.0 - data.h) {
+
+      data.position_y[particle_index] = 1.0 - data.h;
+      data.velocity_y[particle_index] = -data.coeff_restitution * data.velocity_y[particle_index];
+    }
+}
+
+void sph::calc_particle_distance(particles& data) {
+
+  double dx;
+  double dy;
+
+  for (int i = 0; i < data.nb_particles; i++) {
+
+    for (int j = 0; j < data.nb_particles; j++) {
+
+      dx = data.position_x[i] - data.position_x[j];
+      dy = data.position_y[i] - data.position_y[j];
+
+      data.distance[i * data.nb_particles + j] = sqrt(dx * dx + dy * dy);
+    }
+  }
+}
+
+void sph::calc_density(particles& data) {
+  
+  double phi;
+  double four_pi_h_2 =
+      (4.0 / (M_PI * data.h * data.h)); // Precalculated value used to avoid multiple
+                              // divisions and multiplications
+  double h_inverse =
+      1.0 / data.h; // Precalculated value used to avoid multiple divisions
+
+  // find φ
+  for (int i = 0; i < data.nb_particles; i++) {
+
+    data.particle_density[i] = 0;
+
+    for (int j = 0; j < data.nb_particles; j++) {
+
+      data.distance_q[i * data.nb_particles + j] =
+          std::abs(data.distance[i * data.nb_particles + j] * h_inverse);
+
+      if (data.distance_q[i * data.nb_particles + j] < 1) {
+
+        phi = four_pi_h_2 *
+              (1.0 - data.distance_q[i * data.nb_particles + j] *
+                         data.distance_q[i * data.nb_particles + j]) *
+              (1.0 - data.distance_q[i * data.nb_particles + j] *
+                         data.distance_q[i * data.nb_particles + j]) *
+              (1.0 - data.distance_q[i * data.nb_particles + j] *
+                         data.distance_q[i * data.nb_particles + j]);
+
+      }
+
+      else {
+
+        phi = 0.0;
+      }
+
+      data.particle_density[i] += data.mass_assumed * phi;
+    }
+  }
+}
+
+void sph::calc_pressure(particles& data) {
+
+  for (int i = 0; i < data.nb_particles; i++) {
+
+    data.particle_pressure[i] =
+        data.gas_constant * (data.particle_density[i] - data.density_resting);
+  }
+}
+
+double sph::calc_pressure_force(particles& data, int particle_index, double *position) {
+
+  double sum = 0.0; // Initializing the sumation
+  double thirty_pi_h_3 =
+      (-30.0 / (M_PI * data.h * data.h * data.h)); // Precalculated value used to avoid
+                                    // multiple divisions and multiplications
+
+  for (int j = 0; j < data.nb_particles; j++) {
+
+    if (particle_index != j) {
+
+      if (data.distance_q[particle_index * data.nb_particles + j] < 1) {
+
+        sum +=
+            (data.mass_assumed / data.particle_density[j]) *
+            ((data.particle_pressure[particle_index] + data.particle_pressure[j]) / 2.0) *
+            (thirty_pi_h_3 * (position[particle_index] - position[j])) *
+            (((1.0 - data.distance_q[particle_index * data.nb_particles + j]) *
+              (1.0 - data.distance_q[particle_index * data.nb_particles + j])) /
+             data.distance_q[particle_index * data.nb_particles + j]);
+      }
+    }
   }
 
-  return mass_assumed * acceleration_gravity * sum;
+  return -sum;
+}
+
+double sph::calc_viscous_force(particles& data, int particle_index, double *v) {
+
+  double phisq;
+
+  double sum = 0.0; // Initializing the sumation
+  double fourty_pi_h_4 =
+      (40.0 / (M_PI * data.h * data.h * data.h * data.h)); // Precalculated value used to avoid
+                                       // multiple divisions and multiplications
+
+  for (int j = 0; j < data.nb_particles; j++) {
+
+    if (particle_index == j) {
+    }
+
+    else {
+
+      if (data.distance_q[particle_index * data.nb_particles + j] < 1) {
+
+        sum += (data.mass_assumed / data.particle_density[j]) *
+               (v[particle_index] - v[j]) *
+               (fourty_pi_h_4 *
+                (1.0 - data.distance_q[particle_index * data.nb_particles + j]));
+      }
+    }
+  }
+
+  return -data.viscosity * sum;
+}
+
+double sph::calc_gravity_force(particles& data, int particle_index) {
+  return -data.particle_density[particle_index] * data.acceleration_gravity;
+}
+
+void sph::calc_mass(particles& data) {
+
+  calc_particle_distance(data);
+  calc_density(data);
+  double sumden = 0.0;
+  for (int i = 0; i < data.nb_particles; i++) {
+
+    sumden += data.particle_density[i];
+  }
+
+  data.mass_assumed = data.nb_particles * data.density_resting / sumden;
 }

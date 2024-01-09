@@ -2,7 +2,7 @@
 #include "initial_conditions.h"
 #include "main_prog_funcs.h"
 #include "sph.h"
-#include "sph_calc.h"
+#include "particles.h"
 #include <boost/program_options.hpp>
 #include <cmath>
 #include <fstream>
@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
 
   // Read input files, initialise the sph class and the parameters of the
   // problem
-  SPH sph = initialise(nb_particles, total_iter, h, dt);
+  particles fluid = initialise(nb_particles, total_iter, h, dt);
 
   std ::cout << "Initialisation finished -- OK"
              << "\n";
@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
              << "\n";
 
   // Time integration loop
-  time_integration(sph, nb_particles, total_iter, h, dt, vOut, vOut2);
+  time_integration(fluid, nb_particles, total_iter, h, dt, vOut, vOut2);
 
   std ::cout << "SPH-SOLVER exectuted succesfully -- OK"
              << "\n";
@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
-SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
+particles initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
 
   // Process to obtain the directions provided by the user
   po::options_description desc("Allowed options");
@@ -87,17 +87,17 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
   nb_particles =
       initConditionToParticlesMap[vm["init_condition"].as<std::string>()];
 
-  // Define the solver object (called sph)
+  // Define the object manifestation of the fluid.
   // In its definition, the number of particles is required
-  SPH sph(nb_particles);
+  particles fluid(nb_particles);
 
   /**After the number of particles is introduced inside the class and
-   * therefore the appropriate matrices are initialized, the particles
+   * therefore the appropriate containers are initialized, the particles
    * are ordered in the correct positions
    **/
 
   // Create map to associate function names with function pointers
-  std::map<std::string, std::function<void(int, SPH &)>> functionMap = {
+  std::map<std::string, std::function<void(int, particles &)>> functionMap = {
       {"ic-one-particle", ic_one_particle},
       {"ic-two-particles", ic_two_particles},
       {"ic-three-particles", ic_three_particles},
@@ -114,27 +114,27 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
     if (vm["init_condition"].as<std::string>() == "ic-droplet") {
       n_particles = n3;
     }
-    initFunc->second(n_particles, sph);
+    initFunc->second(n_particles, fluid);
 
   } else {
     /**The ic-block-drop case is not in the map because it has two
      * additional parameters, so it requires a different case.
      **/
     if (vm["init_condition"].as<std::string>() == "ic-block-drop") {
-      ic_block_drop(nb_particles, n1, n2, sph);
+      ic_block_drop(nb_particles, n1, n2, fluid);
 
     } else {
       std::cerr << "Error: Function not found!" << std::endl;
     }
   }
 
-  sph.set_timestep(dt);
-  sph.set_rad_infl(h);
+  fluid.set_timestep(dt);
+  fluid.set_rad_infl(h);
 
   // Calculate the mass of the particles
-  SPH_Calc::calc_mass(sph);
+  sph::calc_mass(fluid);
 
-  return sph;
+  return fluid;
 }
 
 void init_output_files(std::ofstream &vOut, std::ofstream &vOut2) {
@@ -155,24 +155,25 @@ void init_output_files(std::ofstream &vOut, std::ofstream &vOut2) {
         << "\n";
 }
 
-void time_integration(SPH &sph, int nb_particles, int total_iter, double h,
+void time_integration(particles &fluid, int nb_particles, int total_iter, double h,
                       double dt, std::ofstream &vOut, std::ofstream &vOut2) {
 
   std ::cout << "Time integration started -- OK"
              << "\n";
-  SPH_Calc* sph_calc;
+  sph* sph;
+
   for (int t = 0; t < total_iter; t++) {
 
     // In each iteration the distances between the particles are recalculated,
     // as well as their densities
-    SPH_Calc::calc_particle_distance(sph);
-    SPH_Calc::calc_density(sph);
-    SPH_Calc::particle_iterations(sph);
+    sph::calc_particle_distance(fluid);
+    sph::calc_density(fluid);
+    sph::particle_iterations(fluid);
 
     // Write energies on the Energy-File
-    vOut2 << t * dt << "  " << sph.return_kinetic_energy() << "  "
-          << sph.return_potential_energy() << "  "
-          << sph.return_potential_energy() + sph.return_kinetic_energy()
+    vOut2 << t * dt << "  " << fluid.return_kinetic_energy() << "  "
+          << fluid.return_potential_energy() << "  "
+          << fluid.return_potential_energy() + fluid.return_kinetic_energy()
           << "\n";
 
     // Get the positions after integration is completed
@@ -180,7 +181,7 @@ void time_integration(SPH &sph, int nb_particles, int total_iter, double h,
 
       for (int l = 0; l < nb_particles; l++) {
 
-        vOut << sph.get_position_x(l) << " " << sph.get_position_y(l)
+        vOut << fluid.get_position_x(l) << " " << fluid.get_position_y(l)
              << "\n";
       }
     }
