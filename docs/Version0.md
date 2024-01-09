@@ -14,7 +14,7 @@ The list of requirements for the v0 code is:
 To compile the code, the user has to change the working directory to `exec/build` and then type in the terminal:
 
 ```
-cmake ../src
+cmake ../../src
 ```
 
 and finally:
