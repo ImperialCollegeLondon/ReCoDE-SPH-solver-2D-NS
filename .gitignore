@@ -4,4 +4,4 @@
 # Ignore .o files
 *.o
 
-exec/build/
+exec/build/*
