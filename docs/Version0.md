@@ -93,7 +93,7 @@ The last input parameter that the user can specify in the `exec/inputs/case.txt`
 ### Reading Inputs
 The aforementioned parameters are expected by the program, and therefore, while reading the `exec/inputs/case.txt` file in the function `initialise()` which is called by the main program, the `<boost/program_options.hpp>` library is used to map those parameters to their values, which are finally stored in their corresponding variables. This practice constitutes in making the input reading process more flexible and error-proof. The user can specify the input parameters in the `exec/inputs/case.txt` file in any order, as long as they are given as `key = value` pairs.
 
-``` 
+``` cpp
 // Process to obtain the directions provided by the user
 po::options_description desc("Allowed options");
 desc.add_options()("init_condition", po::value<std::string>(),
@@ -120,7 +120,7 @@ po::notify(vm);
 ## Class initialisation
 After storing the input values, the initial condition is used to determine the number of particles, as well as to declare the containers which store the information related to the particles' properties in the `sph` object and allocate memory. This is done in the constructor of the class where the containers are declared as `new` raw pointers and occupy memory that depends on the number of particles. 
 
-```
+``` cpp
 // User defined constructor
 SPH::SPH(const unsigned n_new) : nb_particles(n_new) {
 
@@ -143,7 +143,7 @@ SPH::SPH(const unsigned n_new) : nb_particles(n_new) {
 
 To avoid the use of multiple `if` statements, two `std::map` objects are used to map the different conditions to their corresponding number of particles and their corresponding initialisation function.
 
-```
+``` cpp
 // Create map to associate initial condition names with number of particles
 std::map<std::string, int> initConditionToParticlesMap = {
     {"ic-one-particle", 1},      {"ic-two-particles", 2},
@@ -196,7 +196,7 @@ if (vm["init_condition"].as<std::string>() == "ic-block-drop") {
 
 After initializing the class and the output files, the function `time_integration()` is called where the aforementioned `SPH::` functions are being executed during every timestep.
 
-```
+``` cpp
 for (int t = 0; t < total_iter; t++) {
 
     sph.calc_particle_distance();
@@ -218,7 +218,7 @@ Uppon succesful execution the program will result in two files:
 
 - One for the final positions of the particles which can be plotted by using the script `post/visualize_particles.ipynb`.
 
-```
+``` cpp
 // Write energies on the Energy-File
 vOut2 << t * dt << "  " << sph.return_kinetic_energy() << "  "
         << sph.return_potential_energy() << "  "
