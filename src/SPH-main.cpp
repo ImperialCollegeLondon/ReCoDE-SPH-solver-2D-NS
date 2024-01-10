@@ -160,7 +160,6 @@ void time_integration(particles &fluid, int nb_particles, int total_iter, double
 
   std ::cout << "Time integration started -- OK"
              << "\n";
-  //sph* sph;
 
   for (int t = 0; t < total_iter; t++) {
 
