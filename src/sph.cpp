@@ -61,6 +61,24 @@ void SPH::set_timestep(double dt) { this->dt = dt; }
 
 void SPH::set_rad_infl(double h) { this->h = h; }
 
+void SPH::set_gas_constant(double gas_constant) {
+  this->gas_constant = gas_constant;
+}
+
+void SPH::set_density_resting(double density_resting) {
+  this->density_resting = density_resting;
+}
+
+void SPH::set_viscosity(double viscosity) { this->viscosity = viscosity; }
+
+void SPH::set_coeff_restitution(double coeff_restitution) {
+  this->coeff_restitution = coeff_restitution;
+}
+
+void SPH::set_acceleration_gravity(double acceleration_gravity) {
+  this->acceleration_gravity = acceleration_gravity;
+}
+
 void SPH::calc_mass() {
   calc_particle_distance();
   calc_density();

@@ -22,10 +22,19 @@ int main(int argc, char *argv[]) {
                      // integration
   double h;
   double dt;
+
+  double gas_constant;
+  double density_resting;
+  double viscosity;
+  double acceleration_gravity;
+  double coeff_restitution;
+
   std::string OUTPUT_FOLDER = "../output";
   // Read input files, initialise the sph class and the parameters of the
   // problem
-  SPH sph = initialise(nb_particles, total_iter, h, dt);
+  SPH sph =
+      initialise(nb_particles, total_iter, h, dt, gas_constant, density_resting,
+                 viscosity, acceleration_gravity, coeff_restitution);
 
   std ::cout << "Initialisation finished -- OK"
              << "\n";
@@ -52,35 +61,42 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
-SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
+SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
+               double &gas_constant, double &density_resting, double &viscosity,
+               double &acceleration_gravity, double &coeff_restitution) {
   // Process to obtain the directions provided by the user
   po::options_description desc("Allowed options");
   desc.add_options()("init_condition", po::value<std::string>(),
                      "take an initial condition")("T", po::value<double>(),
                                                   "take integration time")(
       "dt", po::value<double>(), "take time-step")("h", po::value<double>(),
-                                                   "take radius of influence");
+                                                   "take radius of influence")(
+      "gas_constant", po::value<double>(), "take gas constant")(
+      "density_resting", po::value<double>(), "take resting density")(
+      "viscosity", po::value<double>(), "take viscosity")(
+      "acceleration_gravity", po::value<double>(), "take acc due to gravity")(
+      "coeff_restitution", po::value<double>(), "take coeff of restitution");
 
-  po::variables_map vm;
-  std::ifstream inputFile;
-  inputFile.open("../input/case.txt");
+  po::variables_map case_vm;
+  std::ifstream caseFile;
+  caseFile.open("..exec/inputs/case.txt");
 
-  if (inputFile.is_open()) {
-    po::store(po::parse_config_file(inputFile, desc), vm);
-    inputFile.close();
+  if (caseFile.is_open()) {
+    po::store(po::parse_config_file(caseFile, desc), case_vm);
+    caseFile.close();
   } else {
     std::cerr << "Error opening file: case.txt" << std::endl;
   }
 
-  po::notify(vm);
+  po::notify(case_vm);
 
   int n1 = 17;   // required for ic-block-drop
   int n2 = 25;   // required for ic-block-drop
   int n3 = 100;  // required for ic-dam-break and ic-droplet
 
-  double total_time = vm["T"].as<double>();  // Total integration time
-  dt = vm["dt"].as<double>();                // Time step dt
-  h = vm["h"].as<double>();                  // Radius of influence
+  double total_time = case_vm["T"].as<double>();  // Total integration time
+  dt = case_vm["dt"].as<double>();                // Time step dt
+  h = case_vm["h"].as<double>();                  // Radius of influence
 
   total_iter =
       ceil(total_time / dt);  // Transform time in seconds to iterations
@@ -92,7 +108,7 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
       {"ic-droplet", dropletn(n3)}};
 
   nb_particles =
-      initConditionToParticlesMap[vm["init_condition"].as<std::string>()];
+      initConditionToParticlesMap[case_vm["init_condition"].as<std::string>()];
 
   // Define the solver object (called sph)
   // In its definition, the number of particles is required
@@ -113,20 +129,19 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
       {"ic-droplet", ic_droplet}};
 
   // Get the function pointer from the map
-  auto initFunc = functionMap.find(vm["init_condition"].as<std::string>());
-
+  auto initFunc = functionMap.find(case_vm["init_condition"].as<std::string>());
   if (initFunc != functionMap.end()) {
     int n_particles = nb_particles;
 
     // The ic-droplet case requires a different n argument.
-    if (vm["init_condition"].as<std::string>() == "ic-droplet") {
+    if (case_vm["init_condition"].as<std::string>() == "ic-droplet") {
       n_particles = n3;
     }
 
     // Retrieves and runs the provided function object
     initFunc->second(n_particles, sph);
 
-  } else if (vm["init_condition"].as<std::string>() == "ic-block-drop") {
+  } else if (case_vm["init_condition"].as<std::string>() == "ic-block-drop") {
     /**The ic-block-drop case is not in the map because it has two
      * additional parameters, so it requires a different case.
      **/
@@ -135,8 +150,33 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
     std::cerr << "Error: Function not found!" << std::endl;
   }
 
+  po::variables_map constants_vm;
+  std::ifstream constantsFile;
+  constantsFile.open("..exec/inputs/constants.txt");
+
+  if (constantsFile.is_open()) {
+    po::store(po::parse_config_file(constantsFile, desc), constants_vm);
+    constantsFile.close();
+  } else {
+    std::cerr << "Error opening file: inputs.txt" << std::endl;
+  }
+
+  po::notify(constants_vm);
+
+  gas_constant = constants_vm["gas_constant"].as<double>();
+  density_resting = constants_vm["density_resting"].as<double>();
+  viscosity = constants_vm["viscosity"].as<double>();
+  acceleration_gravity = constants_vm["acceleration_gravity"].as<double>();
+  coeff_restitution = constants_vm["coeff_restitution"].as<double>();
+
   sph.set_timestep(dt);
   sph.set_rad_infl(h);
+
+  sph.set_gas_constant(gas_constant);
+  sph.set_density_resting(density_resting);
+  sph.set_viscosity(viscosity);
+  sph.set_acceleration_gravity(acceleration_gravity);
+  sph.set_coeff_restitution(coeff_restitution);
 
   // Calculate the mass of the particles
   sph.calc_mass();

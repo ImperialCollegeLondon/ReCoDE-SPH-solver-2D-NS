@@ -1,0 +1,5 @@
+gas_constant = 2000
+density_resting = 1000
+viscosity = 1
+acceleration_gravity = 9.81
+coeff_restitution = 0.5

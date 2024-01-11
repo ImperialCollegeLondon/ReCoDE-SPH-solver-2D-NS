@@ -18,11 +18,11 @@ class SPH {
   double h;  // Radius of influence
 
   // Constants of the problem
-  const double gas_constant = 2000.0;
-  const double density_resting = 1000.0;
-  const double viscosity = 1.0;
-  const double coeff_restitution = 0.5;
-  const double acceleration_gravity = 9.81;
+  double gas_constant;
+  double density_resting;
+  double viscosity;
+  double coeff_restitution;
+  double acceleration_gravity;
 
   // Positions
   double *position_x;
@@ -77,8 +77,37 @@ class SPH {
   // Assign value to h
   void set_rad_infl(double h);
 
-  // Function to calculate the mass of the particles before the simulation
-  // starts
+  // Assign value to gas_constant
+  void set_gas_constant(double gas_constant);
+
+  // Assign value to density_resting
+  void set_density_resting(double density_resting);
+
+  // Assign value to viscosity
+  void set_viscosity(double viscosity);
+
+  // Assign value to coeff_restitution
+  void set_coeff_restitution(double coeff_restitution);
+
+  // Assign value to acceleration_gravity
+  void set_acceleration_gravity(double acceleration_gravity);
+
+  // Assign value to gas_constant
+  void set_gas_constant(double gas_constant);
+
+  // Assign value to density_resting
+  void set_density_resting(double density_resting);
+
+  // Assign value to viscosity
+  void set_viscosity(double viscosity);
+
+  // Assign value to coeff_restitution
+  void set_coeff_restitution(double coeff_restitution);
+
+  // Assign value to acceleration_gravity
+  void set_acceleration_gravity(double acceleration_gravity);
+
+  // Function to calculate the mass of the particles before the simulation starts
   void calc_mass();
 
   // Function to calculate the matrix with rij
