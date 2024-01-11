@@ -8,15 +8,14 @@
 #ifndef SPH_H
 #define SPH_H
 class SPH {
+ private:
+  unsigned int nb_particles;  // size of the Matrix
 
-private:
-  unsigned int nb_particles; // size of the Matrix
+  int t;  // time
 
-  int t; // time
+  double dt;  // timestep
 
-  double dt; // timestep
-
-  double h; // Radius of influence
+  double h;  // Radius of influence
 
   // Constants of the problem
   const double gas_constant = 2000.0;
@@ -35,8 +34,8 @@ private:
   double *particle_speed_sq;
 
   // Distances
-  double *distance;   // Array to store the distances between the particles
-  double *distance_q; // Array to store the values of the normalised distance q
+  double *distance;    // Array to store the distances between the particles
+  double *distance_q;  // Array to store the values of the normalised distance q
 
   // Mass
   double mass_assumed = 1.0;
@@ -54,15 +53,15 @@ private:
   double force_gravity_y;
   double force_gravity_x = 0.0;
 
-public:
+ public:
   /******** CONSTRUCTORS/DESTRUCTOR********/
 
-  SPH() = default; // Default constructor
+  SPH() = default;  // Default constructor
 
-  ~SPH(); // Destructor
+  ~SPH();  // Destructor
 
-  SPH(const unsigned n_new); // User defined constructor for allocating the
-                             // dimensions of the Matrix
+  SPH(const unsigned n_new);  // User defined constructor for allocating the
+                              // dimensions of the Matrix
 
   /**********OVERLOADINGS**********/
 

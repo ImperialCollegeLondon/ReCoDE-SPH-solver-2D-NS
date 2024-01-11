@@ -1,11 +1,12 @@
 #include "initial_conditions.h"
-#include "sph.h"
+
 #include <cmath>
+
+#include "sph.h"
 
 // ========== Initial Conditions ==========
 
 void ic_one_particle(int nb_particles, SPH &sph) {
-
   sph(0, 0) = 0.5;
   sph(1, 0) = 0.5;
   sph(2, 0) = 0.0;
@@ -13,7 +14,6 @@ void ic_one_particle(int nb_particles, SPH &sph) {
 }
 
 void ic_two_particles(int nb_particles, SPH &sph) {
-
   sph(0, 0) = 0.5;
   sph(0, 1) = 0.5;
 
@@ -28,7 +28,6 @@ void ic_two_particles(int nb_particles, SPH &sph) {
 }
 
 void ic_three_particles(int nb_particles, SPH &sph) {
-
   sph(0, 0) = 0.5;
   sph(0, 1) = 0.495;
   sph(0, 2) = 0.505;
@@ -47,7 +46,6 @@ void ic_three_particles(int nb_particles, SPH &sph) {
 }
 
 void ic_four_particles(int nb_particles, SPH &sph) {
-
   sph(0, 0) = 0.505;
   sph(0, 1) = 0.515;
   sph(0, 2) = 0.51;
@@ -70,7 +68,6 @@ void ic_four_particles(int nb_particles, SPH &sph) {
 }
 
 void ic_dam_break(int nb_particles, SPH &sph) {
-
   int el = pow(nb_particles, 0.5);
   // Initial distance between the particles in both directions
   double step = 0.19 / (el - 1);
@@ -101,7 +98,6 @@ void ic_dam_break(int nb_particles, SPH &sph) {
 }
 
 void ic_block_drop(int nb_particles, int n1, int n2, SPH &sph) {
-
   // Distance between neighboring particles in x and y
   // 0.2 is the total distance in x and 0.3 in y
   double dx = 0.2 / double((n1 - 1));
@@ -136,7 +132,6 @@ void ic_block_drop(int nb_particles, int n1, int n2, SPH &sph) {
 
 // Droplet
 void ic_droplet(int nb_particles, SPH &sph) {
-
   double *position_x_store = new double[nb_particles];
   double *position_y_store = new double[nb_particles];
   int el = pow(nb_particles, 0.5);
@@ -144,8 +139,8 @@ void ic_droplet(int nb_particles, SPH &sph) {
 
   // For uniform distribution the step in y has to be equal to the step in x
   double step = 0.2 / (el - 1);
-  double position_x = 0.4; // Starting position in x
-  double position_y;       // Starting position in y
+  double position_x = 0.4;  // Starting position in x
+  double position_y;        // Starting position in y
 
   for (int i = 0; i < el; i++) {
     for (int j = 0; j < el; j++) {
@@ -184,7 +179,6 @@ void ic_droplet(int nb_particles, SPH &sph) {
 
 // Defines the number of particles that will be in the circular region
 int dropletn(int nb_particles) {
-
   // Process similar to dam break. Creates an initial square
   double *position_x_store = new double[nb_particles];
   double *position_y_store = new double[nb_particles];
