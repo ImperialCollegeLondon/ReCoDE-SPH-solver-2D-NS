@@ -103,7 +103,7 @@ po::notify(vm);
 
 ```
 
-## Class initialisation
+## Class Initialisation
 After storing the input values, the initial condition is used to determine the number of particles, as well as to declare the containers which store the information related to the particles' properties in the `sph` object and allocate memory. This is done in the constructor of the class where the containers are declared as `new` raw pointers and occupy memory that depends on the number of particles. 
 
 ```cpp
@@ -198,7 +198,7 @@ total_iter =
 ```
 ## Outputs
 
-Uppon succesful execution the program will result in two files:
+Upon successful execution the program will result in two files:
 
 - One for the Energies (Total, Kinetic, Potential) which is written during every time step and the results be plotted by using the script `post/plot_energies.ipynb`.
 
