@@ -38,9 +38,11 @@ $$\phi_{d}(r_{ij},h) = \begin{cases}
 0 & \text{otherwise} 
 \end{cases}$$
 
-where $q_{ij}$ is the distance between particle $i$ and particle $j$, normalised by the interaction radius, given by
+where $q_{ij}$ is the distance between particle $i$ and particle $j$, normalised by the interaction radius $h$, given by
 
 $$q_{ij} = \frac{||r_{ij}||} {h} $$
+
+The interaction radius describes the distance over which a particle has an influence on the behavior of the system.
  
 ## Pressure
 
@@ -57,7 +59,7 @@ The force exerted on the particle due to pressure from neighboring fluid particl
 
 $$F_{pi} = −\sum_{j} \frac{m}{\rho_{j}} \frac{(p_i + p_j)}{2} \nabla(\phi_{p})(r_{ij} ,h)$$ 
 
-where $\phi_d$ is the the kernel density function for pressure :
+where $\phi_p$ is the the kernel density function for pressure :
 
 $$\nabla(\phi_{p})(r_{ij} ,h) = \begin{cases}
 − 30 \pi h^3 r_{ij} \frac{(1−q_{ij})^2}{q_{ij}} & \text{for } q_{ij} < 1 \text{ and } i \neq j\\
@@ -73,13 +75,12 @@ The force acting on each particle due to viscous effects is calculated as
 
 $$F_{vi} = −\mu \sum_{j} m\rho_{j} v_{ij} \nabla^{2} \phi v(r_i,h)$$
 
-where $v_{ij} = v_i −v_j$, $v_{i}$ is the velocity of particle i and $\mu$ is the dynamic viscosity.
+where $v_{ij} = v_i −v_j$, $v_{i}$ is the velocity of particle i and $\mu$ is the dynamic viscosity and $\nabla^{2} \phi v(r_i,h)$ is given by:
 
-If $q \lt 1$ and $i \neq j$
-
-$$\nabla^{2} \phi v(r_i,h) = 40 \pi h^4 (1 −q)$$
-
-while otherwise it is set to 0.
+$$\nabla^{2} \phi v(r_i,h) = \begin{cases}
+40 \pi h^4 (1 −q) & \text{for } q < 1 \text{ and } i \neq j\\
+0 & \text{otherwise}
+\end{cases}$$
 
 ## Gravity force: 
 
@@ -97,7 +98,7 @@ $$a_i =\frac{F_{pi} + F_{vi} + F_{gi}} {\rho_{i}}$$
 
 We solve the equation as a function of time by finding the velocity and position of each particle at each of a number of time steps. We denote a property $x$ of particle $i$ at time step $t$ as $x^{t}_i$. The state of the property half way between time steps $t$ and $t + 1$ is denoted as $x^{t + \frac{1}{2}}_i$.
 
-We begin with the initial conditions of the system, which are the positions and velocities of the particles at time $t = 0$. We iteratively use the state of the system at time step $t$ to find the state of the system at time step $t + 1$ using a leap-frog scheme which provides improved stability characteristics.
+We begin with the initial conditions of the system, which are the positions and velocities of the particles at time $t = 0$. We iteratively use the state of the system at time step $t$ to find the state of the system at time step $t + 1$ using a leap-frog scheme, which provides improved stability characteristics.
 
 $$v^{t+\frac{1}{2}}_i = v^{t-\frac{1}{2}}_i + {a_i}^{t} \Delta{t}$$
 
