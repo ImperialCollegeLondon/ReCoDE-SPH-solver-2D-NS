@@ -2,7 +2,9 @@
 
 ## Overview
 
-The code in `v0` contains a serial C++ implementation of the algorithm described in `SPH.md`. The variables which are associated with the particles' positions, velocities and forces, are stored as members of an object called `SPH`. Furthermore, the functions which manifest the steps of the aforementioned algorithm are declared as the methods of this `SPH` class. It must be noted that although the produced results are correct, this version will be improved upon in chapters which follow. At each step, the improvements will be explained in terms of how they work and the motivation for their implementation.
+The code in `v0` contains a serial C++ implementation of the SPH algorithm described previously. The variables which are associated with the particles' positions, velocities and forces, are stored as members of an object of the class `SPH`. This class is defined in ```sph.cpp``` and instantiated in the ```initialise``` function of ```SPH-main.cpp``` and is then used throughout this file to perform the calculation.
+
+ Furthermore, the functions which manifest the steps of the aforementioned algorithm are declared as the methods of this `SPH` class. It must be noted that although the produced results are correct, this version will be improved upon in chapters which follow. At each step, the improvements will be explained in terms of how they work and the motivation for their implementation.
 
 ## Compiling and executing the code
 
@@ -49,7 +51,7 @@ The SPH class is initialised by using the number of particles (`N`) which is req
 ## Input Parameters
 
 ### Initial conditions
-As stated earlier, the SPH class is initialised in the SPH-main.cpp file where one of the following initial conditions can be specified by the user from the `exec/inputs/case.txt` file:
+As stated earlier, the SPH class is initialised in the ```SPH-main.cpp``` file where one of the following initial conditions can be specified by the user from the `exec/inputs/case.txt` file:
 
 - A single particle (`ic-one-particle`) at : (0.5, 0.5) to test the correctness of time integration and gravity forcing, as well as the bottom boundary condition.
 
