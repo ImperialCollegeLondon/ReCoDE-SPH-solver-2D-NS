@@ -4,7 +4,7 @@ Smooth particle hydrodynamics (SPH) is a branch of computational fluid dynamics,
 In the SPH formulation, the fluid is being discretised by fictitious particles whose interpolated properties can approximate any function f(x) that is of interest over a domain $\Omega$.
 
 
-$$f(x) \sim \int_{\Omega} f(x')W(x-x',h)dx'$$
+$$f(\mathbf{x}) \sim \int_{\Omega} f(\mathbf{x}')W(\mathbf{x}-\mathbf{x}',h)dx'$$
 
 
 In this  W is a kernel function and h is defined as the smoothing length that characterizes the size of the support domain of the kernel. The discrete equivalent of the above expression for the $i^{th}$ particle can be written as:
@@ -29,18 +29,18 @@ In this exemplar the following algorithm which describes the solution steps of a
 
 The density of the fluid associated with each particle i is approximated as
 
-$$\rho_i = \sum_{j} m \phi_d(r_{ij} ,h)  $$
+$$\rho_i = \sum_{j} m \phi_d(\mathbf{r}_{ij} ,h)  $$
 
-where $r_{ij} = x_{i} −x_{j}$ and $m$ is the mass of a particle and the kernel density function for density, $\phi_{d}(r_{ij},h)$ is given by 
+where $\mathbf{r}_{ij} = \mathbf{x}_{i} − \mathbf{x}_{j}$ and $m$ is the mass of a particle and the kernel density function for density, $\phi_{d}(\mathbf{r}_{ij},h)$ is given by 
 
-$$\phi_{d}(r_{ij},h) = \begin{cases}
-\frac{4}{\pi h^2{(1 −q_{ij}^2)^3}} & \text{if $q_{ij} < 1$}\\
+$$\phi_{d}(\mathbf{r}_{ij},h) = \begin{cases}
+\frac{4}{\pi h^2{(1 − q_{ij}^2)^3}} & \text{if $q_{ij} < 1$}\\
 0 & \text{otherwise} 
 \end{cases}$$
 
 where $q_{ij}$ is the distance between particle $i$ and particle $j$, normalised by the interaction radius $h$, given by
 
-$$q_{ij} = \frac{||r_{ij}||} {h} $$
+$$q_{ij} = \frac{||\mathbf{r}_{ij}||} {h} $$
 
 The interaction radius describes the distance over which a particle has an influence on the behavior of the system.
  
@@ -57,12 +57,12 @@ where $\rho_{0}$ is a resting density and $k$ is a gas constant.
 
 The force exerted on the particle due to pressure from neighboring fluid particles is calculated as
 
-$$F_{pi} = −\sum_{j} \frac{m}{\rho_{j}} \frac{(p_i + p_j)}{2} \nabla(\phi_{p})(r_{ij} ,h)$$ 
+$$\mathbf{F}_{pi} = −\sum_{j} \frac{m}{\rho_{j}} \frac{(p_i + p_j)}{2} \nabla(\phi_{p})(\mathbf{r}_{ij} ,h)$$ 
 
 where $\phi_p$ is the the kernel density function for pressure :
 
-$$\nabla(\phi_{p})(r_{ij} ,h) = \begin{cases}
-− 30 \pi h^3 r_{ij} \frac{(1−q_{ij})^2}{q_{ij}} & \text{for } q_{ij} < 1 \text{ and } i \neq j\\
+$$\nabla(\phi_{p})(\mathbf{r}_{ij} ,h) = \begin{cases}
+− 30 \pi h^3 \mathbf{r}_{ij} \frac{(1−q_{ij})^2}{q_{ij}} & \text{for } q_{ij} < 1 \text{ and } i \neq j\\
 0 & \text{otherwise}
 \end{cases}
 $$
@@ -73,9 +73,9 @@ while otherwise it is set to 0.
 
 The force acting on each particle due to viscous effects is calculated as
 
-$$F_{vi} = −\mu \sum_{j} m\rho_{j} v_{ij} \nabla^{2} \phi v(r_i,h)$$
+$$\mathbf{F}_{vi} = −\mu \sum_{j} m\rho_{j} \mathbf{v}_{ij} \nabla^{2} \phi v(r_i,h)$$
 
-where $v_{ij} = v_i −v_j$, $v_{i}$ is the velocity of particle i and $\mu$ is the dynamic viscosity and $\nabla^{2} \phi v(r_i,h)$ is given by:
+where $\mathbf{v}_{ij} = \mathbf{v}_i − \mathbf{v}_j$, $\mathbf{v}_{i}$ is the velocity of particle i and $\mu$ is the dynamic viscosity and $\nabla^{2} \phi v(r_i,h)$ is given by:
 
 $$\nabla^{2} \phi v(r_i,h) = \begin{cases}
 40 \pi h^4 (1 −q) & \text{for } q < 1 \text{ and } i \neq j\\
@@ -86,13 +86,15 @@ $$\nabla^{2} \phi v(r_i,h) = \begin{cases}
 
 Finally, the force due to gravity is calculated as
 
-$$F_{gi} = (0, −\rho_{i}g)$$
+$$\mathbf{F}_{gi} = (0, −\rho_{i}g)$$
+
+where $g$ is the acceleration due to gravity.
 
 ## Acceleration
 
 The acceleration of each particle is calculated as:
 
-$$a_i =\frac{F_{pi} + F_{vi} + F_{gi}} {\rho_{i}}$$
+$$\mathbf{a}_i =\frac{\mathbf{F}_{pi} + \mathbf{F}_{vi} + \mathbf{F}_{gi}} {\rho_{i}}$$
 
 ## Time integration
 
