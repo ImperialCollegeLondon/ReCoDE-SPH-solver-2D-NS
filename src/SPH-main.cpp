@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
   // Time integration loop
   time_integration(sph, nb_particles, total_iter, h, dt, vOut, vOut2);
 
-  std ::cout << "SPH-SOLVER exectuted succesfully -- OK"
+  std ::cout << "SPH-SOLVER executed successfully -- OK"
              << "\n";
 
   return 0;
@@ -158,7 +158,7 @@ void time_integration(SPH &sph, int nb_particles, int total_iter, double h,
              << "\n";
 
   for (int t = 0; t < total_iter; t++) {
-    // In each iteration the disatnces between the particles are recalculated,
+    // In each iteration the distances between the particles are recalculated,
     // as well as their densities
     sph.calc_particle_distance();
     sph.calc_density();

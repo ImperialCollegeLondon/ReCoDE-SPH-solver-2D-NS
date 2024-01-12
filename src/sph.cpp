@@ -119,7 +119,7 @@ void SPH::calc_pressure() {
 }
 
 double SPH::calc_pressure_force(int particle_index, double *position) {
-  double sum = 0.0;  // Initializing the sumation
+  double sum = 0.0;  // Initializing the summation
   double thirty_pi_h_3 =
       (-30.0 / (M_PI * h * h * h));  // Precalculated value used to avoid
                                      // multiple divisions and multiplications
@@ -144,7 +144,7 @@ double SPH::calc_pressure_force(int particle_index, double *position) {
 double SPH::calc_viscous_force(int particle_index, double *v) {
   double phisq;
 
-  double sum = 0.0;  // Initializing the sumation
+  double sum = 0.0;  // Initializing the summation
   double fourty_pi_h_4 =
       (40.0 /
        (M_PI * h * h * h * h));  // Precalculated value used to avoid
