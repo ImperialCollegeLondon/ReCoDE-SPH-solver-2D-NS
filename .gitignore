@@ -16,3 +16,6 @@ output
 
 # VSCode
 .vscode\
+
+# Docker
+Dockerfile

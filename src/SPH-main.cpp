@@ -79,7 +79,7 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
 
   po::variables_map case_vm;
   std::ifstream caseFile;
-  caseFile.open("..exec/inputs/case.txt");
+  caseFile.open("../inputs/case.txt");
 
   if (caseFile.is_open()) {
     po::store(po::parse_config_file(caseFile, desc), case_vm);
@@ -152,7 +152,7 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
 
   po::variables_map constants_vm;
   std::ifstream constantsFile;
-  constantsFile.open("..exec/inputs/constants.txt");
+  constantsFile.open("../inputs/constants.txt");
 
   if (constantsFile.is_open()) {
     po::store(po::parse_config_file(constantsFile, desc), constants_vm);

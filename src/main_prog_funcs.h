@@ -13,10 +13,12 @@
 
 namespace po = boost::program_options;
 
-SPH initialise(int &n, int &T, double &h, double &dt);
+SPH initialise(int &n, int &T, double &h, double &dt, double &gas_constant,
+               double &density_resting, double &viscosity,
+               double &acceleration_gravity, double &coeff_restitution);
 std::tuple<std::ofstream, std::ofstream, std::ofstream> init_output_files(
     std::string folderPath);
-void time_integration(SPH &sph, int n, int T, double h, double dt, int freq,
+void time_integration(SPH &sph, int n, int T, double h, double dt,
                       std::ofstream &vOut, std::ofstream &vOut2);
 void createDirectory(std::string folderPath);
 void storeToFile(SPH &sph, int nb_particles, std::string type,
