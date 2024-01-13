@@ -172,8 +172,8 @@ void time_integration(SPH &sph, int nb_particles, int total_iter, double h,
 
     // Get the positions after integration is completed
     if (t == total_iter - 1) {
-      for (int l = 0; l < nb_particles; l++) {
-        vOut << sph.return_position_x(l) << " " << sph.return_position_y(l)
+      for (int k = 0; k < nb_particles; k++) {
+        vOut << sph.return_position_x(k) << " " << sph.return_position_y(k)
              << "\n";
       }
     }

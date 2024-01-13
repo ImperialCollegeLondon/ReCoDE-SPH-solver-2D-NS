@@ -77,6 +77,9 @@ class SPH {
   // Assign value to h
   void set_rad_infl(double h);
 
+  // Function to calculate the mass of the particles before the simulation starts
+  void calc_mass();
+
   // Function to calculate the matrix with rij
   void calc_particle_distance();
 
@@ -86,6 +89,9 @@ class SPH {
   // Function to calculate the pressure
   void calc_pressure();
 
+  // Function to perform the particle iterations
+  void particle_iterations();
+
   // Function to calculate the pressure force
   double calc_pressure_force(int particle_index, double *position);
 
@@ -94,6 +100,9 @@ class SPH {
 
   // Function to calculate the gravity force
   double calc_gravity_force(int particle_index);
+
+  // Function to update the positions of the particles
+  void update_position(int particle_index);
 
   // Function to initialise the time integration scheme - velocity
   double scheme_init(int particle_index, double *velocity,
@@ -105,11 +114,8 @@ class SPH {
                               double &force_pressure, double &force_viscous,
                               double &force_gravity);
 
-  // Function to find the mass of the particles before the simulation starts
-  void calc_mass();
-
-  // Function to perform the particle iterations
-  void particle_iterations();
+  // Function to treat the boundaries
+  void boundaries(int particle_index);
 
   // Function to return the position x
   double return_position_x(int l);
