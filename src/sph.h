@@ -11,18 +11,22 @@ class SPH {
  private:
   unsigned int nb_particles;  // size of the Matrix
 
-  int t;  // time
-
+  int t;      // time
   double dt;  // timestep
 
-  double h;  // Radius of influence
-
   // Constants of the problem
+  double h;  // Radius of influence
   double gas_constant;
   double density_resting;
   double viscosity;
   double coeff_restitution;
   double acceleration_gravity;
+
+  // Boundaries
+  double left_wall;
+  double right_wall;
+  double bottom_wall;
+  double top_wall;
 
   // Positions
   double *position_x;
@@ -92,20 +96,17 @@ class SPH {
   // Assign value to acceleration_gravity
   void set_acceleration_gravity(double acceleration_gravity);
 
-  // Assign value to gas_constant
-  void set_gas_constant(double gas_constant);
+  // Assign value to left_wall
+  void set_left_wall(double left_wall);
 
-  // Assign value to density_resting
-  void set_density_resting(double density_resting);
+  // Assign value to right_wall
+  void set_right_wall(double right_wall);
 
-  // Assign value to viscosity
-  void set_viscosity(double viscosity);
+  // Assign value to bottom_wall
+  void set_bottom_wall(double bottom_wall);
 
-  // Assign value to coeff_restitution
-  void set_coeff_restitution(double coeff_restitution);
-
-  // Assign value to acceleration_gravity
-  void set_acceleration_gravity(double acceleration_gravity);
+  // Assign value to top_wall
+  void set_top_wall(double top_wall);
 
   // Function to calculate the mass of the particles before the simulation starts
   void calc_mass();

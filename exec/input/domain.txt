@@ -1,4 +1,4 @@
-left_wall = 0.0    # Left boundary
-bottom_wall = 0.0  # Lower boundary
-right_wall = 1.0   # Right boundary
-top_wall = 1.0   # Upper boundary
+left_wall = 0.0    #Left boundary 
+bottom_wall = 0.0  #Lower boundary
+right_wall = 1.0   #Right boundary
+top_wall = 1.0     #Upper boundary

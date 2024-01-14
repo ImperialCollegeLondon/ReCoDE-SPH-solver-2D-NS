@@ -20,21 +20,29 @@ int main(int argc, char *argv[]) {
   int nb_particles;  // number of particles
   int total_iter;    // total number of iterations required for the time
                      // integration
-  double h;
   double dt;
 
+  // Constants
+  double h;
   double gas_constant;
   double density_resting;
   double viscosity;
   double acceleration_gravity;
   double coeff_restitution;
 
+  // Domain boundaries
+  double left_wall;
+  double right_wall;
+  double bottom_wall; 
+  double top_wall;
+
   std::string OUTPUT_FOLDER = "../output";
   // Read input files, initialise the sph class and the parameters of the
   // problem
   SPH sph =
       initialise(nb_particles, total_iter, h, dt, gas_constant, density_resting,
-                 viscosity, acceleration_gravity, coeff_restitution);
+                 viscosity, acceleration_gravity, coeff_restitution, left_wall,
+                 right_wall, bottom_wall, top_wall);
 
   std ::cout << "Initialisation finished -- OK"
              << "\n";
@@ -63,7 +71,9 @@ int main(int argc, char *argv[]) {
 
 SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
                double &gas_constant, double &density_resting, double &viscosity,
-               double &acceleration_gravity, double &coeff_restitution) {
+               double &acceleration_gravity, double &coeff_restitution,
+               double &left_wall, double &right_wall, double &bottom_wall,
+               double &top_wall) {
   // Process to obtain the directions provided by the user
   po::options_description desc("Allowed options");
   desc.add_options()("init_condition", po::value<std::string>(),
@@ -75,7 +85,11 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
       "density_resting", po::value<double>(), "take resting density")(
       "viscosity", po::value<double>(), "take viscosity")(
       "acceleration_gravity", po::value<double>(), "take acc due to gravity")(
-      "coeff_restitution", po::value<double>(), "take coeff of restitution");
+      "coeff_restitution", po::value<double>(), "take coeff of restitution")(
+      "left_wall", po::value<double>(), "take left wall position")(
+      "right_wall", po::value<double>(), "take right wall position")(
+      "bottom_wall", po::value<double>(), "take bottom wall position")(
+      "top_wall", po::value<double>(), "take top wall position");
 
   po::variables_map case_vm;
   std::ifstream caseFile;
@@ -158,7 +172,7 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
     po::store(po::parse_config_file(constantsFile, desc), constants_vm);
     constantsFile.close();
   } else {
-    std::cerr << "Error opening file: inputs.txt" << std::endl;
+    std::cerr << "Error opening file: constants.txt" << std::endl;
   }
 
   po::notify(constants_vm);
@@ -169,6 +183,24 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
   acceleration_gravity = constants_vm["acceleration_gravity"].as<double>();
   coeff_restitution = constants_vm["coeff_restitution"].as<double>();
 
+  po::variables_map domain_vm;
+  std::ifstream domainFile;
+  domainFile.open("../inputs/domain.txt");
+
+  if (domainFile.is_open()) {
+    po::store(po::parse_config_file(domainFile, desc), domain_vm);
+    domainFile.close();
+  } else {
+    std::cerr << "Error opening file: domain.txt" << std::endl;
+  }
+
+  po::notify(domain_vm);
+
+  left_wall = domain_vm["left_wall"].as<double>();
+  right_wall = domain_vm["right_wall"].as<double>();
+  bottom_wall = domain_vm["bottom_wall"].as<double>();
+  top_wall = domain_vm["top_wall"].as<double>();
+
   sph.set_timestep(dt);
   sph.set_rad_infl(h);
 
@@ -177,6 +209,11 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
   sph.set_viscosity(viscosity);
   sph.set_acceleration_gravity(acceleration_gravity);
   sph.set_coeff_restitution(coeff_restitution);
+
+  sph.set_left_wall(left_wall);
+  sph.set_right_wall(right_wall);
+  sph.set_bottom_wall(bottom_wall);
+  sph.set_top_wall(top_wall);
 
   // Calculate the mass of the particles
   sph.calc_mass();
