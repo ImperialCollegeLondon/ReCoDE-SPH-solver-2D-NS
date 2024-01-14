@@ -133,7 +133,6 @@ void SPH::particle_iterations() {
   int i;
 
   for (i = 0; i < nb_particles; i++) {
-    calc_pressure();
 
     // Gathering the forces calculated by the processors
     force_pressure_x = calc_pressure_force(i, position_x);

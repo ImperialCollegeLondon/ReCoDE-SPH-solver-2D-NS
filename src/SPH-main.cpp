@@ -162,6 +162,7 @@ void time_integration(SPH &sph, int nb_particles, int total_iter, double h,
     // as well as their densities
     sph.calc_particle_distance();
     sph.calc_density();
+    sph.calc_pressure();
     sph.particle_iterations();
 
     // Write energies on the Energy-File
