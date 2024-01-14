@@ -22,20 +22,24 @@ int main(int argc, char *argv[]) {
 
   // Read input files, initialise the solver class and the parameters of the
   // problem
-  sph_2d solver = initialise(nb_particles, total_iter, h, dt);
+  sph_2D solver = initialise(nb_particles, total_iter, h, dt);
+  
+  std ::cout << "Initialisation finished -- OK"
+            << "\n";
 
   // Declare and initialise the output files
   std::ofstream vOut("Positions-x-y.txt", std::ios::out | std::ios::trunc);
   std::ofstream vOut2("Energy-File.txt", std::ios::out | std::ios::trunc);
   init_output_files(vOut, vOut2);
+
   std ::cout << "Output files created -- OK"
           << "\n";
-
+  
   // Time integration loop
   solver.time_integration(nb_particles, total_iter, h, dt, vOut, vOut2);
 
-  std ::cout << "SPH-SOLVER executed succesfully -- OK"
-             << "\n";
+  std ::cout << "SPH-SOLVER executed successfully -- OK"
+            << "\n";
 
   return 0;
 }

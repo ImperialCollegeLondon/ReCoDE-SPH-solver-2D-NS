@@ -24,7 +24,7 @@ class sph_2D : public particles {
   public:
 
     // User defined constructor 
-    sph_2d(const unsigned n_new);
+    sph_2D(const unsigned n_new);
     
     // Assign value to dt
     void set_timestep(double dt);

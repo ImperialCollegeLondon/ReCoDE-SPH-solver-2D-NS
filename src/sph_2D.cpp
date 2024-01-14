@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <iostream>
 
-sph_2d::sph_2d(unsigned int nb_particles) : particles(nb_particles){}
+sph_2D::sph_2D(unsigned int nb_particles) : particles(nb_particles){}
 
 void sph_2D::set_timestep(double dt) { this->dt = dt; }
 
