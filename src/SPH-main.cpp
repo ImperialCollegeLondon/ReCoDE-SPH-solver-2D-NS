@@ -1,7 +1,7 @@
 // This is a main program to run the SPH simulation
 #include "initial_conditions.h"
 #include "main_prog_funcs.h"
-#include "sph.h"
+#include "sph_2d.h"
 #include "particles.h"
 #include <boost/program_options.hpp>
 #include <cmath>
@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
 
   // Read input files, initialise the sph class and the parameters of the
   // problem
-  particles fluid = initialise(nb_particles, total_iter, h, dt);
+  sph_2d solver = initialise(nb_particles, total_iter, h, dt);
 
   std ::cout << "Initialisation finished -- OK"
              << "\n";
@@ -32,11 +32,8 @@ int main(int argc, char *argv[]) {
   std::ofstream vOut2("Energy-File.txt", std::ios::out | std::ios::trunc);
   init_output_files(vOut, vOut2);
 
-  std ::cout << "Output files created -- OK"
-             << "\n";
-
   // Time integration loop
-  time_integration(fluid, nb_particles, total_iter, h, dt, vOut, vOut2);
+  solver.time_integration(nb_particles, total_iter, h, dt, vOut, vOut2);
 
   std ::cout << "SPH-SOLVER exectuted succesfully -- OK"
              << "\n";
@@ -44,7 +41,7 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
-particles initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
+sph_2d initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
 
   // Process to obtain the directions provided by the user
   po::options_description desc("Allowed options");
@@ -89,7 +86,7 @@ particles initialise(int &nb_particles, int &total_iter, double &h, double &dt) 
 
   // Define the object manifestation of the fluid.
   // In its definition, the number of particles is required
-  particles fluid(nb_particles);
+  sph_2d solver(nb_particles);
 
   /**After the number of particles is introduced inside the class and
    * therefore the appropriate containers are initialized, the particles
@@ -97,7 +94,7 @@ particles initialise(int &nb_particles, int &total_iter, double &h, double &dt) 
    **/
 
   // Create map to associate function names with function pointers
-  std::map<std::string, std::function<void(int, particles &)>> functionMap = {
+  std::map<std::string, std::function<void(int, sph_2d &)>> functionMap = {
       {"ic-one-particle", ic_one_particle},
       {"ic-two-particles", ic_two_particles},
       {"ic-three-particles", ic_three_particles},
@@ -114,27 +111,27 @@ particles initialise(int &nb_particles, int &total_iter, double &h, double &dt) 
     if (vm["init_condition"].as<std::string>() == "ic-droplet") {
       n_particles = n3;
     }
-    initFunc->second(n_particles, fluid);
+    initFunc->second(n_particles, solver);
 
   } else {
     /**The ic-block-drop case is not in the map because it has two
      * additional parameters, so it requires a different case.
      **/
     if (vm["init_condition"].as<std::string>() == "ic-block-drop") {
-      ic_block_drop(nb_particles, n1, n2, fluid);
+      ic_block_drop(nb_particles, n1, n2, solver);
 
     } else {
       std::cerr << "Error: Function not found!" << std::endl;
     }
   }
 
-  fluid.set_timestep(dt);
-  fluid.set_rad_infl(h);
+  solver.set_timestep(dt);
+  solver.set_rad_infl(h);
 
   // Calculate the mass of the particles
-  sph::calc_mass(fluid);
+  solver.calc_mass();
 
-  return fluid;
+  return solver;
 }
 
 void init_output_files(std::ofstream &vOut, std::ofstream &vOut2) {
@@ -153,36 +150,7 @@ void init_output_files(std::ofstream &vOut, std::ofstream &vOut2) {
         << "     "
         << "Etotal"
         << "\n";
-}
 
-void time_integration(particles &fluid, int nb_particles, int total_iter, double h,
-                      double dt, std::ofstream &vOut, std::ofstream &vOut2) {
-
-  std ::cout << "Time integration started -- OK"
-             << "\n";
-
-  for (int t = 0; t < total_iter; t++) {
-
-    // In each iteration the distances between the particles are recalculated,
-    // as well as their densities
-    sph::calc_particle_distance(fluid);
-    sph::calc_density(fluid);
-    sph::particle_iterations(fluid);
-
-    // Write energies on the Energy-File
-    vOut2 << t * dt << "  " << fluid.return_kinetic_energy() << "  "
-          << fluid.return_potential_energy() << "  "
-          << fluid.return_potential_energy() + fluid.return_kinetic_energy()
-          << "\n";
-
-    // Get the positions after integration is completed
-    if (t == total_iter - 1) {
-
-      for (int l = 0; l < nb_particles; l++) {
-
-        vOut << fluid.get_position_x(l) << " " << fluid.get_position_y(l)
-             << "\n";
-      }
-    }
-  }
+  std ::cout << "Output files created -- OK"
+            << "\n";
 }

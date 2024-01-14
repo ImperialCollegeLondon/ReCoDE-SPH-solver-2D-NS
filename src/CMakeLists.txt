@@ -9,8 +9,8 @@ set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/../exec/build)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 set(SOURCES
-    sph.cpp
-    sph.h
+    sph_2D.cpp
+    sph_2D.h
     particles.cpp
     particles.h
     initial_conditions.cpp

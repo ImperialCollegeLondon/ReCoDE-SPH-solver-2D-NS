@@ -11,9 +11,7 @@
 //#include "sph_calc.h" // TODO(Vyron): Cyclic dependencies here
 class particles {
 
-friend class sph; // TODO(Vyron): Is this really the best way ?
-
-private:
+protected:
   unsigned int nb_particles; // size of the Matrix
 
   int t; // time
@@ -40,7 +38,7 @@ private:
 
   // Distances
   double *distance;   // Array to store the distances between the particles
-  double *distance_q; // Array to store the values of the normalised distance q
+  double *distance_q; // Array to store the values of the normalized distance q
 
   // Mass
   double mass_assumed = 1.0;
@@ -58,7 +56,7 @@ private:
   double force_gravity_y;
   double force_gravity_x = 0.0;
 
-public:
+  public: 
   /******** CONSTRUCTORS/DESTRUCTOR********/
 
   particles() = default; // Default constructor

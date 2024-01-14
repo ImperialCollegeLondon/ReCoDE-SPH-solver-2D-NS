@@ -1,4 +1,3 @@
-#include "sph.h"
 #include "particles.h"
 #include <cmath>
 #include <cstring>
