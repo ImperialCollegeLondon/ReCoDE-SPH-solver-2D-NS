@@ -12,8 +12,8 @@ class sph_2d : public particles {
     using particles::set_rad_infl;
     using particles::get_position_x;
     using particles::get_position_y;
-    using particles::return_kinetic_energy;
-    using particles::return_potential_energy;
+    using particles::get_kinetic_energy;
+    using particles::get_potential_energy;
 
     // Function to find the mass of the particles before the simulation starts
      void calc_mass();

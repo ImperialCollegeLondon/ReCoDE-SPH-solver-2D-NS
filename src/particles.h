@@ -88,10 +88,10 @@ protected:
   double get_position_y(int l) const;
 
   // Function to calculate the kinetic energy
-  double return_kinetic_energy();
+  double get_kinetic_energy();
 
   // Function to calculate the potential energy
-  double return_potential_energy();
+  double get_potential_energy();
 };
 
 #endif

@@ -94,9 +94,9 @@ void sph_2d::time_integration(int nb_particles, int total_iter, double h,
     particle_iterations();
 
     // Write energies on the Energy-File
-    vOut2 << t * dt << "  " << return_kinetic_energy() << "  "
-          << return_potential_energy() << "  "
-          << return_potential_energy() + return_kinetic_energy()
+    vOut2 << t * dt << "  " << get_kinetic_energy() << "  "
+          << get_potential_energy() << "  "
+          << get_potential_energy() + get_kinetic_energy()
           << "\n";
 
     // Get the positions after integration is completed

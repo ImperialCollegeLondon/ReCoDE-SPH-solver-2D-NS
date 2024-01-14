@@ -65,7 +65,7 @@ double particles::get_position_x(int l) const { return position_x[l]; }
 
 double particles::get_position_y(int l) const { return position_y[l]; }
 
-double particles::return_kinetic_energy() {
+double particles::get_kinetic_energy() {
 
   double sum = 0;
   for (int i = 0; i < nb_particles; i++) {
@@ -79,7 +79,7 @@ double particles::return_kinetic_energy() {
   return 0.5 * mass_assumed * sum;
 }
 
-double particles::return_potential_energy() {
+double particles::get_potential_energy() {
 
   double sum = 0;
   for (int i = 0; i < nb_particles; i++) {
