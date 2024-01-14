@@ -1,4 +1,4 @@
-init_condition = ic-dam-break    # Name of initial condition
+init_condition=ic-dam-break    # Name of initial condition
 T=3	          	               # Integration time (s)
-dt=1e-4	      		           # Timestep
-h=1e-2        		           # Radius of influence
+dt=1e-4	      		             # Timestep
+h=1e-2        		             # Radius of influence

@@ -1,13 +1,12 @@
 # Smooth Particle Hydrodynamics (SPH)
+
 Smooth particle hydrodynamics (SPH) is a branch of computational fluid dynamics, which belongs in the category of particle-based and mesh-free methods. It was first developed for astrophysical flows related problems and has gained an increasing popularity over the last few years due to its very good applicability and easy extensibility in problems describing free surface and multiphase flows in both simple and complex geometries.
 
 In the SPH formulation, the fluid is being discretised by fictitious particles whose interpolated properties can approximate any function f(x) that is of interest over a domain $\Omega$.
 
-
 $$f(x) \sim \int_{\Omega} f(x')W(x-x',h)dx'$$
 
-
-In this  W is a kernel function and h is defined as the smoothing length that characterizes the size of the support domain of the kernel. The discrete equivalent of the above expression for the $i^{th}$ particle can be written as:
+In this W is a kernel function and h is defined as the smoothing length that characterizes the size of the support domain of the kernel. The discrete equivalent of the above expression for the $i^{th}$ particle can be written as:
 
 $$f_i = \sum_{j}^{N} \frac{m_j}{\rho_{j}} f_j W_{ij} $$
 
@@ -23,25 +22,28 @@ More information on SPH and its applications can be found in the following resou
 - https://arxiv.org/pdf/2104.00537.pdf
 
 # The algorithm
+
 In this exemplar the following algorithm which describes the solution steps of a 2D formulation of the Navier-Stokes equation is implemented:
 
-## Density 
+## Density
 
 The density of the fluid associated with each particle i is approximated as
 
 $$\rho_i = \sum_{j} m \phi_d(r_{ij} ,h)  $$
 
-where $r_{ij} = x_{i} −x_{j}$ and $m$ is the mass of a particle and the kernel density function for density, $\phi_{d}(r_{ij},h)$ is given by 
+where $r_{ij} = x_{i} −x_{j}$ and $m$ is the mass of a particle and the kernel density function for density, $\phi_{d}(r_{ij},h)$ is given by
 
-$$\phi_{d}(r_{ij},h) = \begin{cases}
+$$
+\phi_{d}(r_{ij},h) = \begin{cases}
 \frac{4}{\pi h^2{(1 −q_{ij}^2)^3}} & \text{if $q_{ij} < 1$}\\
-0 & \text{otherwise} 
-\end{cases}$$
+0 & \text{otherwise}
+\end{cases}
+$$
 
 where $q_{ij}$ is the distance between particle $i$ and particle $j$, normalised by the interaction radius, given by
 
 $$q_{ij} = \frac{||r_{ij}||} {h} $$
- 
+
 ## Pressure
 
 The pressure is calculated based on the ideal gas law
@@ -50,16 +52,16 @@ $$p_i = k(\rho_{i} −\rho_{0})$$
 
 where $\rho_{0}$ is a resting density and $k$ is a gas constant.
 
-
 ## Pressure force
 
 The force exerted on the particle due to pressure from neighboring fluid particles is calculated as
 
-$$F_{pi} = −\sum_{j} \frac{m}{\rho_{j}} \frac{(p_i + p_j)}{2} \nabla(\phi_{p})(r_{ij} ,h)$$ 
+$$F_{pi} = −\sum_{j} \frac{m}{\rho_{j}} \frac{(p_i + p_j)}{2} \nabla(\phi_{p})(r_{ij} ,h)$$
 
 where $\phi_d$ is the the kernel density function for pressure :
 
-$$\nabla(\phi_{p})(r_{ij} ,h) = \begin{cases}
+$$
+\nabla(\phi_{p})(r_{ij} ,h) = \begin{cases}
 − 30 \pi h^3 r_{ij} \frac{(1−q)^2}{q} & \text{for } q_{ij} < 1 \text{ and } i \neq j\\
 0 & \text{otherwise}
 \end{cases}
@@ -81,7 +83,7 @@ $$\nabla^{2} \phi v(r_i,h) = 40 \pi h^4 (1 −q)$$
 
 while otherwise it is set to 0.
 
-## Gravity force: 
+## Gravity force:
 
 Finally, the force due to gravity is calculated as
 
@@ -101,9 +103,7 @@ We begin with the initial conditions of the system, which are the positions and 
 
 $$v^{t+\frac{1}{2}}_i = v^{t-\frac{1}{2}}_i + {a_i}^{t} \Delta{t}$$
 
-
 $$x^{(t+1)}_i = x^{t}_i + v^{t+ \frac{1}{2}}_i \Delta{t}$$
-
 
 However, because the velocity is calculated at half-steps, we need to initialise the scheme on the first time step using:
 
@@ -111,17 +111,17 @@ $$v^{\frac{1}{2}}_i = v^{0}_i + a_i^0 \frac{\Delta{t}}{2}$$
 
 where $∆t$ is the time step size. To ensure convergence, a small time-step is required. A value of $∆t = 10^{−4}$s is suggested.
 
-
 ## Initial Condition
 
-To initialise the simulation, one or more particles must be specified. These should be evenly distributed. 
+To initialise the simulation, one or more particles must be specified. These should be evenly distributed.
 
 Once the particles are placed, the particle densities should be evaluated with an assumed mass of m = 1 and the mass subsequently scaled so that the density is equal to the reference density:
 
-$$ m = \frac{N \rho_{0}}{\sum_{i} \rho_{i}} $$
+$$ m = \frac{N \rho*{0}}{\sum*{i} \rho\_{i}} $$
 
-##  Boundary Conditions
+## Boundary Conditions
+
 All the boundaries are solid walls with damped reflecting boundary conditions. If particles are within a distance h of the boundary, their velocity and position should be updated to reverse the motion of the particle and keep it within the domain. For example, on the right boundary, the x-component of position and velocity would be modified as:
 
 $$ x  = 1 - h $$
-$$ u  = - eu $$ 
+$$ u  = - eu $$
