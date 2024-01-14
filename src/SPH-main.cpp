@@ -1,7 +1,7 @@
 // This is a main program to run the SPH simulation
 #include "initial_conditions.h"
 #include "main_prog_funcs.h"
-#include "sph_2d.h"
+#include "sph_2D.h"
 #include "particles.h"
 #include <boost/program_options.hpp>
 #include <cmath>
@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
 
   // Read input files, initialise the solver class and the parameters of the
   // problem
-  sph_2d solver = initialise(nb_particles, total_iter, h, dt);
+  sph_2D solver = initialise(nb_particles, total_iter, h, dt);
 
   // Declare and initialise the output files
   std::ofstream vOut("Positions-x-y.txt", std::ios::out | std::ios::trunc);
@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
-sph_2d initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
+sph_2D initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
 
   // Process to obtain the directions provided by the user
   po::options_description desc("Allowed options");
@@ -83,7 +83,7 @@ sph_2d initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
 
   // Define the object manifestation of the fluid.
   // In its definition, the number of particles is required
-  sph_2d solver(nb_particles);
+  sph_2D solver(nb_particles);
 
   /**After the number of particles is introduced inside the class and
    * therefore the appropriate containers are initialized, the particles
@@ -91,7 +91,7 @@ sph_2d initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
    **/
 
   // Create map to associate function names with function pointers
-  std::map<std::string, std::function<void(int, sph_2d &)>> functionMap = {
+  std::map<std::string, std::function<void(int, sph_2D &)>> functionMap = {
       {"ic-one-particle", ic_one_particle},
       {"ic-two-particles", ic_two_particles},
       {"ic-three-particles", ic_three_particles},

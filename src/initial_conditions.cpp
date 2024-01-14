@@ -1,10 +1,10 @@
 #include "initial_conditions.h"
-#include "sph_2d.h"
+#include "sph_2D.h"
 #include <cmath>
 
 // ========== Initial Conditions ==========
 
-void ic_one_particle(int nb_particles, sph_2d &fluid) {
+void ic_one_particle(int nb_particles, sph_2D &fluid) {
 
   fluid(0, 0) = 0.5;
   fluid(1, 0) = 0.5;
@@ -12,7 +12,7 @@ void ic_one_particle(int nb_particles, sph_2d &fluid) {
   fluid(3, 0) = 0.0;
 }
 
-void ic_two_particles(int nb_particles, sph_2d &fluid) {
+void ic_two_particles(int nb_particles, sph_2D &fluid) {
 
   fluid(0, 0) = 0.5;
   fluid(0, 1) = 0.5;
@@ -27,7 +27,7 @@ void ic_two_particles(int nb_particles, sph_2d &fluid) {
   fluid(3, 1) = 0.0;
 }
 
-void ic_three_particles(int nb_particles, sph_2d &fluid) {
+void ic_three_particles(int nb_particles, sph_2D &fluid) {
 
   fluid(0, 0) = 0.5;
   fluid(0, 1) = 0.495;
@@ -46,7 +46,7 @@ void ic_three_particles(int nb_particles, sph_2d &fluid) {
   fluid(3, 2) = 0.0;
 }
 
-void ic_four_particles(int nb_particles, sph_2d &fluid) {
+void ic_four_particles(int nb_particles, sph_2D &fluid) {
 
   fluid(0, 0) = 0.505;
   fluid(0, 1) = 0.515;
@@ -69,7 +69,7 @@ void ic_four_particles(int nb_particles, sph_2d &fluid) {
   fluid(3, 3) = 0.0;
 }
 
-void ic_dam_break(int nb_particles, sph_2d &fluid) {
+void ic_dam_break(int nb_particles, sph_2D &fluid) {
 
   int el = pow(nb_particles, 0.5);
   // Initial distance between the particles in both directions
@@ -100,7 +100,7 @@ void ic_dam_break(int nb_particles, sph_2d &fluid) {
   }
 }
 
-void ic_block_drop(int nb_particles, int n1, int n2, sph_2d &fluid) {
+void ic_block_drop(int nb_particles, int n1, int n2, sph_2D &fluid) {
 
   // Distance between neighboring particles in x and y
   // 0.2 is the total distance in x and 0.3 in y
@@ -135,7 +135,7 @@ void ic_block_drop(int nb_particles, int n1, int n2, sph_2d &fluid) {
 }
 
 // Droplet
-void ic_droplet(int nb_particles, sph_2d &fluid) {
+void ic_droplet(int nb_particles, sph_2D &fluid) {
 
   double *position_x_store = new double[nb_particles];
   double *position_y_store = new double[nb_particles];

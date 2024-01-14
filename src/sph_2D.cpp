@@ -1,15 +1,15 @@
-#include "sph_2d.h"
+#include "sph_2D.h"
 #include <cmath>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 
 
-void sph_2d::set_timestep(double dt) { this->dt = dt; }
+void sph_2D::set_timestep(double dt) { this->dt = dt; }
 
-void sph_2d::set_rad_infl(double h) { this->h = h; }
+void sph_2D::set_rad_infl(double h) { this->h = h; }
 
-void sph_2d::calc_mass() {
+void sph_2D::calc_mass() {
 
   calc_particle_distance();
   calc_density();
@@ -22,7 +22,7 @@ void sph_2d::calc_mass() {
   mass_assumed = nb_particles * density_resting / sumden;
 }
 
-void sph_2d::calc_particle_distance() {
+void sph_2D::calc_particle_distance() {
 
   double dx;
   double dy;
@@ -39,7 +39,7 @@ void sph_2d::calc_particle_distance() {
   }
 }
 
-void sph_2d::calc_density() {
+void sph_2D::calc_density() {
   
   double phi;
   double four_pi_h_2 =
@@ -80,7 +80,7 @@ void sph_2d::calc_density() {
   }
 }
 
-void sph_2d::time_integration(int nb_particles, int total_iter, double h,
+void sph_2D::time_integration(int nb_particles, int total_iter, double h,
                       double dt, std::ofstream &vOut, std::ofstream &vOut2) {
 
   std ::cout << "Time integration started -- OK"
@@ -114,7 +114,7 @@ void sph_2d::time_integration(int nb_particles, int total_iter, double h,
   }
 }
 
-void sph_2d::calc_pressure() {
+void sph_2D::calc_pressure() {
 
   for (int i = 0; i < nb_particles; i++) {
 
@@ -123,7 +123,7 @@ void sph_2d::calc_pressure() {
   }
 }
 
-void sph_2d::particle_iterations() {
+void sph_2D::particle_iterations() {
 
   int i;
   for (i = 0; i < nb_particles; i++) {
@@ -147,7 +147,7 @@ void sph_2d::particle_iterations() {
   }
 }
 
-double sph_2d::calc_pressure_force(int particle_index, double *position) {
+double sph_2D::calc_pressure_force(int particle_index, double *position) {
 
   double sum = 0.0; // Initializing the sumation
   double thirty_pi_h_3 =
@@ -174,7 +174,7 @@ double sph_2d::calc_pressure_force(int particle_index, double *position) {
   return -sum;
 }
 
-double sph_2d::calc_viscous_force(int particle_index, double *v) {
+double sph_2D::calc_viscous_force(int particle_index, double *v) {
 
   double phisq;
 
@@ -203,11 +203,11 @@ double sph_2d::calc_viscous_force(int particle_index, double *v) {
   return -viscosity * sum;
 }
 
-double sph_2d::calc_gravity_force(int particle_index) {
+double sph_2D::calc_gravity_force(int particle_index) {
   return -particle_density[particle_index] * acceleration_gravity;
 }
 
-void sph_2d::update_position(int particle_index){
+void sph_2D::update_position(int particle_index){
 
   // First step to initialise the scheme
     if (t == 0) {
@@ -234,7 +234,7 @@ void sph_2d::update_position(int particle_index){
 
 }
 
-double sph_2d::scheme_init(int particle_index, double *velocity,
+double sph_2D::scheme_init(int particle_index, double *velocity,
                         double &force_pressure, double &force_viscous,
                         double &force_gravity) {
 
@@ -246,7 +246,7 @@ double sph_2d::scheme_init(int particle_index, double *velocity,
   return velocity[particle_index] + acceleration * dt * 0.5;
 }
 
-double sph_2d::velocity_integration(int particle_index, double *velocity,
+double sph_2D::velocity_integration(int particle_index, double *velocity,
                                  double &force_pressure, double &force_viscous,
                                  double &force_gravity) {
 
@@ -257,7 +257,7 @@ double sph_2d::velocity_integration(int particle_index, double *velocity,
   return velocity[particle_index] + acceleration * dt;
 }
 
-void sph_2d::boundaries(int particle_index) {
+void sph_2D::boundaries(int particle_index) {
 
 if (position_x[particle_index] < h) {
 

@@ -4,7 +4,7 @@
 #include "particles.h"
 #include "fstream"
 
-class sph_2d : public particles {
+class sph_2D : public particles {
 
   protected:
 
