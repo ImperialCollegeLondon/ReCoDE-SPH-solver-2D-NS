@@ -23,12 +23,9 @@ class sph_2D : public particles {
 
   public:
 
-    using particles::particles;
-    using particles::get_position_x;
-    using particles::get_position_y;
-    using particles::get_kinetic_energy;
-    using particles::get_potential_energy;
-
+    // User defined constructor 
+    sph_2d(const unsigned n_new);
+    
     // Assign value to dt
     void set_timestep(double dt);
 

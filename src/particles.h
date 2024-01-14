@@ -53,7 +53,7 @@ protected:
   ~particles(); // Destructor
 
   particles(const unsigned n_new); // User defined constructor for allocating the
-                             // dimensions of the Matrix
+                             // dimensions of the arrays
 
   /**********OVERLOADINGS**********/
 
