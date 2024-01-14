@@ -5,15 +5,35 @@
 #include "fstream"
 
 class sph_2d : public particles {
+
+  protected:
+
+  int t; // time
+
+  double dt; // timestep
+
+  const double coeff_restitution = 0.5;
+
+  // Forces
+  double force_pressure, force_viscous, force_gravity;
+  double force_pressure_x, force_pressure_y;
+  double force_viscous_x, force_viscous_y;
+  double force_gravity_y;
+  double force_gravity_x = 0.0;
+
   public:
 
     using particles::particles;
-    using particles::set_timestep;
-    using particles::set_rad_infl;
     using particles::get_position_x;
     using particles::get_position_y;
     using particles::get_kinetic_energy;
     using particles::get_potential_energy;
+
+    // Assign value to dt
+    void set_timestep(double dt);
+
+    // Assign value to h
+    void set_rad_infl(double h);
 
     // Function to find the mass of the particles before the simulation starts
      void calc_mass();
@@ -57,5 +77,5 @@ class sph_2d : public particles {
 
     // Function to treat the boundaries
      void boundaries(int particle_index);
-
+     
 };

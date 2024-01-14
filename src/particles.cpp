@@ -57,10 +57,6 @@ double &particles::operator()(unsigned row, unsigned col) {
   }
 }
 
-void particles::set_timestep(double dt) { this->dt = dt; }
-
-void particles::set_rad_infl(double h) { this->h = h; }
-
 double particles::get_position_x(int l) const { return position_x[l]; }
 
 double particles::get_position_y(int l) const { return position_y[l]; }

@@ -5,6 +5,10 @@
 #include <iostream>
 
 
+void sph_2d::set_timestep(double dt) { this->dt = dt; }
+
+void sph_2d::set_rad_infl(double h) { this->h = h; }
+
 void sph_2d::calc_mass() {
 
   calc_particle_distance();
@@ -76,7 +80,6 @@ void sph_2d::calc_density() {
   }
 }
 
-
 void sph_2d::time_integration(int nb_particles, int total_iter, double h,
                       double dt, std::ofstream &vOut, std::ofstream &vOut2) {
 
@@ -119,7 +122,6 @@ void sph_2d::calc_pressure() {
         gas_constant * (particle_density[i] - density_resting);
   }
 }
-
 
 void sph_2d::particle_iterations() {
 
@@ -204,7 +206,6 @@ double sph_2d::calc_viscous_force(int particle_index, double *v) {
 double sph_2d::calc_gravity_force(int particle_index) {
   return -particle_density[particle_index] * acceleration_gravity;
 }
-
 
 void sph_2d::update_position(int particle_index){
 

@@ -12,20 +12,15 @@
 class particles {
 
 protected:
-  unsigned int nb_particles; // size of the Matrix
-
-  int t; // time
-
-  double dt; // timestep
-
-  double h; // Radius of influence
+  unsigned int nb_particles; //number of particles
 
   // Constants of the problem
   const double gas_constant = 2000.0;
   const double density_resting = 1000.0;
   const double viscosity = 1.0;
-  const double coeff_restitution = 0.5;
   const double acceleration_gravity = 9.81;
+
+  double h; // Radius of influence
 
   // Positions
   double *position_x;
@@ -49,12 +44,6 @@ protected:
   // Pressure
   double *particle_pressure;
 
-  // Forces
-  double force_pressure, force_viscous, force_gravity;
-  double force_pressure_x, force_pressure_y;
-  double force_viscous_x, force_viscous_y;
-  double force_gravity_y;
-  double force_gravity_x = 0.0;
 
   public: 
   /******** CONSTRUCTORS/DESTRUCTOR********/
@@ -74,12 +63,6 @@ protected:
 
     // TODO(Vyron): Many of these below need to be inlined and if it's possible constexpr
   // Setter Functions.
-
-  // Assign value to dt
-  void set_timestep(double dt);
-
-  // Assign value to h
-  void set_rad_infl(double h);
 
   // Function to return the position x
   double get_position_x(int l) const;

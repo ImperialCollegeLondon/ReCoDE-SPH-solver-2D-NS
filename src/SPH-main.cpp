@@ -20,12 +20,9 @@ int main(int argc, char *argv[]) {
   double h;
   double dt;
 
-  // Read input files, initialise the sph class and the parameters of the
+  // Read input files, initialise the solver class and the parameters of the
   // problem
   sph_2d solver = initialise(nb_particles, total_iter, h, dt);
-
-  std ::cout << "Initialisation finished -- OK"
-             << "\n";
 
   // Declare and initialise the output files
   std::ofstream vOut("Positions-x-y.txt", std::ios::out | std::ios::trunc);
@@ -130,6 +127,10 @@ sph_2d initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
 
   // Calculate the mass of the particles
   solver.calc_mass();
+
+
+  std ::cout << "Initialisation finished -- OK"
+             << "\n";
 
   return solver;
 }
