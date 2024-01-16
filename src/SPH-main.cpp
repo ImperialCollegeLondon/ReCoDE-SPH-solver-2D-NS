@@ -17,9 +17,8 @@
 // Start of the main programme
 int main(int argc, char *argv[]) {
   // Declare the parameters of the problem
-  int nb_particles;  // number of particles
-  int total_iter;    // total number of iterations required for the time
-                     // integration
+  int total_iter;  // total number of iterations required for the time
+                   // integration
   double dt;
 
   // Constants
@@ -36,6 +35,9 @@ int main(int argc, char *argv[]) {
   double bottom_wall; 
   double top_wall;
 
+  // Number of particles
+  int nb_particles;
+  
   std::string OUTPUT_FOLDER = "../output";
   // Read input files, initialise the sph class and the parameters of the
   // problem
@@ -89,7 +91,21 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
       "left_wall", po::value<double>(), "take left wall position")(
       "right_wall", po::value<double>(), "take right wall position")(
       "bottom_wall", po::value<double>(), "take bottom wall position")(
-      "top_wall", po::value<double>(), "take top wall position");
+      "top_wall", po::value<double>(), "take top wall position")(
+      "length", po::value<double>(), "take length of the block")(
+      "width", po::value<double>(), "take width of the block")(
+      "radius", po::value<double>(), "take radius of the droplet")(
+      "n", po::value<int>(), "take number of particles")(
+      "center_x", po::value<double>(), "take center of the particle mass in x")(
+      "center_y", po::value<double>(), "take center of the particle mass in y")(
+      "init_x_1", po::value<double>(), "take x_1")(
+      "init_y_1", po::value<double>(), "take y_2")(
+      "init_x_2", po::value<double>(), "take x_2")(
+      "init_y_2", po::value<double>(), "take y_2")(
+      "init_x_3", po::value<double>(), "take x_3")(
+      "init_y_3", po::value<double>(), "take y_3")(
+      "init_x_4", po::value<double>(), "take x_4")(
+      "init_y_4", po::value<double>(), "take y_4");
 
   po::variables_map case_vm;
   std::ifstream caseFile;
@@ -104,62 +120,70 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
 
   po::notify(case_vm);
 
-  int n1 = 17;   // required for ic-block-drop
-  int n2 = 25;   // required for ic-block-drop
-  int n3 = 100;  // required for ic-dam-break and ic-droplet
-
   double total_time = case_vm["T"].as<double>();  // Total integration time
   dt = case_vm["dt"].as<double>();                // Time step dt
-  h = case_vm["h"].as<double>();                  // Radius of influence
 
   total_iter =
       ceil(total_time / dt);  // Transform time in seconds to iterations
 
+  // Initial Condition Input
+  po::variables_map ic_vm;
+  std::ifstream icFile;
+  icFile.open("../inputs/" + case_vm["init_condition"].as<std::string>() +
+              ".txt");
+
+  if (icFile.is_open()) {
+    po::store(po::parse_config_file(icFile, desc), ic_vm);
+    icFile.close();
+  } else {
+    std::cerr << "Error opening file: "
+              << case_vm["init_condition"].as<std::string>() << ".txt"
+              << std::endl;
+  }
+  po::notify(ic_vm);
+
+  // Fixed nb_particles ic cases
   std::map<std::string, int> initConditionToParticlesMap = {
-      {"ic-one-particle", 1},      {"ic-two-particles", 2},
-      {"ic-three-particles", 3},   {"ic-four-particles", 4},
-      {"ic-dam-break", n3},        {"ic-block-drop", n1 * n2},
-      {"ic-droplet", dropletn(n3)}};
+      {"ic-one-particle", 1},
+      {"ic-two-particles", 2},
+      {"ic-three-particles", 3},
+      {"ic-four-particles", 4}};
 
-  nb_particles =
-      initConditionToParticlesMap[case_vm["init_condition"].as<std::string>()];
-
-  // Define the solver object (called sph)
-  // In its definition, the number of particles is required
-  SPH sph(nb_particles);
-
+  // Get the number of particles based on the ic case
+  if (case_vm["init_condition"].as<std::string>() == "ic-dam-break") {
+    nb_particles = ic_vm["n"].as<int>();
+  } else if (case_vm["init_condition"].as<std::string>() == "ic-droplet") {
+    nb_particles = ic_vm["n"].as<int>();
+  } else if (case_vm["init_condition"].as<std::string>() == "ic-block-drop") {
+    nb_particles = ic_vm["n"].as<int>();
+  } else {
+    nb_particles = initConditionToParticlesMap[case_vm["init_condition"]
+                                                   .as<std::string>()];
+  }
   /**After the number of particles is introduced inside the class and
    * therefore the appropriate matrices are initialized, the particles
    * are ordered in the correct positions
    **/
-
-  // Create map to associate function names with function pointers
-  std::map<std::string, std::function<void(int, SPH &)>> functionMap = {
-      {"ic-one-particle", ic_one_particle},
-      {"ic-two-particles", ic_two_particles},
-      {"ic-three-particles", ic_three_particles},
-      {"ic-four-particles", ic_four_particles},
-      {"ic-dam-break", ic_dam_break},
-      {"ic-droplet", ic_droplet}};
-
-  // Get the function pointer from the map
-  auto initFunc = functionMap.find(case_vm["init_condition"].as<std::string>());
-  if (initFunc != functionMap.end()) {
-    int n_particles = nb_particles;
-
-    // The ic-droplet case requires a different n argument.
-    if (case_vm["init_condition"].as<std::string>() == "ic-droplet") {
-      n_particles = n3;
+  SPH sph(nb_particles);
+  if (case_vm["init_condition"].as<std::string>() == "ic-one-particle" ||
+      case_vm["init_condition"].as<std::string>() == "ic-two-particles" ||
+      case_vm["init_condition"].as<std::string>() == "ic-three-particles" ||
+      case_vm["init_condition"].as<std::string>() == "ic-four-particles") {
+    double *init_x = new double[nb_particles];
+    double *init_y = new double[nb_particles];
+    for (int i = 0; i < nb_particles; i++) {
+      init_x[i] = ic_vm["init_x_" + std::to_string(i + 1)].as<double>();
+      init_y[i] = ic_vm["init_y_" + std::to_string(i + 1)].as<double>();
     }
-
-    // Retrieves and runs the provided function object
-    initFunc->second(n_particles, sph);
-
+    sph = ic_basic(nb_particles, init_x, init_y);
   } else if (case_vm["init_condition"].as<std::string>() == "ic-block-drop") {
-    /**The ic-block-drop case is not in the map because it has two
-     * additional parameters, so it requires a different case.
-     **/
-    ic_block_drop(nb_particles, n1, n2, sph);
+    sph = ic_block_drop(
+        nb_particles, ic_vm["length"].as<double>(), ic_vm["width"].as<double>(),
+        ic_vm["center_x"].as<double>(), ic_vm["center_y"].as<double>());
+  } else if (case_vm["init_condition"].as<std::string>() == "ic-droplet") {
+    sph = ic_droplet(nb_particles, ic_vm["radius"].as<double>(),
+                     ic_vm["center_x"].as<double>(),
+                     ic_vm["center_y"].as<double>());
   } else {
     std::cerr << "Error: Function not found!" << std::endl;
   }
@@ -177,6 +201,7 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
 
   po::notify(constants_vm);
 
+  h = constants_vm["h"].as<double>();  // Radius of influence
   gas_constant = constants_vm["gas_constant"].as<double>();
   density_resting = constants_vm["density_resting"].as<double>();
   viscosity = constants_vm["viscosity"].as<double>();
@@ -202,8 +227,8 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
   top_wall = domain_vm["top_wall"].as<double>();
 
   sph.set_timestep(dt);
-  sph.set_rad_infl(h);
 
+  sph.set_rad_infl(h);
   sph.set_gas_constant(gas_constant);
   sph.set_density_resting(density_resting);
   sph.set_viscosity(viscosity);

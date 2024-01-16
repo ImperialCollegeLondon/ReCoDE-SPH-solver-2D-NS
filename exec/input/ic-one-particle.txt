@@ -1,0 +1,2 @@
+init_x_1 = 0.5      # Initial position of the particle on the x axis
+init_y_1 = 0.5      # Initial position of the particle on the y axis

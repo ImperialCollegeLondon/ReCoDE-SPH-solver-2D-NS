@@ -1,112 +1,39 @@
 #include "initial_conditions.h"
 
 #include <cmath>
+#include <iostream>
 
 #include "sph.h"
 
 // ========== Initial Conditions ==========
 
-void ic_one_particle(int nb_particles, SPH &sph) {
-  sph(0, 0) = 0.5;
-  sph(1, 0) = 0.5;
-  sph(2, 0) = 0.0;
-  sph(3, 0) = 0.0;
-}
+SPH ic_basic(int nb_particles, double *position_x, double *position_y) {
+  SPH sph(nb_particles);
 
-void ic_two_particles(int nb_particles, SPH &sph) {
-  sph(0, 0) = 0.5;
-  sph(0, 1) = 0.5;
-
-  sph(1, 0) = 0.5;
-  sph(1, 1) = 0.01;
-
-  sph(2, 0) = 0.0;
-  sph(2, 1) = 0.0;
-
-  sph(3, 0) = 0.0;
-  sph(3, 1) = 0.0;
-}
-
-void ic_three_particles(int nb_particles, SPH &sph) {
-  sph(0, 0) = 0.5;
-  sph(0, 1) = 0.495;
-  sph(0, 2) = 0.505;
-
-  sph(1, 0) = 0.5;
-  sph(1, 1) = 0.01;
-  sph(1, 2) = 0.01;
-
-  sph(2, 0) = 0.0;
-  sph(2, 1) = 0.0;
-  sph(2, 2) = 0.0;
-
-  sph(3, 0) = 0.0;
-  sph(3, 1) = 0.0;
-  sph(3, 2) = 0.0;
-}
-
-void ic_four_particles(int nb_particles, SPH &sph) {
-  sph(0, 0) = 0.505;
-  sph(0, 1) = 0.515;
-  sph(0, 2) = 0.51;
-  sph(0, 3) = 0.5;
-
-  sph(1, 0) = 0.5;
-  sph(1, 1) = 0.5;
-  sph(1, 2) = 0.45;
-  sph(1, 3) = 0.45;
-
-  sph(2, 0) = 0.0;
-  sph(2, 1) = 0.0;
-  sph(2, 2) = 0.0;
-  sph(2, 3) = 0.0;
-
-  sph(3, 0) = 0.0;
-  sph(3, 1) = 0.0;
-  sph(3, 2) = 0.0;
-  sph(3, 3) = 0.0;
-}
-
-void ic_dam_break(int nb_particles, SPH &sph) {
-  int el = pow(nb_particles, 0.5);
-  // Initial distance between the particles in both directions
-  double step = 0.19 / (el - 1);
-  // Starting position in x
-  double position_x = 0.01;
-  double position_y;
-  // Assign the values in x for all particles
-  for (int i = 0; i < el; i++) {
-    for (int j = 0; j < el; j++) {
-      sph(0, i * el + j) = position_x + double(rand()) / RAND_MAX / 100000;
-      sph(2, i * el + j) = 0.0;
-    }
-    position_x += step;
+  for (int i = 0; i < nb_particles; i++) {
+    sph(0, i) = position_x[i];
+    sph(1, i) = position_y[i];
+    sph(2, i) = 0.0;
+    sph(3, i) = 0.0;
   }
 
-  // For uniform distribution the step in y has to be equal to the step in x
-  step = 0.19 / (el - 1);
-
-  // Assign values in y for all particles
-  for (int i = 0; i < el; i++) {
-    position_y = 0.01;
-    for (int j = 0; j < el; j++) {
-      sph(1, i * el + j) = position_y + double(rand()) / RAND_MAX / 100000;
-      sph(3, i * el + j) = 0.0;
-      position_y += step;
-    }
-  }
+  return sph;
 }
 
-void ic_block_drop(int nb_particles, int n1, int n2, SPH &sph) {
+SPH ic_block_drop(int nb_particles, double length, double width,
+                  double center_x, double center_y) {
+  int n1, n2;
+  nb_particles = rectangle_n(nb_particles, length, width, n1, n2);
+  SPH sph(nb_particles);
+
   // Distance between neighboring particles in x and y
-  // 0.2 is the total distance in x and 0.3 in y
-  double dx = 0.2 / double((n1 - 1));
-  double dy = 0.3 / double((n2 - 1));
+  double dx = length / double((n1 - 1));
+  double dy = width / double((n2 - 1));
 
   // Starting position in x
-  double position_x = 0.1;
+  double position_x = center_x - length / 2.0;
   double position_y;
-  int kx, ky;
+  int kx, ky;  // indices
 
   // Assign the values in x for all particles
   for (int i = 0; i < n1; i++) {
@@ -120,7 +47,7 @@ void ic_block_drop(int nb_particles, int n1, int n2, SPH &sph) {
 
   // Assign the values in y for all particles
   for (int i = 0; i < n1; i++) {
-    position_y = 0.3;
+    position_y = center_y - width / 2.0;
     for (int j = 0; j < n2; j++) {
       ky = i * n2 + j;
       sph(1, ky) = position_y + double(rand()) / RAND_MAX / 100000;
@@ -128,98 +55,99 @@ void ic_block_drop(int nb_particles, int n1, int n2, SPH &sph) {
       position_y += dy;
     }
   }
+
+  return sph;
 }
 
 // Droplet
-void ic_droplet(int nb_particles, SPH &sph) {
+SPH ic_droplet(int nb_particles, double radius, double center_x,
+               double center_y) {
+  nb_particles = closest_power_of_two(nb_particles);
+  std::cout << "Number of particles: " << nb_particles << std::endl;
   double *position_x_store = new double[nb_particles];
   double *position_y_store = new double[nb_particles];
-  int el = pow(nb_particles, 0.5);
+  int el = std::sqrt(nb_particles);
+  std::cout << "Number of particles per side: " << el << std::endl;
   int kx;
 
   // For uniform distribution the step in y has to be equal to the step in x
-  double step = 0.2 / (el - 1);
-  double position_x = 0.4;  // Starting position in x
-  double position_y;        // Starting position in y
-
-  for (int i = 0; i < el; i++) {
-    for (int j = 0; j < el; j++) {
-      position_x_store[i * el + j] = position_x;
-    }
-    position_x += step;
-  }
-
-  step = 0.2 / (el - 1);
-
-  for (int i = 0; i < el; i++) {
-    position_y = 0.6;
-    for (int j = 0; j < el; j++) {
-      position_y_store[i * el + j] = position_y;
-      position_y += step;
-    }
-  }
-  kx = 0;
-  for (int i = 0; i < el; i++) {
-    for (int j = 0; j < el; j++) {
-      if (sqrt(pow((position_y_store[i * el + j] - 0.7), 2) +
-               pow((position_x_store[i * el + j] - 0.5), 2)) <= 0.1) {
-        sph(0, kx) =
-            position_x_store[i * el + j] + double(rand()) / RAND_MAX / 100000;
-        sph(1, kx) =
-            position_y_store[i * el + j] + double(rand()) / RAND_MAX / 100000;
-        sph(2, kx) = 0;
-        sph(3, kx) = 0;
-        kx++;
-      }
-    }
-  }
-  delete[] position_x_store;
-  delete[] position_y_store;
-}
-
-// Defines the number of particles that will be in the circular region
-int dropletn(int nb_particles) {
-  // Process similar to dam break. Creates an initial square
-  double *position_x_store = new double[nb_particles];
-  double *position_y_store = new double[nb_particles];
-  int el = pow(nb_particles, 0.5);
-  double step = 0.2 / (el - 1);
-  double position_x = 0.4;
+  double step = 2 * radius / (el - 1);
+  double position_x = center_x - radius;  // Starting position in x
   double position_y;
 
   for (int i = 0; i < el; i++) {
+    position_y = center_y - radius;
     for (int j = 0; j < el; j++) {
       position_x_store[i * el + j] = position_x;
-    }
-    position_x += step;
-  }
-
-  step = 0.2 / (el - 1);
-
-  for (int i = 0; i < el; i++) {
-    position_y = 0.6;
-    for (int j = 0; j < el; j++) {
       position_y_store[i * el + j] = position_y;
       position_y += step;
     }
+    position_x += step;
   }
-
   // After the initial square is created, the number of particles that are in
   // that square and from a distance from the centre less or equal to the radius
   // of the circle is calculated
   int count = 0;
   for (int i = 0; i < el; i++) {
     for (int j = 0; j < el; j++) {
-      if (sqrt(pow((position_y_store[i * el + j] - 0.7), 2) +
-               pow((position_x_store[i * el + j] - 0.5), 2)) <= 0.1) {
+      if (std::hypot(position_y_store[i * el + j] - center_y,
+                     position_x_store[i * el + j] - center_x) <= radius) {
         count++;
-      } else {
-        count += 0;
       }
     }
   }
+  std::cout << "Number of particles in the circle: " << count << std::endl;
+
+  SPH sph(count);
+  kx = 0;
+  for (int i = 0; i < el; i++) {
+    for (int j = 0; j < el; j++) {
+      if (std::hypot(position_y_store[i * el + j] - center_y,
+                     position_x_store[i * el + j] - center_x) <= radius) {
+        sph(0, kx) =
+            position_x_store[i * el + j] + double(rand()) / RAND_MAX / 100000;
+        sph(1, kx) =
+            position_y_store[i * el + j] + double(rand()) / RAND_MAX / 100000;
+        sph(2, kx) = 0.0;
+        sph(3, kx) = 0.0;
+        kx++;
+      }
+    }
+  }
+
   delete[] position_x_store;
   delete[] position_y_store;
 
-  return count;
+  return sph;
+}
+
+int rectangle_n(int nb_particles, double length, double width, int &n1,
+                int &n2) {
+  double division = length / width;
+  n2 = std::sqrt(nb_particles / division);
+
+  n1 = ceil(division * n2);
+  n2 = ceil(n2);
+
+  return n1 * n2;
+}
+
+int closest_power_of_two(int nb_particles) {
+  // Ensure n is not negative
+  if (nb_particles <= 0) {
+    return 0;  // or handle the case as needed
+  }
+
+  int result = 1;
+  while (result < nb_particles) {
+    result <<=
+        1;  // Left shift by 1 to double the value (same as multiplying by 2)
+  }
+
+  // Check which power of 2 is closest to n
+  int lowerPower =
+      result >> 1;  // Right shift by 1 to get the previous power of 2
+
+  return (result - nb_particles) < (nb_particles - lowerPower) ? result
+                                                               : lowerPower;
 }
