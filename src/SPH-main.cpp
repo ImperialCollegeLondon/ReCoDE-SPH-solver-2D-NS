@@ -76,7 +76,7 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
                double &acceleration_gravity, double &coeff_restitution,
                double &left_wall, double &right_wall, double &bottom_wall,
                double &top_wall) {
-  // Process to obtain the directions provided by the user
+  // Process to obtain the inputs provided by the user
   po::options_description desc("Allowed options");
   desc.add_options()("init_condition", po::value<std::string>(),
                      "take an initial condition")("T", po::value<double>(),
@@ -107,6 +107,7 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
       "init_x_4", po::value<double>(), "take x_4")(
       "init_y_4", po::value<double>(), "take y_4");
 
+  // Map the inputs read from the case file to expected inputs
   po::variables_map case_vm;
   std::ifstream caseFile;
   caseFile.open("../inputs/case.txt");
@@ -117,28 +118,70 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
   } else {
     std::cerr << "Error opening file: case.txt" << std::endl;
   }
-
   po::notify(case_vm);
 
   double total_time = case_vm["T"].as<double>();  // Total integration time
-  dt = case_vm["dt"].as<double>();                // Time step dt
+  // Error handling for the total integration time
+  if (total_time <= 0) {
+    std::cerr << "Error: Total integration time must be positive!" << std::endl;
+    exit(1);
+  }
+
+  dt = case_vm["dt"].as<double>();  // Time step dt
+  // Error handling for the time step
+  if (dt <= 0 or dt > total_time) {
+    std::cerr << "Error: Time step must be positive and lower than the total "
+              << "integration time!" << std::endl;
+    exit(1);
+  }
 
   total_iter =
       ceil(total_time / dt);  // Transform time in seconds to iterations
 
-  // Initial Condition Input
+  // Map the inputs read from the domain file to expected inputs
+  po::variables_map domain_vm;
+  std::ifstream domainFile;
+  domainFile.open("../inputs/domain.txt");
+
+  if (domainFile.is_open()) {
+    po::store(po::parse_config_file(domainFile, desc), domain_vm);
+    domainFile.close();
+  } else {
+    std::cerr << "Error opening file: domain.txt" << std::endl;
+  }
+
+  po::notify(domain_vm);
+
+  left_wall = domain_vm["left_wall"].as<double>();
+  right_wall = domain_vm["right_wall"].as<double>();
+  bottom_wall = domain_vm["bottom_wall"].as<double>();
+  top_wall = domain_vm["top_wall"].as<double>();
+
+  // Error handling for the domain boundaries
+  if (left_wall >= right_wall || bottom_wall >= top_wall) {
+    std::cerr << "Error: Please adjust your domain boundaries so that "
+              << "left_wall < right wall and bottom_wall < top_wall."
+              << std::endl;
+    exit(1);
+  }
+
+  // Map the inputs read from the initial condition file to expected inputs
+  std::string ic_case = case_vm["init_condition"].as<std::string>();
   po::variables_map ic_vm;
   std::ifstream icFile;
-  icFile.open("../inputs/" + case_vm["init_condition"].as<std::string>() +
-              ".txt");
+  // Open the file of the initial condition the user has chosen
+  icFile.open("../inputs/" + ic_case + ".txt");
 
   if (icFile.is_open()) {
     po::store(po::parse_config_file(icFile, desc), ic_vm);
     icFile.close();
   } else {
-    std::cerr << "Error opening file: "
-              << case_vm["init_condition"].as<std::string>() << ".txt"
-              << std::endl;
+    std::cerr << "Error opening file: " << ic_case << ".txt. Make sure "
+              << "that the value of the init_condition in the case.txt file is "
+              << "one of the following: ic-one-particle, ic-two-particles, "
+              << "ic-three-particles, ic-four-particles, ic-droplet, "
+              << "ic-block-drop." << std::endl;
+    exit(1);
   }
   po::notify(ic_vm);
 
@@ -150,12 +193,13 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
       {"ic-four-particles", 4}};
 
   // Get the number of particles based on the ic case
-  if (case_vm["init_condition"].as<std::string>() == "ic-dam-break") {
+  if (ic_case == "ic-droplet" || ic_case == "ic-block-drop") {
     nb_particles = ic_vm["n"].as<int>();
-  } else if (case_vm["init_condition"].as<std::string>() == "ic-droplet") {
-    nb_particles = ic_vm["n"].as<int>();
-  } else if (case_vm["init_condition"].as<std::string>() == "ic-block-drop") {
-    nb_particles = ic_vm["n"].as<int>();
+    // Error handling for the number of particles
+    if (nb_particles <= 0) {
+      std::cerr << "Error: Number of particles must be positive!" << std::endl;
+      exit(1);
+    }
   } else {
     nb_particles = initConditionToParticlesMap[case_vm["init_condition"]
                                                    .as<std::string>()];
@@ -165,25 +209,61 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
    * are ordered in the correct positions
    **/
   SPH sph(nb_particles);
-  if (case_vm["init_condition"].as<std::string>() == "ic-one-particle" ||
-      case_vm["init_condition"].as<std::string>() == "ic-two-particles" ||
-      case_vm["init_condition"].as<std::string>() == "ic-three-particles" ||
-      case_vm["init_condition"].as<std::string>() == "ic-four-particles") {
+  if (ic_case == "ic-one-particle" || ic_case == "ic-two-particles" ||
+      ic_case == "ic-three-particles" || ic_case == "ic-four-particles") {
     double *init_x = new double[nb_particles];
     double *init_y = new double[nb_particles];
     for (int i = 0; i < nb_particles; i++) {
       init_x[i] = ic_vm["init_x_" + std::to_string(i + 1)].as<double>();
       init_y[i] = ic_vm["init_y_" + std::to_string(i + 1)].as<double>();
+      // Error handling for the initial positions
+      if (init_x[i] < left_wall || init_x[i] > right_wall ||
+          init_y[i] < bottom_wall || init_y[i] > top_wall) {
+        std::cerr << "Error: Particles must be within the domain boundaries! "
+                  << "Please adjust the initial position coordinates."
+                  << std::endl;
+        exit(1);
+      }
     }
     sph = ic_basic(nb_particles, init_x, init_y);
-  } else if (case_vm["init_condition"].as<std::string>() == "ic-block-drop") {
-    sph = ic_block_drop(
-        nb_particles, ic_vm["length"].as<double>(), ic_vm["width"].as<double>(),
-        ic_vm["center_x"].as<double>(), ic_vm["center_y"].as<double>());
-  } else if (case_vm["init_condition"].as<std::string>() == "ic-droplet") {
-    sph = ic_droplet(nb_particles, ic_vm["radius"].as<double>(),
-                     ic_vm["center_x"].as<double>(),
-                     ic_vm["center_y"].as<double>());
+  } else if (ic_case == "ic-block-drop") {
+    double length = ic_vm["length"].as<double>();
+    double width = ic_vm["width"].as<double>();
+    // Error handling for the block size (length, width)
+    if (length <= 0 || width <= 0) {
+      std::cerr << "Error: Length and width must be positive!" << std::endl;
+      exit(1);
+    }
+    double center_x = ic_vm["center_x"].as<double>();
+    double center_y = ic_vm["center_y"].as<double>();
+    // Error handling for the block initial position (center_x, center_y)
+    if (center_x - length / 2.0 < left_wall ||
+        center_x + length / 2.0 > right_wall ||
+        center_y - width / 2.0 < bottom_wall ||
+        center_y + width / 2.0 > top_wall) {
+      std::cerr
+          << "Error: The block must be within the domain boundaries! Please "
+          << "adjust the center coordinates." << std::endl;
+      exit(1);
+    }
+    sph = ic_block_drop(nb_particles, length, width, center_x, center_y);
+  } else if (ic_case == "ic-droplet") {
+    double radius = ic_vm["radius"].as<double>();
+    // Error handling for the droplet radius
+    if (radius <= 0) {
+      std::cerr << "Error: Radius must be positive!" << std::endl;
+      exit(1);
+    }
+    double center_x = ic_vm["center_x"].as<double>();
+    double center_y = ic_vm["center_y"].as<double>();
+    // Error handling for the droplet initial position (center_x, center_y)
+    if (center_x - radius < left_wall || center_x + radius > right_wall ||
+        center_y - radius < bottom_wall || center_y + radius > top_wall) {
+      std::cerr << "Error: The droplet must be within the domain boundaries! "
+                << "Please adjust the center coordinates." << std::endl;
+      exit(1);
+    }
+    sph = ic_droplet(nb_particles, radius, center_x, center_y);
   } else {
     std::cerr << "Error: Function not found!" << std::endl;
   }
@@ -207,24 +287,6 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
   viscosity = constants_vm["viscosity"].as<double>();
   acceleration_gravity = constants_vm["acceleration_gravity"].as<double>();
   coeff_restitution = constants_vm["coeff_restitution"].as<double>();
-
-  po::variables_map domain_vm;
-  std::ifstream domainFile;
-  domainFile.open("../inputs/domain.txt");
-
-  if (domainFile.is_open()) {
-    po::store(po::parse_config_file(domainFile, desc), domain_vm);
-    domainFile.close();
-  } else {
-    std::cerr << "Error opening file: domain.txt" << std::endl;
-  }
-
-  po::notify(domain_vm);
-
-  left_wall = domain_vm["left_wall"].as<double>();
-  right_wall = domain_vm["right_wall"].as<double>();
-  bottom_wall = domain_vm["bottom_wall"].as<double>();
-  top_wall = domain_vm["top_wall"].as<double>();
 
   sph.set_timestep(dt);
 
