@@ -57,6 +57,75 @@ double &SPH::operator()(unsigned row, unsigned col) {
   }
 }
 
+// Overloading of operator=
+SPH& SPH::operator=(const SPH& sph)
+{
+  if (this != &sph) {
+    delete[] particle_density;
+    delete[] particle_pressure;
+    delete[] distance;
+    delete[] distance_q;
+    delete[] particle_speed_sq;
+    delete[] position_x;
+    delete[] position_y;
+    delete[] velocity_x;
+    delete[] velocity_y;
+
+    nb_particles = sph.nb_particles;
+
+    position_x = new double[nb_particles];
+    position_y = new double[nb_particles];
+    velocity_x = new double[nb_particles];
+    velocity_y = new double[nb_particles];
+
+    distance = new double[nb_particles * nb_particles];
+    distance_q = new double[nb_particles * nb_particles];
+
+    particle_density = new double[nb_particles];
+
+    particle_pressure = new double[nb_particles];
+
+    particle_speed_sq = new double[nb_particles];
+
+
+    std::memcpy(position_x, sph.position_x, nb_particles * sizeof(double));
+    std::memcpy(position_y, sph.position_y, nb_particles * sizeof(double));
+    std::memcpy(velocity_x, sph.velocity_x, nb_particles * sizeof(double));
+    std::memcpy(velocity_y, sph.velocity_y, nb_particles * sizeof(double));
+
+    std::memcpy(distance, sph.distance, nb_particles * nb_particles * sizeof(double));
+    std::memcpy(distance_q, sph.distance_q, nb_particles * nb_particles * sizeof(double));
+    std::memcpy(particle_density, sph.particle_density, nb_particles * sizeof(double));
+    std::memcpy(particle_pressure, sph.particle_pressure, nb_particles * sizeof(double));
+    std::memcpy(particle_speed_sq, sph.particle_speed_sq, nb_particles * sizeof(double));
+
+    t = sph.t;
+    dt = sph.dt;
+    h = sph.h;
+    gas_constant = sph.gas_constant;
+    density_resting = sph.density_resting;
+    viscosity = sph.viscosity;
+    coeff_restitution = sph.coeff_restitution;
+    acceleration_gravity = sph.acceleration_gravity;
+    left_wall = sph.left_wall;
+    right_wall = sph.right_wall;
+    bottom_wall = sph.bottom_wall;
+    top_wall = sph.top_wall;
+    mass_assumed = sph.mass_assumed;
+    force_pressure = sph.force_pressure;
+    force_viscous = sph.force_viscous;
+    force_gravity = sph.force_gravity;
+    force_pressure_x = sph.force_pressure_x;
+    force_pressure_y = sph.force_pressure_y;
+    force_viscous_x = sph.force_viscous_x;
+    force_viscous_y = sph.force_viscous_y;
+    force_gravity_y = sph.force_gravity_y;
+    force_gravity_x = sph.force_gravity_x;
+
+  }
+  return *this;
+}
+
 void SPH::set_timestep(double dt) { this->dt = dt; }
 
 void SPH::set_rad_infl(double h) { this->h = h; }

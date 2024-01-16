@@ -60,7 +60,7 @@ class SPH {
  public:
   /******** CONSTRUCTORS/DESTRUCTOR********/
 
-  SPH() = default;  // Default constructor
+  SPH() = delete;  // Constructor without number of particles shouldn't exist
 
   ~SPH();  // Destructor
 
@@ -70,6 +70,8 @@ class SPH {
   /**********OVERLOADINGS**********/
 
   double &operator()(unsigned row, unsigned col);
+
+  SPH& operator=(const SPH& sph);
 
   /**********MEMBER-FUNCTIONS*********/
 
