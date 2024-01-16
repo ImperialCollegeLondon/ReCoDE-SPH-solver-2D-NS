@@ -71,7 +71,7 @@ class SPH {
 
   double &operator()(unsigned row, unsigned col);
 
-  SPH& operator=(const SPH& sph);
+  SPH &operator=(const SPH &sph);
 
   /**********MEMBER-FUNCTIONS*********/
 

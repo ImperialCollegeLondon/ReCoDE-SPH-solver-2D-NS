@@ -58,8 +58,7 @@ double &SPH::operator()(unsigned row, unsigned col) {
 }
 
 // Overloading of operator=
-SPH& SPH::operator=(const SPH& sph)
-{
+SPH &SPH::operator=(const SPH &sph) {
   if (this != &sph) {
     delete[] particle_density;
     delete[] particle_pressure;
@@ -87,17 +86,21 @@ SPH& SPH::operator=(const SPH& sph)
 
     particle_speed_sq = new double[nb_particles];
 
-
     std::memcpy(position_x, sph.position_x, nb_particles * sizeof(double));
     std::memcpy(position_y, sph.position_y, nb_particles * sizeof(double));
     std::memcpy(velocity_x, sph.velocity_x, nb_particles * sizeof(double));
     std::memcpy(velocity_y, sph.velocity_y, nb_particles * sizeof(double));
 
-    std::memcpy(distance, sph.distance, nb_particles * nb_particles * sizeof(double));
-    std::memcpy(distance_q, sph.distance_q, nb_particles * nb_particles * sizeof(double));
-    std::memcpy(particle_density, sph.particle_density, nb_particles * sizeof(double));
-    std::memcpy(particle_pressure, sph.particle_pressure, nb_particles * sizeof(double));
-    std::memcpy(particle_speed_sq, sph.particle_speed_sq, nb_particles * sizeof(double));
+    std::memcpy(distance, sph.distance,
+                nb_particles * nb_particles * sizeof(double));
+    std::memcpy(distance_q, sph.distance_q,
+                nb_particles * nb_particles * sizeof(double));
+    std::memcpy(particle_density, sph.particle_density,
+                nb_particles * sizeof(double));
+    std::memcpy(particle_pressure, sph.particle_pressure,
+                nb_particles * sizeof(double));
+    std::memcpy(particle_speed_sq, sph.particle_speed_sq,
+                nb_particles * sizeof(double));
 
     t = sph.t;
     dt = sph.dt;
@@ -121,7 +124,6 @@ SPH& SPH::operator=(const SPH& sph)
     force_viscous_y = sph.force_viscous_y;
     force_gravity_y = sph.force_gravity_y;
     force_gravity_x = sph.force_gravity_x;
-
   }
   return *this;
 }
