@@ -20,7 +20,7 @@ SPH ic_basic(int nb_particles, double *position_x, double *position_y) {
   return sph;
 }
 
-SPH ic_block_drop(int nb_particles, double length, double width,
+SPH ic_block_drop(int &nb_particles, double length, double width,
                   double center_x, double center_y) {
   int n1, n2;
   nb_particles = rectangle_n(nb_particles, length, width, n1, n2);
@@ -60,7 +60,7 @@ SPH ic_block_drop(int nb_particles, double length, double width,
 }
 
 // Droplet
-SPH ic_droplet(int nb_particles, double radius, double center_x,
+SPH ic_droplet(int &nb_particles, double radius, double center_x,
                double center_y) {
   nb_particles = closest_power_of_two(nb_particles);
   std::cout << "Number of particles: " << nb_particles << std::endl;
@@ -97,8 +97,8 @@ SPH ic_droplet(int nb_particles, double radius, double center_x,
     }
   }
   std::cout << "Number of particles in the circle: " << count << std::endl;
-
-  SPH sph(count);
+  nb_particles = count;
+  SPH sph(nb_particles);
   kx = 0;
   for (int i = 0; i < el; i++) {
     for (int j = 0; j < el; j++) {
@@ -132,22 +132,20 @@ int rectangle_n(int nb_particles, double length, double width, int &n1,
   return n1 * n2;
 }
 
-int closest_power_of_two(int nb_particles) {
-  // Ensure n is not negative
-  if (nb_particles <= 0) {
-    return 0;  // or handle the case as needed
-  }
+int closest_power_of_two(int num) {
+    if (num <= 0) {
+        // Handle non-positive input or zero
+        return 0;
+    }
 
-  int result = 1;
-  while (result < nb_particles) {
-    result <<=
-        1;  // Left shift by 1 to double the value (same as multiplying by 2)
-  }
+    // Calculate the logarithm base 2 of the input
+    double logBase2 = log2(num);
 
-  // Check which power of 2 is closest to n
-  int lowerPower =
-      result >> 1;  // Right shift by 1 to get the previous power of 2
+    // Round the logarithm to the nearest integer
+    int roundedLog = static_cast<int>(logBase2 + 0.5);
 
-  return (result - nb_particles) < (nb_particles - lowerPower) ? result
-                                                               : lowerPower;
+    // Calculate the power of 2 using the rounded logarithm
+    int result = static_cast<int>(pow(2, roundedLog));
+
+    return result;
 }

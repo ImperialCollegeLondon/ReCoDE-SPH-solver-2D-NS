@@ -5,10 +5,10 @@
 
 SPH ic_basic(int n, double *position_x, double *position_y);
 
-SPH ic_block_drop(int n, double length, double width, double center_x,
+SPH ic_block_drop(int &n, double length, double width, double center_x,
                   double center_y);
 
-SPH ic_droplet(int n, double radius, double center_x, double center_y);
+SPH ic_droplet(int &n, double radius, double center_x, double center_y);
 
 int closest_power_of_two(int n);
 
