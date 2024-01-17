@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 script_path = os.path.abspath(__file__)
 os.chdir(os.path.dirname(script_path))
 
-output_location = "../exec/output"
-filename = "energies.txt"
+OUTPUT_LOCATION = "../exec/output"
+FILENAME = "energies.txt"
 
 
 def read_txt_file(file_path):
@@ -31,7 +31,7 @@ def read_txt_file(file_path):
 
 if __name__ == "__main__":
     time, kinetic_energy, potential_energy, total_energy = read_txt_file(
-        f"{output_location}/{filename}"
+        f"{OUTPUT_LOCATION}/{FILENAME}"
     )
 
     plt.plot(time, total_energy, label="Total Energy")
