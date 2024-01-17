@@ -32,19 +32,21 @@ int main(int argc, char *argv[]) {
   // Domain boundaries
   double left_wall;
   double right_wall;
-  double bottom_wall; 
+  double bottom_wall;
   double top_wall;
 
   // Number of particles
   int nb_particles;
-  
+
+  int frequency;
+
   std::string OUTPUT_FOLDER = "../output";
   // Read input files, initialise the sph class and the parameters of the
   // problem
   SPH sph =
       initialise(nb_particles, total_iter, h, dt, gas_constant, density_resting,
                  viscosity, acceleration_gravity, coeff_restitution, left_wall,
-                 right_wall, bottom_wall, top_wall);
+                 right_wall, bottom_wall, top_wall, frequency);
 
   std ::cout << "Initialisation finished -- OK"
              << "\n";
@@ -60,7 +62,6 @@ int main(int argc, char *argv[]) {
   storeToFile(sph, nb_particles, "position", initialPositions);
   initialPositions.close();
 
-  int frequency = 3;  //! Delete this when frequency is read from input variable
   // Time integration loop
   time_integration(sph, nb_particles, total_iter, h, dt, frequency,
                    finalPositionsFile, energiesFile);
@@ -75,7 +76,7 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
                double &gas_constant, double &density_resting, double &viscosity,
                double &acceleration_gravity, double &coeff_restitution,
                double &left_wall, double &right_wall, double &bottom_wall,
-               double &top_wall) {
+               double &top_wall, int &frequency) {
   // Process to obtain the inputs provided by the user
   po::options_description desc("Allowed options");
   desc.add_options()("init_condition", po::value<std::string>(),
@@ -105,7 +106,8 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
       "init_x_3", po::value<double>(), "take x_3")(
       "init_y_3", po::value<double>(), "take y_3")(
       "init_x_4", po::value<double>(), "take x_4")(
-      "init_y_4", po::value<double>(), "take y_4");
+      "init_y_4", po::value<double>(), "take y_4")(
+      "output_frequency", po::value<int>(), "take frequency of output");
 
   // Map the inputs read from the case file to expected inputs
   po::variables_map case_vm;
@@ -137,6 +139,14 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
 
   total_iter =
       ceil(total_time / dt);  // Transform time in seconds to iterations
+
+  frequency = case_vm["output_frequency"].as<int>();
+  // Error handling for the output frequency
+  if (frequency <= 0 or frequency > total_iter) {
+    std::cerr << "Error: Output frequency must be positive and lower than the "
+              << "total number of iterations!" << std::endl;
+    exit(1);
+  }
 
   // Map the inputs read from the domain file to expected inputs
   po::variables_map domain_vm;

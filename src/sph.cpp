@@ -357,30 +357,29 @@ double SPH::velocity_integration(int particle_index, double *velocity,
 }
 
 void SPH::boundaries(int particle_index) {
+  if (position_x[particle_index] < left_wall + h) {
+    position_x[particle_index] = left_wall + h;
+    velocity_x[particle_index] =
+        -coeff_restitution * velocity_x[particle_index];
+  }
 
-if (position_x[particle_index] < left_wall + h) {
+  if (position_x[particle_index] > right_wall - h) {
+    position_x[particle_index] = right_wall - h;
+    velocity_x[particle_index] =
+        -coeff_restitution * velocity_x[particle_index];
+  }
 
-      position_x[particle_index] = left_wall + h;
-      velocity_x[particle_index] = -coeff_restitution * velocity_x[particle_index];
-    }
+  if (position_y[particle_index] < bottom_wall + h) {
+    position_y[particle_index] = bottom_wall + h;
+    velocity_y[particle_index] =
+        -coeff_restitution * velocity_y[particle_index];
+  }
 
-    if (position_x[particle_index] > right_wall - h) {
-
-      position_x[particle_index] = right_wall - h;
-      velocity_x[particle_index] = -coeff_restitution * velocity_x[particle_index];
-    }
-
-    if (position_y[particle_index] < bottom_wall + h) {
-
-      position_y[particle_index] = bottom_wall + h;
-      velocity_y[particle_index] = -coeff_restitution * velocity_y[particle_index];
-    }
-
-    if (position_y[particle_index] > top_wall - h) {
-
-      position_y[particle_index] = top_wall - h;
-      velocity_y[particle_index] = -coeff_restitution * velocity_y[particle_index];
-    }
+  if (position_y[particle_index] > top_wall - h) {
+    position_y[particle_index] = top_wall - h;
+    velocity_y[particle_index] =
+        -coeff_restitution * velocity_y[particle_index];
+  }
 }
 
 double SPH::return_position_x(int l) { return position_x[l]; }

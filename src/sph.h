@@ -110,7 +110,8 @@ class SPH {
   // Assign value to top_wall
   void set_top_wall(double top_wall);
 
-  // Function to calculate the mass of the particles before the simulation starts
+  // Function to calculate the mass of the particles before the simulation
+  // starts
   void calc_mass();
 
   // Function to calculate the matrix with rij
