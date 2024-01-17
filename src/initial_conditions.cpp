@@ -133,19 +133,19 @@ int rectangle_n(int nb_particles, double length, double width, int &n1,
 }
 
 int closest_power_of_two(int num) {
-    if (num <= 0) {
-        // Handle non-positive input or zero
-        return 0;
-    }
+  if (num <= 0) {
+    // Handle non-positive input or zero
+    return 0;
+  }
 
-    // Calculate the logarithm base 2 of the input
-    double logBase2 = log2(num);
+  // Calculate the logarithm base 2 of the input
+  double logBase2 = log2(num);
 
-    // Round the logarithm to the nearest integer
-    int roundedLog = static_cast<int>(logBase2 + 0.5);
+  // Round the logarithm to the nearest integer
+  int roundedLog = static_cast<int>(logBase2 + 0.5);
 
-    // Calculate the power of 2 using the rounded logarithm
-    int result = static_cast<int>(pow(2, roundedLog));
+  // Calculate the power of 2 using the rounded logarithm
+  int result = static_cast<int>(pow(2, roundedLog));
 
-    return result;
+  return result;
 }
