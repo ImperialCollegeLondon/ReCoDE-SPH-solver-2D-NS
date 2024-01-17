@@ -77,7 +77,8 @@ class SPH {
   // Assign value to h
   void set_rad_infl(double h);
 
-  // Function to calculate the mass of the particles before the simulation starts
+  // Function to calculate the mass of the particles before the simulation
+  // starts
   void calc_mass();
 
   // Function to calculate the matrix with rij
