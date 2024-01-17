@@ -13,3 +13,6 @@ venv
 
 # Output
 output
+
+# VSCode
+.vscode\

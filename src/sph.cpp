@@ -133,7 +133,6 @@ void SPH::particle_iterations() {
   int i;
 
   for (i = 0; i < nb_particles; i++) {
-
     // Gathering the forces calculated by the processors
     force_pressure_x = calc_pressure_force(i, position_x);
 
@@ -150,10 +149,8 @@ void SPH::particle_iterations() {
 
     // Boundary Conditions
     boundaries(i);
-   
   }
 }
-
 
 double SPH::calc_pressure_force(int particle_index, double *position) {
   double sum = 0.0;  // Initializing the summation
@@ -208,31 +205,35 @@ double SPH::calc_gravity_force(int particle_index) {
   return -particle_density[particle_index] * acceleration_gravity;
 }
 
-void SPH::update_position(int particle_index){
-
+void SPH::update_position(int particle_index) {
   // First step to initialise the scheme
-    if (t == 0) {
+  if (t == 0) {
+    velocity_x[particle_index] =
+        scheme_init(particle_index, velocity_x, force_pressure_x,
+                    force_viscous_x, force_gravity_x);
+    position_x[particle_index] =
+        position_x[particle_index] + velocity_x[particle_index] * dt;
+    velocity_y[particle_index] =
+        scheme_init(particle_index, velocity_y, force_pressure_y,
+                    force_viscous_y, force_gravity_y);
+    position_y[particle_index] =
+        position_y[particle_index] + velocity_y[particle_index] * dt;
 
-      velocity_x[particle_index] = scheme_init(particle_index, velocity_x, force_pressure_x,
-                                  force_viscous_x, force_gravity_x);
-      position_x[particle_index] = position_x[particle_index] + velocity_x[particle_index] * dt; 
-      velocity_y[particle_index] = scheme_init(particle_index, velocity_y, force_pressure_y,
-                                  force_viscous_y, force_gravity_y);
-      position_y[particle_index] = position_y[particle_index] + velocity_y[particle_index] * dt; 
+  }
 
-    }
-
-    // Leap frog scheme
-    else {
-
-      velocity_x[particle_index] = velocity_integration(particle_index, velocity_x, force_pressure_x,
-                                            force_viscous_x, force_gravity_x);
-      position_x[particle_index] =  position_x[particle_index] + velocity_x[particle_index] *  dt; 
-      velocity_y[particle_index] = velocity_integration(particle_index, velocity_y,  force_pressure_y,
-                                            force_viscous_y, force_gravity_y);
-      position_y[particle_index] =  position_y[particle_index] + velocity_y[particle_index] *  dt; 
-    }
-
+  // Leap frog scheme
+  else {
+    velocity_x[particle_index] =
+        velocity_integration(particle_index, velocity_x, force_pressure_x,
+                             force_viscous_x, force_gravity_x);
+    position_x[particle_index] =
+        position_x[particle_index] + velocity_x[particle_index] * dt;
+    velocity_y[particle_index] =
+        velocity_integration(particle_index, velocity_y, force_pressure_y,
+                             force_viscous_y, force_gravity_y);
+    position_y[particle_index] =
+        position_y[particle_index] + velocity_y[particle_index] * dt;
+  }
 }
 
 double SPH::scheme_init(int particle_index, double *velocity,
@@ -257,33 +258,30 @@ double SPH::velocity_integration(int particle_index, double *velocity,
 }
 
 void SPH::boundaries(int particle_index) {
+  if (position_x[particle_index] < h) {
+    position_x[particle_index] = h;
+    velocity_x[particle_index] =
+        -coeff_restitution * velocity_x[particle_index];
+  }
 
-if (position_x[particle_index] < h) {
+  if (position_x[particle_index] > 1.0 - h) {
+    position_x[particle_index] = 1.0 - h;
+    velocity_x[particle_index] =
+        -coeff_restitution * velocity_x[particle_index];
+  }
 
-      position_x[particle_index] = h;
-      velocity_x[particle_index] = -coeff_restitution * velocity_x[particle_index];
-    }
+  if (position_y[particle_index] < h) {
+    position_y[particle_index] = h;
+    velocity_y[particle_index] =
+        -coeff_restitution * velocity_y[particle_index];
+  }
 
-    if (position_x[particle_index] > 1.0 - h) {
-
-      position_x[particle_index] = 1.0 - h;
-      velocity_x[particle_index] = -coeff_restitution * velocity_x[particle_index];
-    }
-
-    if (position_y[particle_index] < h) {
-
-      position_y[particle_index] = h;
-      velocity_y[particle_index] = -coeff_restitution * velocity_y[particle_index];
-    }
-
-    if (position_y[particle_index] > 1.0 - h) {
-
-      position_y[particle_index] = 1.0 - h;
-      velocity_y[particle_index] = -coeff_restitution * velocity_y[particle_index];
-    }
+  if (position_y[particle_index] > 1.0 - h) {
+    position_y[particle_index] = 1.0 - h;
+    velocity_y[particle_index] =
+        -coeff_restitution * velocity_y[particle_index];
+  }
 }
-
-
 
 double SPH::return_position_x(int l) { return position_x[l]; }
 
