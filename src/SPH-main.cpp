@@ -112,7 +112,7 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
   // Map the inputs read from the case file to expected inputs
   po::variables_map case_vm;
   std::ifstream caseFile;
-  caseFile.open("../inputs/case.txt");
+  caseFile.open("../input/case.txt");
 
   if (caseFile.is_open()) {
     po::store(po::parse_config_file(caseFile, desc), case_vm);
@@ -151,7 +151,7 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
   // Map the inputs read from the domain file to expected inputs
   po::variables_map domain_vm;
   std::ifstream domainFile;
-  domainFile.open("../inputs/domain.txt");
+  domainFile.open("../input/domain.txt");
 
   if (domainFile.is_open()) {
     po::store(po::parse_config_file(domainFile, desc), domain_vm);
@@ -180,7 +180,7 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
   po::variables_map ic_vm;
   std::ifstream icFile;
   // Open the file of the initial condition the user has chosen
-  icFile.open("../inputs/" + ic_case + ".txt");
+  icFile.open("../input/" + ic_case + ".txt");
 
   if (icFile.is_open()) {
     po::store(po::parse_config_file(icFile, desc), ic_vm);
@@ -280,7 +280,7 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
 
   po::variables_map constants_vm;
   std::ifstream constantsFile;
-  constantsFile.open("../inputs/constants.txt");
+  constantsFile.open("../input/constants.txt");
 
   if (constantsFile.is_open()) {
     po::store(po::parse_config_file(constantsFile, desc), constants_vm);

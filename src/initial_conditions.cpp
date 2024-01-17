@@ -62,7 +62,7 @@ SPH ic_block_drop(int &nb_particles, double length, double width,
 // Droplet
 SPH ic_droplet(int &nb_particles, double radius, double center_x,
                double center_y) {
-  nb_particles = closest_power_of_two(nb_particles);
+  nb_particles = closest_integer_sqrt(nb_particles);
   std::cout << "Number of particles: " << nb_particles << std::endl;
   double *position_x_store = new double[nb_particles];
   double *position_y_store = new double[nb_particles];
@@ -132,20 +132,14 @@ int rectangle_n(int nb_particles, double length, double width, int &n1,
   return n1 * n2;
 }
 
-int closest_power_of_two(int num) {
+int closest_integer_sqrt(int num) {
   if (num <= 0) {
-    // Handle non-positive input or zero
     return 0;
   }
 
-  // Calculate the logarithm base 2 of the input
-  double logBase2 = log2(num);
+  double root = std::sqrt(num);
 
-  // Round the logarithm to the nearest integer
-  int roundedLog = static_cast<int>(logBase2 + 0.5);
+  int integerRoot = static_cast<int>(root + 0.5);
 
-  // Calculate the power of 2 using the rounded logarithm
-  int result = static_cast<int>(pow(2, roundedLog));
-
-  return result;
+  return integerRoot * integerRoot;
 }
