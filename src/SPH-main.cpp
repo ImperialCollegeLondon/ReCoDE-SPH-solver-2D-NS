@@ -177,11 +177,11 @@ std::tuple<std::ofstream, std::ofstream, std::ofstream> init_output_files(
   energies << "t,Ek,Ep,Etotal"
            << "\n";
 
-  return std::make_tuple(move(initialPositions), move(finalPositions),
-                         move(energies));
+  return std::make_tuple(std::move(initialPositions), std::move(finalPositions),
+                         std::move(energies));
 }
 
-void storeToFile(SPH &sph, int nb_particles, std::string type,
+void storeToFile(const SPH &sph, int nb_particles, const std::string &type,
                  std::ofstream &targetFile, double dt, int currentIteration) {
   if (type == "energy") {
     // Write energies on the Energy-File
@@ -218,10 +218,6 @@ void time_integration(SPH &sph, int nb_particles, int total_iter, double h,
   }
   // Store particles' positions after integration is completed
   storeToFile(sph, nb_particles, "position", finalPositionsFile);
-
-  // Close open files
-  finalPositionsFile.close();
-  energiesFile.close();
 
   std ::cout << "Time integration finished -- OK"
              << "\n";
