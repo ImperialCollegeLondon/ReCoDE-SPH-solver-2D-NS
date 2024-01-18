@@ -158,29 +158,23 @@ std::tuple<std::ofstream, std::ofstream, std::ofstream> init_output_files(
   createDirectory(outputFolder);
 
   // Declare and initialise the output files
-  std::ofstream initialPositions(outputFolder + "/initial-positions.txt",
+  std::ofstream initialPositions(outputFolder + "/initial-positions.csv",
                                  std::ios::out | std::ios::trunc);
-  std::ofstream finalPositions(outputFolder + "/final-positions.txt",
+  std::ofstream finalPositions(outputFolder + "/final-positions.csv",
                                std::ios::out | std::ios::trunc);
-  std::ofstream energies(outputFolder + "/energies.txt",
+  std::ofstream energies(outputFolder + "/energies.csv",
                          std::ios::out | std::ios::trunc);
 
   initialPositions << std::fixed << std::setprecision(5);
-  initialPositions << "Position_X\tPosition_Y"
+  initialPositions << "Position_X,Position_Y"
                    << "\n";
 
   finalPositions << std::fixed << std::setprecision(5);
-  finalPositions << "Position_X\tPosition_Y"
+  finalPositions << "Position_X,Position_Y"
                  << "\n";
 
   energies << std::fixed << std::setprecision(5);
-  energies << "t"
-           << "      "
-           << "Ek"
-           << "       "
-           << "Ep"
-           << "     "
-           << "Etotal"
+  energies << "t,Ek,Ep,Etotal"
            << "\n";
 
   return std::make_tuple(move(initialPositions), move(finalPositions),
@@ -191,14 +185,14 @@ void storeToFile(SPH &sph, int nb_particles, std::string type,
                  std::ofstream &targetFile, double dt, int currentIteration) {
   if (type == "energy") {
     // Write energies on the Energy-File
-    targetFile << currentIteration * dt << "  " << sph.return_kinetic_energy()
-               << "  " << sph.return_potential_energy() << "  "
+    targetFile << currentIteration * dt << "," << sph.return_kinetic_energy()
+               << "," << sph.return_potential_energy() << ","
                << sph.return_potential_energy() + sph.return_kinetic_energy()
                << "\n";
   } else if (type == "position") {
     for (int k = 0; k < nb_particles; k++) {
-      targetFile << sph.return_position_x(k) << "\t    "
-                 << sph.return_position_y(k) << "\n";
+      targetFile << sph.return_position_x(k) << "," << sph.return_position_y(k)
+                 << "\n";
     }
   }
 }

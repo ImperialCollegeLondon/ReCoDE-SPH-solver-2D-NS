@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 import matplotlib.pyplot as plt
 
 # Set current directory as the starting location for operations in this file
@@ -8,7 +9,7 @@ os.chdir(os.path.dirname(script_path))
 
 OUTPUT_LOCATION = "../exec/output"
 DOMAIN_FILE_LOCATION = "../exec/input/domain.txt"
-FILES = ["initial-positions.txt", "final-positions.txt"]  # Path to target text file
+FILES = ["initial-positions.csv", "final-positions.csv"]  # Path to target text file
 
 
 def get_axes_limits():
@@ -27,27 +28,13 @@ def get_axes_limits():
     return x_min, x_max, y_min, y_max
 
 
-def read_txt_file(file_path):
-    # Read file
-    with open(file_path, "r") as file:
-        # Skip first line that holds the titles
-        next(file)
-
-        # Split line into columns
-        data = [line.split() for line in file]
-
-        col1, col2 = zip(*data)
-
-        # Convert each column to float
-        col1_values = [float(value) for value in col1]
-        col2_values = [float(value) for value in col2]
-
-    return col1_values, col2_values
-
-
 if __name__ == "__main__":
     for file in FILES:
-        position_x, position_y = read_txt_file(f"{OUTPUT_LOCATION}/{file}")
+        # Read position values from .csv file
+        position_data = pd.read_csv(f"{OUTPUT_LOCATION}/{file}")
+
+        position_x = position_data["Position_X"]
+        position_y = position_data["Position_Y"]
 
         x_min, x_max, y_min, y_max = get_axes_limits()
         plt.xlim(x_min, x_max)  # Set x-axis limits from x_min to x_max
