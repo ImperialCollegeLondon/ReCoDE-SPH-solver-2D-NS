@@ -2,7 +2,7 @@
 
 ## Overview
 
-The code in `v0` contains a serial C++ implementation of the algorithm described in `SPH.md`. The variables associated with the particles' positions, velocities and forces, are stored as members of an object called `SPH`. The methods of the SPH class manifest the functions that embody the steps of the algorithm. While the current version of the code produces accurate results, subsequent chapters will enhance its capabilities and improve its structure.It must be noted that although the produced results are correct, this version will be improved upon in chapters which follow. Each improvement will be explained, detailing their functionality and the rationale behind their implementation.
+The code in `v0` contains a serial C++ implementation of the algorithm described in `SPH.md`. The variables associated with the particles' positions, velocities and forces, are stored as members of an object called `SPH`. The methods of the SPH class manifest the functions that embody the steps of the algorithm. While the current version of the code produces accurate results, subsequent chapters will enhance its capabilities and improve its structure. The functionality and rationale behind each improvement will be analysed in detail.
 
 ## Compiling and executing the code
 
