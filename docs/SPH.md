@@ -29,16 +29,14 @@ In this exemplar the following algorithm which describes the solution steps of a
 
 The density of the fluid associated with each particle $i$ is approximated as
 
-$$ \rho_i = \sum_{j} m \phi_d(\mathbf{r}_{ij}, h), $$
+$$ \rho_i = \sum_{j} m \phi_d(\mathbf{r} _{ij}, h), $$
 
 where $`\mathbf{r}_ {ij} = \mathbf{x}_{i} − \mathbf{x}_{j}`$, $m$ is the mass of a particle and the kernel density function for density, $`\phi_{d}(\mathbf{r}_{ij}, h)`$ is given by
 
-```math
-\phi_{d}(\mathbf{r}_{ij}, h) = \begin{cases}
-\frac{4}{\pi h^2{(1 − q_{ij}^2)^3}} & \mathrm{if}\:q_{ij} < 1\\
+$$ \phi_d (\mathbf{r} _{ij}, h) = \begin{cases}
+\frac{4}{\pi h^2{(1 − q _{ij}^2)^3}} & \mathrm{if} \\; q _{ij} < 1\\
 0 & \mathrm{otherwise}.
-\end{cases}
-```
+\end{cases} $$
 
 Here, $`q_{ij}`$ is the distance between particle $i$ and particle $j$, normalised by the interaction radius $h$ is given by
 
