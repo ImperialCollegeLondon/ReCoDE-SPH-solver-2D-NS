@@ -1,10 +1,14 @@
 // This is a main program to run the SPH simulation
 #include <boost/program_options.hpp>
 #include <cmath>
+#include <cstddef>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
+#include <string>
+#include <tuple>
 
 #include "initial_conditions.h"
 #include "main_prog_funcs.h"
@@ -18,7 +22,7 @@ int main(int argc, char *argv[]) {
                      // integration
   double h;
   double dt;
-
+  std::string OUTPUT_FOLDER = "../output";
   // Read input files, initialise the sph class and the parameters of the
   // problem
   SPH sph = initialise(nb_particles, total_iter, h, dt);
@@ -26,16 +30,21 @@ int main(int argc, char *argv[]) {
   std ::cout << "Initialisation finished -- OK"
              << "\n";
 
-  // Declare and initialise the output files
-  std::ofstream vOut("Positions-x-y.txt", std::ios::out | std::ios::trunc);
-  std::ofstream vOut2("Energy-File.txt", std::ios::out | std::ios::trunc);
-  init_output_files(vOut, vOut2);
+  // Initialise output files
+  auto [initialPositions, finalPositionsFile, energiesFile] =
+      init_output_files(OUTPUT_FOLDER);
 
   std ::cout << "Output files created -- OK"
              << "\n";
 
+  // Store particles' positions before integration has started
+  storeToFile(sph, nb_particles, "position", initialPositions);
+  initialPositions.close();
+
+  int frequency = 3;  //! Delete this when frequency is read from input variable
   // Time integration loop
-  time_integration(sph, nb_particles, total_iter, h, dt, vOut, vOut2);
+  time_integration(sph, nb_particles, total_iter, h, dt, frequency,
+                   finalPositionsFile, energiesFile);
 
   std ::cout << "SPH-SOLVER executed successfully -- OK"
              << "\n";
@@ -54,13 +63,13 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
 
   po::variables_map vm;
   std::ifstream inputFile;
-  inputFile.open("../inputs/case.txt");
+  inputFile.open("../input/case.txt");
 
   if (inputFile.is_open()) {
     po::store(po::parse_config_file(inputFile, desc), vm);
     inputFile.close();
   } else {
-    std::cerr << "Error opening file: inputs.txt" << std::endl;
+    std::cerr << "Error opening file: case.txt" << std::endl;
   }
 
   po::notify(vm);
@@ -105,6 +114,7 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
 
   // Get the function pointer from the map
   auto initFunc = functionMap.find(vm["init_condition"].as<std::string>());
+
   if (initFunc != functionMap.end()) {
     int n_particles = nb_particles;
 
@@ -112,18 +122,17 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
     if (vm["init_condition"].as<std::string>() == "ic-droplet") {
       n_particles = n3;
     }
+
+    // Retrieves and runs the provided function object
     initFunc->second(n_particles, sph);
 
-  } else {
+  } else if (vm["init_condition"].as<std::string>() == "ic-block-drop") {
     /**The ic-block-drop case is not in the map because it has two
      * additional parameters, so it requires a different case.
      **/
-    if (vm["init_condition"].as<std::string>() == "ic-block-drop") {
-      ic_block_drop(nb_particles, n1, n2, sph);
-
-    } else {
-      std::cerr << "Error: Function not found!" << std::endl;
-    }
+    ic_block_drop(nb_particles, n1, n2, sph);
+  } else {
+    std::cerr << "Error: Function not found!" << std::endl;
   }
 
   sph.set_timestep(dt);
@@ -135,25 +144,63 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt) {
   return sph;
 }
 
-void init_output_files(std::ofstream &vOut, std::ofstream &vOut2) {
-  vOut.precision(5);
-  vOut << "x"
-       << "          "
-       << "y"
-       << "\n";
-  vOut2.precision(5);
-  vOut2 << "t"
-        << "      "
-        << "Ek"
-        << "       "
-        << "Ep"
-        << "     "
-        << "Etotal"
-        << "\n";
+void createDirectory(std::string folderPath) {
+  // Check if the target folder already exists
+  if (!std::filesystem::exists(folderPath)) {
+    // Create target folder
+    std::filesystem::create_directories(folderPath);
+  }
+}
+
+std::tuple<std::ofstream, std::ofstream, std::ofstream> init_output_files(
+    std::string outputFolder) {
+  // Create the output folder if it doesn't exist
+  createDirectory(outputFolder);
+
+  // Declare and initialise the output files
+  std::ofstream initialPositions(outputFolder + "/initial-positions.csv",
+                                 std::ios::out | std::ios::trunc);
+  std::ofstream finalPositions(outputFolder + "/final-positions.csv",
+                               std::ios::out | std::ios::trunc);
+  std::ofstream energies(outputFolder + "/energies.csv",
+                         std::ios::out | std::ios::trunc);
+
+  initialPositions << std::fixed << std::setprecision(5);
+  initialPositions << "Position_X,Position_Y"
+                   << "\n";
+
+  finalPositions << std::fixed << std::setprecision(5);
+  finalPositions << "Position_X,Position_Y"
+                 << "\n";
+
+  energies << std::fixed << std::setprecision(5);
+  energies << "t,Ek,Ep,Etotal"
+           << "\n";
+
+  return std::make_tuple(std::move(initialPositions), std::move(finalPositions),
+                         std::move(energies));
+}
+
+void storeToFile(const SPH &sph, int nb_particles, const std::string &type,
+                 std::ofstream &targetFile, double dt, int currentIteration) {
+  if (type == "energy") {
+    // Write energies on the Energy-File
+    targetFile << currentIteration * dt << "," << sph.return_kinetic_energy()
+               << "," << sph.return_potential_energy() << ","
+               << sph.return_potential_energy() + sph.return_kinetic_energy()
+               << "\n";
+  } else if (type == "position") {
+    for (int k = 0; k < nb_particles; k++) {
+      targetFile << sph.return_position_x(k) << "," << sph.return_position_y(k)
+                 << "\n";
+    }
+  }
 }
 
 void time_integration(SPH &sph, int nb_particles, int total_iter, double h,
-                      double dt, std::ofstream &vOut, std::ofstream &vOut2) {
+                      double dt, int frequency,
+                      std::ofstream &finalPositionsFile,
+                      std::ofstream &energiesFile) {
   std ::cout << "Time integration started -- OK"
              << "\n";
 
@@ -162,20 +209,16 @@ void time_integration(SPH &sph, int nb_particles, int total_iter, double h,
     // as well as their densities
     sph.calc_particle_distance();
     sph.calc_density();
+    sph.calc_pressure();
     sph.particle_iterations();
 
-    // Write energies on the Energy-File
-    vOut2 << t * dt << "  " << sph.return_kinetic_energy() << "  "
-          << sph.return_potential_energy() << "  "
-          << sph.return_potential_energy() + sph.return_kinetic_energy()
-          << "\n";
-
-    // Get the positions after integration is completed
-    if (t == total_iter - 1) {
-      for (int k = 0; k < nb_particles; k++) {
-        vOut << sph.return_position_x(k) << " " << sph.return_position_y(k)
-             << "\n";
-      }
+    if (t % frequency == 0) {
+      storeToFile(sph, nb_particles, "energy", energiesFile, dt, t);
     }
   }
+  // Store particles' positions after integration is completed
+  storeToFile(sph, nb_particles, "position", finalPositionsFile);
+
+  std ::cout << "Time integration finished -- OK"
+             << "\n";
 }
