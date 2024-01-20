@@ -123,20 +123,19 @@ SPH ic_droplet(int &nb_particles, double radius, double center_x,
 
 int rectangle_n(int nb_particles, double length, double width, int &n1,
                 int &n2) {
+  // Function that transforms the user's particle related input to the closest
+  // values that can be use to create a rectangle block
   double division = length / width;
   n2 = std::sqrt(nb_particles / division);
 
   n1 = ceil(division * n2);
   n2 = ceil(n2);
-
+  // New number of particles
   return n1 * n2;
 }
 
 int closest_integer_sqrt(int num) {
-  if (num <= 0) {
-    return 0;
-  }
-
+  // Function that returns the closest number that has an integer square root
   double root = std::sqrt(num);
 
   int integerRoot = static_cast<int>(root + 0.5);

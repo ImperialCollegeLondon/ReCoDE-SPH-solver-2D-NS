@@ -12,7 +12,7 @@ venv
 .venv
 
 # Output
-output
+output/
 
 # VSCode
 .vscode\

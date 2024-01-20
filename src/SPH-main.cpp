@@ -107,7 +107,8 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
       "init_y_3", po::value<double>(), "take y_3")(
       "init_x_4", po::value<double>(), "take x_4")(
       "init_y_4", po::value<double>(), "take y_4")(
-      "output_frequency", po::value<int>(), "take frequency of output");
+      "output_frequency", po::value<int>(),
+      "take frequency that output will be written to file");
 
   // Map the inputs read from the case file to expected inputs
   po::variables_map case_vm;
@@ -167,7 +168,7 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
   bottom_wall = domain_vm["bottom_wall"].as<double>();
   top_wall = domain_vm["top_wall"].as<double>();
 
-  // Error handling for the domain boundaries
+  // Error handling for the domain boundaries input
   if (left_wall >= right_wall || bottom_wall >= top_wall) {
     std::cerr << "Error: Please adjust your domain boundaries so that "
               << "left_wall < right wall and bottom_wall < top_wall."
@@ -219,8 +220,11 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
    * are ordered in the correct positions
    **/
   SPH sph(nb_particles);
+
+  // Fixed particles ic cases
   if (ic_case == "ic-one-particle" || ic_case == "ic-two-particles" ||
       ic_case == "ic-three-particles" || ic_case == "ic-four-particles") {
+    // Get particles' initial poistions from the ic file
     double *init_x = new double[nb_particles];
     double *init_y = new double[nb_particles];
     for (int i = 0; i < nb_particles; i++) {
@@ -236,7 +240,9 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
       }
     }
     sph = ic_basic(nb_particles, init_x, init_y);
+    // Block drop case
   } else if (ic_case == "ic-block-drop") {
+    // Get the block dimensions and center coordinates from the ic file
     double length = ic_vm["length"].as<double>();
     double width = ic_vm["width"].as<double>();
     // Error handling for the block size (length, width)
@@ -257,7 +263,9 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
       exit(1);
     }
     sph = ic_block_drop(nb_particles, length, width, center_x, center_y);
+    // Droplet case
   } else if (ic_case == "ic-droplet") {
+    // Get the droplet radius and center coordinates from the ic file
     double radius = ic_vm["radius"].as<double>();
     // Error handling for the droplet radius
     if (radius <= 0) {
@@ -275,9 +283,14 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
     }
     sph = ic_droplet(nb_particles, radius, center_x, center_y);
   } else {
-    std::cerr << "Error: Function not found!" << std::endl;
+    std::cerr << "Error: Initial condition function not found! Make sure "
+              << "that the value of the init_condition in the case.txt file is "
+              << "one of the following: ic-one-particle, ic-two-particles, "
+              << "ic-three-particles, ic-four-particles, ic-droplet, "
+              << "ic-block-drop." << std::endl;
   }
 
+  // Map the inputs read from the constants file to expected inputs
   po::variables_map constants_vm;
   std::ifstream constantsFile;
   constantsFile.open("../input/constants.txt");
@@ -298,6 +311,7 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
   acceleration_gravity = constants_vm["acceleration_gravity"].as<double>();
   coeff_restitution = constants_vm["coeff_restitution"].as<double>();
 
+  // Set the inputs to the sph object
   sph.set_timestep(dt);
 
   sph.set_rad_infl(h);
@@ -355,7 +369,7 @@ std::tuple<std::ofstream, std::ofstream, std::ofstream> init_output_files(
                          std::move(energies));
 }
 
-void storeToFile(const SPH &sph, int nb_particles, const std::string &type,
+void storeToFile(SPH &sph, int nb_particles, std::string type,
                  std::ofstream &targetFile, double dt, int currentIteration) {
   if (type == "energy") {
     // Write energies on the Energy-File
