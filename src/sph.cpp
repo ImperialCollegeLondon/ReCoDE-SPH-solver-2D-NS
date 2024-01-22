@@ -128,38 +128,6 @@ SPH &SPH::operator=(const SPH &sph) {
   return *this;
 }
 
-void SPH::set_timestep(double dt) { this->dt = dt; }
-
-void SPH::set_rad_infl(double h) { this->h = h; }
-
-void SPH::set_gas_constant(double gas_constant) {
-  this->gas_constant = gas_constant;
-}
-
-void SPH::set_density_resting(double density_resting) {
-  this->density_resting = density_resting;
-}
-
-void SPH::set_viscosity(double viscosity) { this->viscosity = viscosity; }
-
-void SPH::set_coeff_restitution(double coeff_restitution) {
-  this->coeff_restitution = coeff_restitution;
-}
-
-void SPH::set_acceleration_gravity(double acceleration_gravity) {
-  this->acceleration_gravity = acceleration_gravity;
-}
-
-void SPH::set_left_wall(double left_wall) { this->left_wall = left_wall; }
-
-void SPH::set_right_wall(double right_wall) { this->right_wall = right_wall; }
-
-void SPH::set_bottom_wall(double bottom_wall) {
-  this->bottom_wall = bottom_wall;
-}
-
-void SPH::set_top_wall(double top_wall) { this->top_wall = top_wall; }
-
 void SPH::calc_mass() {
   calc_particle_distance();
   calc_density();
@@ -381,10 +349,6 @@ void SPH::boundaries(int particle_index) {
         -coeff_restitution * velocity_y[particle_index];
   }
 }
-
-double SPH::return_position_x(int l) { return position_x[l]; }
-
-double SPH::return_position_y(int l) { return position_y[l]; }
 
 double SPH::return_kinetic_energy() {
   double sum = 0;

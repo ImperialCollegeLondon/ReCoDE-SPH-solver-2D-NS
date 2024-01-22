@@ -9,7 +9,7 @@
 #define SPH_H
 class SPH {
  private:
-  unsigned int nb_particles;  // size of the Matrix
+  int nb_particles;  // size of the Matrix
 
   int t;      // time
   double dt;  // timestep
@@ -77,38 +77,39 @@ class SPH {
 
   // Setter Functions.
 
-  // Assign value to dt
-  void set_timestep(double dt);
+  inline void set_timestep(double dt) { this->dt = dt; }
 
-  // Assign value to h
-  void set_rad_infl(double h);
+  inline void set_rad_infl(double h) { this->h = h; }
 
-  // Assign value to gas_constant
-  void set_gas_constant(double gas_constant);
+  inline void set_gas_constant(double gas_constant) {
+    this->gas_constant = gas_constant;
+  }
 
-  // Assign value to density_resting
-  void set_density_resting(double density_resting);
+  inline void set_density_resting(double density_resting) {
+    this->density_resting = density_resting;
+  }
 
-  // Assign value to viscosity
-  void set_viscosity(double viscosity);
+  inline void set_viscosity(double viscosity) { this->viscosity = viscosity; }
 
-  // Assign value to coeff_restitution
-  void set_coeff_restitution(double coeff_restitution);
+  inline void set_coeff_restitution(double coeff_restitution) {
+    this->coeff_restitution = coeff_restitution;
+  }
 
-  // Assign value to acceleration_gravity
-  void set_acceleration_gravity(double acceleration_gravity);
+  inline void set_acceleration_gravity(double acceleration_gravity) {
+    this->acceleration_gravity = acceleration_gravity;
+  }
 
-  // Assign value to left_wall
-  void set_left_wall(double left_wall);
+  inline void set_left_wall(double left_wall) { this->left_wall = left_wall; }
 
-  // Assign value to right_wall
-  void set_right_wall(double right_wall);
+  inline void set_right_wall(double right_wall) {
+    this->right_wall = right_wall;
+  }
 
-  // Assign value to bottom_wall
-  void set_bottom_wall(double bottom_wall);
+  inline void set_bottom_wall(double bottom_wall) {
+    this->bottom_wall = bottom_wall;
+  }
 
-  // Assign value to top_wall
-  void set_top_wall(double top_wall);
+  inline void set_top_wall(double top_wall) { this->top_wall = top_wall; }
 
   // Function to calculate the mass of the particles before the simulation
   // starts
@@ -152,10 +153,10 @@ class SPH {
   void boundaries(int particle_index);
 
   // Function to return the position x
-  double return_position_x(int l);
+  inline double return_position_x(int l) { return position_x[l]; }
 
   // Function to return the position y
-  double return_position_y(int l);
+  inline double return_position_y(int l) { return position_y[l]; }
 
   // Function to calculate the kinetic energy
   double return_kinetic_energy();

@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <iostream>
 #include <iterator>
+#include <stdexcept>
 #include <string>
 #include <tuple>
 
@@ -15,38 +16,12 @@
 #include "sph.h"
 
 // Start of the main programme
-int main(int argc, char *argv[]) {
-  // Declare the parameters of the problem
-  int total_iter;  // total number of iterations required for the time
-                   // integration
-  double dt;
-
-  // Constants
-  double h;
-  double gas_constant;
-  double density_resting;
-  double viscosity;
-  double acceleration_gravity;
-  double coeff_restitution;
-
-  // Domain boundaries
-  double left_wall;
-  double right_wall;
-  double bottom_wall;
-  double top_wall;
-
-  // Number of particles
-  int nb_particles;
-
-  int frequency;
-
+int main(int argc, char* argv[]) {
+  SimulationParameters simulationParameters;
   std::string OUTPUT_FOLDER = "../output";
   // Read input files, initialise the sph class and the parameters of the
   // problem
-  SPH sph =
-      initialise(nb_particles, total_iter, h, dt, gas_constant, density_resting,
-                 viscosity, acceleration_gravity, coeff_restitution, left_wall,
-                 right_wall, bottom_wall, top_wall, frequency);
+  SPH sph = initialise(simulationParameters);
 
   std ::cout << "Initialisation finished -- OK"
              << "\n";
@@ -59,12 +34,12 @@ int main(int argc, char *argv[]) {
              << "\n";
 
   // Store particles' positions before integration has started
-  storeToFile(sph, nb_particles, "position", initialPositions);
+  storeToFile(sph, simulationParameters.nb_particles, "position",
+              initialPositions);
   initialPositions.close();
 
   // Time integration loop
-  time_integration(sph, nb_particles, total_iter, h, dt, frequency,
-                   finalPositionsFile, energiesFile);
+  time_integration(sph, simulationParameters, finalPositionsFile, energiesFile);
 
   std ::cout << "SPH-SOLVER executed successfully -- OK"
              << "\n";
@@ -72,11 +47,7 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
-SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
-               double &gas_constant, double &density_resting, double &viscosity,
-               double &acceleration_gravity, double &coeff_restitution,
-               double &left_wall, double &right_wall, double &bottom_wall,
-               double &top_wall, int &frequency) {
+SPH initialise(SimulationParameters& simulationParameters) {
   // Process to obtain the inputs provided by the user
   po::options_description desc("Allowed options");
   desc.add_options()("init_condition", po::value<std::string>(),
@@ -113,66 +84,109 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
   // Map the inputs read from the case file to expected inputs
   po::variables_map case_vm;
   std::ifstream caseFile;
-  caseFile.open("../input/case.txt");
 
-  if (caseFile.is_open()) {
+  // Try to open the case.txt file
+  try {
+    caseFile.open("../input/case.txt");
+    // Throw an exception if the file cannot be opened
+    if (!caseFile.is_open()) {
+      throw std::runtime_error("Error opening file: case.txt");
+    }
     po::store(po::parse_config_file(caseFile, desc), case_vm);
     caseFile.close();
-  } else {
-    std::cerr << "Error opening file: case.txt" << std::endl;
+  } catch (std::runtime_error& e) {
+    // Handle the exception by printing the error message and exiting the
+    // program
+    std::cerr << e.what() << std::endl;
+    exit(1);
   }
   po::notify(case_vm);
 
   double total_time = case_vm["T"].as<double>();  // Total integration time
   // Error handling for the total integration time
-  if (total_time <= 0) {
-    std::cerr << "Error: Total integration time must be positive!" << std::endl;
+  try {
+    if (total_time <= 0) {
+      throw std::runtime_error(
+          "Error: Total integration time must be positive!");
+    }
+  } catch (std::runtime_error& e) {
+    // Handle the exception by printing the error message and exiting the
+    // program
+    std::cerr << e.what() << std::endl;
     exit(1);
   }
 
-  dt = case_vm["dt"].as<double>();  // Time step dt
+  simulationParameters.dt = case_vm["dt"].as<double>();  // Time step dt
   // Error handling for the time step
-  if (dt <= 0 or dt > total_time) {
-    std::cerr << "Error: Time step must be positive and lower than the total "
-              << "integration time!" << std::endl;
+  try {
+    if (simulationParameters.dt <= 0 or simulationParameters.dt > total_time) {
+      throw std::runtime_error(
+          "Error: Time step must be positive and lower than the total "
+          "integration time!");
+    }
+  } catch (std::runtime_error& e) {
+    // Handle the exception by printing the error message and exiting the
+    // program
+    std::cerr << e.what() << std::endl;
     exit(1);
   }
 
-  total_iter =
-      ceil(total_time / dt);  // Transform time in seconds to iterations
+  simulationParameters.total_iter =
+      ceil(total_time /
+           simulationParameters.dt);  // Transform time in seconds to iterations
 
-  frequency = case_vm["output_frequency"].as<int>();
+  simulationParameters.frequency = case_vm["output_frequency"].as<int>();
   // Error handling for the output frequency
-  if (frequency <= 0 or frequency > total_iter) {
-    std::cerr << "Error: Output frequency must be positive and lower than the "
-              << "total number of iterations!" << std::endl;
+  try {
+    if (simulationParameters.frequency <= 0 or
+        simulationParameters.frequency > simulationParameters.total_iter) {
+      throw std::runtime_error(
+          "Error: Output frequency must be positive and lower than the total "
+          "number of iterations!");
+    }
+  } catch (std::runtime_error& e) {
+    // Handle the exception by printing the error message and exiting the
+    // program
+    std::cerr << e.what() << std::endl;
     exit(1);
   }
 
   // Map the inputs read from the domain file to expected inputs
   po::variables_map domain_vm;
   std::ifstream domainFile;
-  domainFile.open("../input/domain.txt");
-
-  if (domainFile.is_open()) {
+  try {
+    domainFile.open("../input/domain.txt");
+    // Throw an exception if the file cannot be opened
+    if (!domainFile.is_open()) {
+      throw std::runtime_error("Error opening file: domain.txt");
+    }
     po::store(po::parse_config_file(domainFile, desc), domain_vm);
     domainFile.close();
-  } else {
-    std::cerr << "Error opening file: domain.txt" << std::endl;
+  } catch (std::runtime_error& e) {
+    // Handle the exception by printing the error message and exiting the
+    // program
+    std::cerr << e.what() << std::endl;
+    exit(1);
   }
-
   po::notify(domain_vm);
 
-  left_wall = domain_vm["left_wall"].as<double>();
-  right_wall = domain_vm["right_wall"].as<double>();
-  bottom_wall = domain_vm["bottom_wall"].as<double>();
-  top_wall = domain_vm["top_wall"].as<double>();
+  simulationParameters.left_wall = domain_vm["left_wall"].as<double>();
+  simulationParameters.right_wall = domain_vm["right_wall"].as<double>();
+  simulationParameters.bottom_wall = domain_vm["bottom_wall"].as<double>();
+  simulationParameters.top_wall = domain_vm["top_wall"].as<double>();
 
   // Error handling for the domain boundaries input
-  if (left_wall >= right_wall || bottom_wall >= top_wall) {
-    std::cerr << "Error: Please adjust your domain boundaries so that "
-              << "left_wall < right wall and bottom_wall < top_wall."
-              << std::endl;
+  try {
+    if (simulationParameters.left_wall >= simulationParameters.right_wall ||
+        simulationParameters.bottom_wall >= simulationParameters.top_wall) {
+      throw std::runtime_error(
+          "Error: Please adjust your domain boundaries so that left_wall < "
+          "right wall and bottom_wall < top_wall.");
+    }
+  } catch (std::runtime_error& e) {
+    // Handle the exception by printing the error message and exiting the
+    // program
+    std::cerr << e.what() << std::endl;
     exit(1);
   }
 
@@ -181,17 +195,22 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
   po::variables_map ic_vm;
   std::ifstream icFile;
   // Open the file of the initial condition the user has chosen
-  icFile.open("../input/" + ic_case + ".txt");
-
-  if (icFile.is_open()) {
+  try {
+    icFile.open("../input/" + ic_case + ".txt");
+    // Throw an exception if the file cannot be opened
+    if (!icFile.is_open()) {
+      throw std::runtime_error(
+          "Error opening file: " + ic_case +
+          ".txt Make sure that the value of the init_condition in the case.txt "
+          "file is one of the following: ic-one-particle, ic-two-particles, "
+          "ic-three-particles, ic-four-particles, ic-droplet, ic-block-drop.");
+    }
     po::store(po::parse_config_file(icFile, desc), ic_vm);
     icFile.close();
-  } else {
-    std::cerr << "Error opening file: " << ic_case << ".txt. Make sure "
-              << "that the value of the init_condition in the case.txt file is "
-              << "one of the following: ic-one-particle, ic-two-particles, "
-              << "ic-three-particles, ic-four-particles, ic-droplet, "
-              << "ic-block-drop." << std::endl;
+  } catch (std::runtime_error& e) {
+    // Handle the exception by printing the error message and exiting the
+    // program
+    std::cerr << e.what() << std::endl;
     exit(1);
   }
   po::notify(ic_vm);
@@ -205,126 +224,185 @@ SPH initialise(int &nb_particles, int &total_iter, double &h, double &dt,
 
   // Get the number of particles based on the ic case
   if (ic_case == "ic-droplet" || ic_case == "ic-block-drop") {
-    nb_particles = ic_vm["n"].as<int>();
+    simulationParameters.nb_particles = ic_vm["n"].as<int>();
     // Error handling for the number of particles
-    if (nb_particles <= 0) {
-      std::cerr << "Error: Number of particles must be positive!" << std::endl;
+    try {
+      if (simulationParameters.nb_particles <= 0) {
+        throw std::runtime_error(
+            "Error: Number of particles must be positive!");
+      }
+    } catch (std::runtime_error& e) {
+      // Handle the exception by printing the error message and exiting the
+      // program
+      std::cerr << e.what() << std::endl;
       exit(1);
     }
   } else {
-    nb_particles = initConditionToParticlesMap[case_vm["init_condition"]
-                                                   .as<std::string>()];
+    simulationParameters.nb_particles =
+        initConditionToParticlesMap[case_vm["init_condition"]
+                                        .as<std::string>()];
   }
   /**After the number of particles is introduced inside the class and
    * therefore the appropriate matrices are initialized, the particles
    * are ordered in the correct positions
    **/
-  SPH sph(nb_particles);
+  SPH sph(simulationParameters.nb_particles);
 
   // Fixed particles ic cases
   if (ic_case == "ic-one-particle" || ic_case == "ic-two-particles" ||
       ic_case == "ic-three-particles" || ic_case == "ic-four-particles") {
     // Get particles' initial poistions from the ic file
-    double *init_x = new double[nb_particles];
-    double *init_y = new double[nb_particles];
-    for (int i = 0; i < nb_particles; i++) {
+    double* init_x = new double[simulationParameters.nb_particles];
+    double* init_y = new double[simulationParameters.nb_particles];
+    for (int i = 0; i < simulationParameters.nb_particles; i++) {
       init_x[i] = ic_vm["init_x_" + std::to_string(i + 1)].as<double>();
       init_y[i] = ic_vm["init_y_" + std::to_string(i + 1)].as<double>();
       // Error handling for the initial positions
-      if (init_x[i] < left_wall || init_x[i] > right_wall ||
-          init_y[i] < bottom_wall || init_y[i] > top_wall) {
-        std::cerr << "Error: Particles must be within the domain boundaries! "
-                  << "Please adjust the initial position coordinates."
-                  << std::endl;
+      try {
+        if (init_x[i] < simulationParameters.left_wall ||
+            init_x[i] > simulationParameters.right_wall ||
+            init_y[i] < simulationParameters.bottom_wall ||
+            init_y[i] > simulationParameters.top_wall) {
+          throw std::runtime_error(
+              "Error: Particles must be within the domain boundaries! Please "
+              "adjust the initial position coordinates.");
+        }
+      } catch (std::runtime_error& e) {
+        // Handle the exception by printing the error message and exiting the
+        // program
+        std::cerr << e.what() << std::endl;
+        delete[] init_x;
+        delete[] init_y;
         exit(1);
       }
     }
-    sph = ic_basic(nb_particles, init_x, init_y);
+    sph = ic_basic(simulationParameters.nb_particles, init_x, init_y);
+    delete[] init_x;
+    delete[] init_y;
     // Block drop case
   } else if (ic_case == "ic-block-drop") {
     // Get the block dimensions and center coordinates from the ic file
     double length = ic_vm["length"].as<double>();
     double width = ic_vm["width"].as<double>();
     // Error handling for the block size (length, width)
-    if (length <= 0 || width <= 0) {
-      std::cerr << "Error: Length and width must be positive!" << std::endl;
+    try {
+      if (length <= 0 || width <= 0) {
+        throw std::runtime_error("Error: Length and width must be positive!");
+      }
+    } catch (std::runtime_error& e) {
+      // Handle the exception by printing the error message and exiting the
+      // program
+      std::cerr << e.what() << std::endl;
       exit(1);
     }
     double center_x = ic_vm["center_x"].as<double>();
     double center_y = ic_vm["center_y"].as<double>();
     // Error handling for the block initial position (center_x, center_y)
-    if (center_x - length / 2.0 < left_wall ||
-        center_x + length / 2.0 > right_wall ||
-        center_y - width / 2.0 < bottom_wall ||
-        center_y + width / 2.0 > top_wall) {
-      std::cerr
-          << "Error: The block must be within the domain boundaries! Please "
-          << "adjust the center coordinates." << std::endl;
+    try {
+      if (center_x - length / 2.0 < simulationParameters.left_wall ||
+          center_x + length / 2.0 > simulationParameters.right_wall ||
+          center_y - width / 2.0 < simulationParameters.bottom_wall ||
+          center_y + width / 2.0 > simulationParameters.top_wall) {
+        throw std::runtime_error(
+            "Error: The block must be within the domain boundaries! Please "
+            "adjust the center coordinates.");
+      }
+    } catch (std::runtime_error& e) {
+      // Handle the exception by printing the error message and exiting the
+      // program
+      std::cerr << e.what() << std::endl;
       exit(1);
     }
-    sph = ic_block_drop(nb_particles, length, width, center_x, center_y);
+    sph = ic_block_drop(simulationParameters.nb_particles, length, width,
+                        center_x, center_y);
     // Droplet case
   } else if (ic_case == "ic-droplet") {
     // Get the droplet radius and center coordinates from the ic file
     double radius = ic_vm["radius"].as<double>();
     // Error handling for the droplet radius
-    if (radius <= 0) {
-      std::cerr << "Error: Radius must be positive!" << std::endl;
+    try {
+      if (radius <= 0) {
+        throw std::runtime_error("Error: Radius must be positive!");
+      }
+    } catch (std::runtime_error& e) {
+      // Handle the exception by printing the error message and exiting the
+      // program
+      std::cerr << e.what() << std::endl;
       exit(1);
     }
     double center_x = ic_vm["center_x"].as<double>();
     double center_y = ic_vm["center_y"].as<double>();
     // Error handling for the droplet initial position (center_x, center_y)
-    if (center_x - radius < left_wall || center_x + radius > right_wall ||
-        center_y - radius < bottom_wall || center_y + radius > top_wall) {
-      std::cerr << "Error: The droplet must be within the domain boundaries! "
-                << "Please adjust the center coordinates." << std::endl;
+    try {
+      if (center_x - radius < simulationParameters.left_wall ||
+          center_x + radius > simulationParameters.right_wall ||
+          center_y - radius < simulationParameters.bottom_wall ||
+          center_y + radius > simulationParameters.top_wall) {
+        throw std::runtime_error(
+            "Error: The droplet must be within the domain boundaries! Please "
+            "adjust the center coordinates.");
+      }
+    } catch (std::runtime_error& e) {
+      // Handle the exception by printing the error message and exiting the
+      // program
+      std::cerr << e.what() << std::endl;
       exit(1);
     }
-    sph = ic_droplet(nb_particles, radius, center_x, center_y);
+    sph = ic_droplet(simulationParameters.nb_particles, radius, center_x,
+                     center_y);
   } else {
     std::cerr << "Error: Initial condition function not found! Make sure "
               << "that the value of the init_condition in the case.txt file is "
               << "one of the following: ic-one-particle, ic-two-particles, "
               << "ic-three-particles, ic-four-particles, ic-droplet, "
               << "ic-block-drop." << std::endl;
+    exit(1);
   }
 
   // Map the inputs read from the constants file to expected inputs
   po::variables_map constants_vm;
   std::ifstream constantsFile;
-  constantsFile.open("../input/constants.txt");
-
-  if (constantsFile.is_open()) {
+  try {
+    constantsFile.open("../input/constants.txt");
+    // Throw an exception if the file cannot be opened
+    if (!constantsFile.is_open()) {
+      throw std::runtime_error("Error opening file: constants.txt");
+    }
     po::store(po::parse_config_file(constantsFile, desc), constants_vm);
     constantsFile.close();
-  } else {
-    std::cerr << "Error opening file: constants.txt" << std::endl;
+  } catch (std::runtime_error& e) {
+    // Handle the exception by printing the error message and exiting the
+    // program
+    std::cerr << e.what() << std::endl;
+    exit(1);
   }
-
   po::notify(constants_vm);
 
-  h = constants_vm["h"].as<double>();  // Radius of influence
-  gas_constant = constants_vm["gas_constant"].as<double>();
-  density_resting = constants_vm["density_resting"].as<double>();
-  viscosity = constants_vm["viscosity"].as<double>();
-  acceleration_gravity = constants_vm["acceleration_gravity"].as<double>();
-  coeff_restitution = constants_vm["coeff_restitution"].as<double>();
+  simulationParameters.h =
+      constants_vm["h"].as<double>();  // Radius of influence
+  simulationParameters.gas_constant = constants_vm["gas_constant"].as<double>();
+  simulationParameters.density_resting =
+      constants_vm["density_resting"].as<double>();
+  simulationParameters.viscosity = constants_vm["viscosity"].as<double>();
+  simulationParameters.acceleration_gravity =
+      constants_vm["acceleration_gravity"].as<double>();
+  simulationParameters.coeff_restitution =
+      constants_vm["coeff_restitution"].as<double>();
 
   // Set the inputs to the sph object
-  sph.set_timestep(dt);
+  sph.set_timestep(simulationParameters.dt);
 
-  sph.set_rad_infl(h);
-  sph.set_gas_constant(gas_constant);
-  sph.set_density_resting(density_resting);
-  sph.set_viscosity(viscosity);
-  sph.set_acceleration_gravity(acceleration_gravity);
-  sph.set_coeff_restitution(coeff_restitution);
+  sph.set_rad_infl(simulationParameters.h);
+  sph.set_gas_constant(simulationParameters.gas_constant);
+  sph.set_density_resting(simulationParameters.density_resting);
+  sph.set_viscosity(simulationParameters.viscosity);
+  sph.set_acceleration_gravity(simulationParameters.acceleration_gravity);
+  sph.set_coeff_restitution(simulationParameters.coeff_restitution);
 
-  sph.set_left_wall(left_wall);
-  sph.set_right_wall(right_wall);
-  sph.set_bottom_wall(bottom_wall);
-  sph.set_top_wall(top_wall);
+  sph.set_left_wall(simulationParameters.left_wall);
+  sph.set_right_wall(simulationParameters.right_wall);
+  sph.set_bottom_wall(simulationParameters.bottom_wall);
+  sph.set_top_wall(simulationParameters.top_wall);
 
   // Calculate the mass of the particles
   sph.calc_mass();
@@ -369,8 +447,8 @@ std::tuple<std::ofstream, std::ofstream, std::ofstream> init_output_files(
                          std::move(energies));
 }
 
-void storeToFile(SPH &sph, int nb_particles, std::string type,
-                 std::ofstream &targetFile, double dt, int currentIteration) {
+void storeToFile(SPH& sph, int nb_particles, std::string type,
+                 std::ofstream& targetFile, double dt, int currentIteration) {
   if (type == "energy") {
     // Write energies on the Energy-File
     targetFile << currentIteration * dt << "," << sph.return_kinetic_energy()
@@ -385,14 +463,13 @@ void storeToFile(SPH &sph, int nb_particles, std::string type,
   }
 }
 
-void time_integration(SPH &sph, int nb_particles, int total_iter, double h,
-                      double dt, int frequency,
-                      std::ofstream &finalPositionsFile,
-                      std::ofstream &energiesFile) {
+void time_integration(SPH& sph, SimulationParameters simulationParameters,
+                      std::ofstream& finalPositionsFile,
+                      std::ofstream& energiesFile) {
   std ::cout << "Time integration started -- OK"
              << "\n";
 
-  for (int t = 0; t < total_iter; t++) {
+  for (int t = 0; t < simulationParameters.total_iter; t++) {
     // In each iteration the distances between the particles are recalculated,
     // as well as their densities
     sph.calc_particle_distance();
@@ -400,12 +477,14 @@ void time_integration(SPH &sph, int nb_particles, int total_iter, double h,
     sph.calc_pressure();
     sph.particle_iterations();
 
-    if (t % frequency == 0) {
-      storeToFile(sph, nb_particles, "energy", energiesFile, dt, t);
+    if (t % simulationParameters.frequency == 0) {
+      storeToFile(sph, simulationParameters.nb_particles, "energy",
+                  energiesFile, simulationParameters.dt, t);
     }
   }
   // Store particles' positions after integration is completed
-  storeToFile(sph, nb_particles, "position", finalPositionsFile);
+  storeToFile(sph, simulationParameters.nb_particles, "position",
+              finalPositionsFile);
 
   std ::cout << "Time integration finished -- OK"
              << "\n";
