@@ -67,7 +67,7 @@ SPH initialise(SimulationParameters& simulationParameters) {
       "length", po::value<double>(), "take length of the block")(
       "width", po::value<double>(), "take width of the block")(
       "radius", po::value<double>(), "take radius of the droplet")(
-      "n", po::value<int>(), "take number of particles")(
+      "n", po::value<unsigned int>(), "take number of particles")(
       "center_x", po::value<double>(), "take center of the particle mass in x")(
       "center_y", po::value<double>(), "take center of the particle mass in y")(
       "init_x_1", po::value<double>(), "take x_1")(
@@ -78,7 +78,7 @@ SPH initialise(SimulationParameters& simulationParameters) {
       "init_y_3", po::value<double>(), "take y_3")(
       "init_x_4", po::value<double>(), "take x_4")(
       "init_y_4", po::value<double>(), "take y_4")(
-      "output_frequency", po::value<int>(),
+      "output_frequency", po::value<unsigned int>(),
       "take frequency that output will be written to file");
 
   // Map the inputs read from the case file to expected inputs
@@ -135,7 +135,8 @@ SPH initialise(SimulationParameters& simulationParameters) {
       ceil(total_time /
            simulationParameters.dt);  // Transform time in seconds to iterations
 
-  simulationParameters.frequency = case_vm["output_frequency"].as<int>();
+  simulationParameters.frequency =
+      case_vm["output_frequency"].as<unsigned int>();
   // Error handling for the output frequency
   try {
     if (simulationParameters.frequency <= 0 or
@@ -216,7 +217,7 @@ SPH initialise(SimulationParameters& simulationParameters) {
   po::notify(ic_vm);
 
   // Fixed nb_particles ic cases
-  std::map<std::string, int> initConditionToParticlesMap = {
+  std::map<std::string, unsigned int> initConditionToParticlesMap = {
       {"ic-one-particle", 1},
       {"ic-two-particles", 2},
       {"ic-three-particles", 3},
@@ -224,7 +225,7 @@ SPH initialise(SimulationParameters& simulationParameters) {
 
   // Get the number of particles based on the ic case
   if (ic_case == "ic-droplet" || ic_case == "ic-block-drop") {
-    simulationParameters.nb_particles = ic_vm["n"].as<int>();
+    simulationParameters.nb_particles = ic_vm["n"].as<unsigned int>();
     // Error handling for the number of particles
     try {
       if (simulationParameters.nb_particles <= 0) {
@@ -447,7 +448,7 @@ std::tuple<std::ofstream, std::ofstream, std::ofstream> init_output_files(
                          std::move(energies));
 }
 
-void storeToFile(SPH& sph, int nb_particles, std::string type,
+void storeToFile(SPH& sph, unsigned int nb_particles, std::string type,
                  std::ofstream& targetFile, double dt, int currentIteration) {
   if (type == "energy") {
     // Write energies on the Energy-File

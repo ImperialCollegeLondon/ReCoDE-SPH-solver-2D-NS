@@ -3,15 +3,17 @@
 #define IC_H
 #include "sph.h"
 
-SPH ic_basic(int n, double *position_x, double *position_y);
+SPH ic_basic(unsigned int n, double *position_x, double *position_y);
 
-SPH ic_block_drop(int &n, double length, double width, double center_x,
+SPH ic_block_drop(unsigned int &n, double length, double width, double center_x,
                   double center_y);
 
-SPH ic_droplet(int &n, double radius, double center_x, double center_y);
+SPH ic_droplet(unsigned int &n, double radius, double center_x,
+               double center_y);
 
-int closest_integer_sqrt(int n);
+unsigned int closest_integer_sqrt(unsigned int n);
 
-int rectangle_n(int n, double length, double width, int &n1, int &n2);
+unsigned int rectangle_n(unsigned int n, double length, double width,
+                         unsigned int &n1, unsigned int &n2);
 
 #endif
