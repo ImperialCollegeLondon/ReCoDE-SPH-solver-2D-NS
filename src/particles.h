@@ -41,7 +41,7 @@ class particles {
 
   double &operator()(unsigned row, unsigned col);
 
-  particles &operator=(const particles &spparticlesh);
+  particles &operator=(const particles &particles);
 
   /**********MEMBER-FUNCTIONS*********/
 
@@ -49,11 +49,14 @@ class particles {
   // Function to calculate the matrix with rij
   void calc_particle_distance();
 
-  // Function to return the position x
-  double get_position_x(int l);
+  // Function to get the position x
+  double get_position_x(int k);
 
-  // Function to return the position y
-  double get_position_y(int l);
+  // Function to get the position y
+  double get_position_y(int k);
+
+  // Function to get the normalised distance between the particles
+  double get_distance_q(int k);
 
 
 };

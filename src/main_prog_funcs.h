@@ -9,7 +9,10 @@
 #include <string>
 #include <tuple>
 
-#include "sph.h"
+#include "fluid.h"
+
+#include "sph_solver.h"
+
 
 namespace po = boost::program_options;
 
@@ -40,14 +43,12 @@ struct SimulationParameters {
   int frequency;
 };
 
-SPH initialise(SimulationParameters &parameters);
+fluid initialise(sph_solver &solver, SimulationParameters &parameters);
 std::tuple<std::ofstream, std::ofstream, std::ofstream> init_output_files(
     std::string folderPath);
-void time_integration(SPH &sph,
-                      const SimulationParameters &simulationParameters,
-                      std::ofstream &vOut, std::ofstream &vOut2);
+
 void createDirectory(std::string folderPath);
-void storeToFile(SPH &sph, int nb_particles, std::string type,
+void storeToFile(fluid &fluid, int nb_particles, std::string type,
                  std::ofstream &targetFile, double dt = 0.0,
                  int currentIteration = 0);
 #endif

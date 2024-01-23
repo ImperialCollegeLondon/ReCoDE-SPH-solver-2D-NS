@@ -13,7 +13,8 @@
 
 #include "initial_conditions.h"
 #include "main_prog_funcs.h"
-#include "sph.h"
+#include "fluid.h"
+#include "sph_solver.h"
 
 // Start of the main programme
 int main(int argc, char* argv[]) {
@@ -34,11 +35,10 @@ int main(int argc, char* argv[]) {
              << "\n";
 
   // Store particles' positions before integration has started
-  storeToFile(sph, simulationParameters.nb_particles, "position",
-              initialPositions);
+  storeToFile(fluid, simulationParameters.nb_particles, "position", initialPositions);
 
   // Time integration loop
-  time_integration(sph, simulationParameters, finalPositionsFile, energiesFile);
+  solver.time_integration(fluid, simulationParameters.nb_particles, simulationParameters, finalPositionsFile, energiesFile);
 
   std ::cout << "SPH-SOLVER executed successfully -- OK"
              << "\n";
@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
   return 0;
 }
 
-SPH initialise(SimulationParameters& simulationParameters) {
+fluid initialise(sph_solver &solver, SimulationParameters& simulationParameters) {
   // Process to obtain the inputs provided by the user
   po::options_description desc("Allowed options");
   desc.add_options()("init_condition", po::value<std::string>(),
@@ -242,7 +242,7 @@ SPH initialise(SimulationParameters& simulationParameters) {
    * therefore the appropriate matrices are initialized, the particles
    * are ordered in the correct positions
    **/
-  SPH sph(simulationParameters.nb_particles);
+  fluid fluid(simulationParameters.nb_particles);
 
   // Fixed particles ic cases
   if (ic_case == "ic-one-particle" || ic_case == "ic-two-particles" ||
@@ -272,7 +272,7 @@ SPH initialise(SimulationParameters& simulationParameters) {
         exit(1);
       }
     }
-    sph = ic_basic(simulationParameters.nb_particles, init_x, init_y);
+    fluid = ic_basic(simulationParameters.nb_particles, init_x, init_y);
     delete[] init_x;
     delete[] init_y;
     // Block drop case
@@ -309,8 +309,7 @@ SPH initialise(SimulationParameters& simulationParameters) {
       std::cerr << e.what() << std::endl;
       exit(1);
     }
-    sph = ic_block_drop(simulationParameters.nb_particles, length, width,
-                        center_x, center_y);
+    fluid = ic_block_drop(simulationParameters.nb_particles, length, width, center_x, center_y);
     // Droplet case
   } else if (ic_case == "ic-droplet") {
     // Get the droplet radius and center coordinates from the ic file
@@ -344,8 +343,7 @@ SPH initialise(SimulationParameters& simulationParameters) {
       std::cerr << e.what() << std::endl;
       exit(1);
     }
-    sph = ic_droplet(simulationParameters.nb_particles, radius, center_x,
-                     center_y);
+    fluid = ic_droplet(simulationParameters.nb_particles, radius, center_x, center_y);
   } else {
     std::cerr << "Error: Initial condition function not found! Make sure "
               << "that the value of the init_condition in the case.txt file is "
@@ -384,25 +382,26 @@ SPH initialise(SimulationParameters& simulationParameters) {
   simulationParameters.coeff_restitution =
       constants_vm["coeff_restitution"].as<double>();
 
-  // Set the inputs to the sph object
-  sph.set_timestep(simulationParameters.dt);
 
-  sph.set_rad_infl(simulationParameters.h);
-  sph.set_gas_constant(simulationParameters.gas_constant);
-  sph.set_density_resting(simulationParameters.density_resting);
-  sph.set_viscosity(simulationParameters.viscosity);
-  sph.set_acceleration_gravity(simulationParameters.acceleration_gravity);
-  sph.set_coeff_restitution(simulationParameters.coeff_restitution);
-
-  sph.set_left_wall(simulationParameters.left_wall);
-  sph.set_right_wall(simulationParameters.right_wall);
-  sph.set_bottom_wall(simulationParameters.bottom_wall);
   sph.set_top_wall(simulationParameters.top_wall);
+  solver.set_timestep(simulationParameters.dt);
+
+  fluid.set_rad_infl(simulationParameters.h);
+  fluid.set_gas_constant(simulationParameters.gas_constant);
+  fluid.set_density_resting(simulationParameters.density_resting);
+  fluid.set_viscosity(simulationParameters.viscosity);
+  fluid.set_acceleration_gravity(simulationParameters.acceleration_gravity);
+  
+  solver.set_coeff_restitution(simulationParameters.coeff_restitution);
+  solver.set_left_wall(simulationParameters.left_wall);
+  solver.set_right_wall(simulationParameters.right_wall);
+  solver.set_bottom_wall(simulationParameters.bottom_wall);
+  solver.set_top_wall(simulationParameters.top_wall);
 
   // Calculate the mass of the particles
-  sph.calc_mass();
+  fluid.calc_mass();
 
-  return sph;
+  return fluid;
 }
 
 void createDirectory(std::string folderPath) {
@@ -442,46 +441,19 @@ std::tuple<std::ofstream, std::ofstream, std::ofstream> init_output_files(
                          std::move(energies));
 }
 
-void storeToFile(SPH& sph, int nb_particles, std::string type,
-                 std::ofstream& targetFile, double dt, int currentIteration) {
+void storeToFile(fluid &fluid, int nb_particles, std::string type,
+                 std::ofstream &targetFile, double dt, int currentIteration) {
   if (type == "energy") {
     // Write energies on the Energy-File
-    targetFile << currentIteration * dt << "," << sph.return_kinetic_energy()
-               << "," << sph.return_potential_energy() << ","
-               << sph.return_potential_energy() + sph.return_kinetic_energy()
+    targetFile << currentIteration * dt << "," << fluid.get_kinetic_energy()
+               << "," << fluid.get_potential_energy() << ","
+               << fluid.get_potential_energy() + fluid.get_kinetic_energy()
                << "\n";
   } else if (type == "position") {
     for (int k = 0; k < nb_particles; k++) {
-      targetFile << sph.return_position_x(k) << "," << sph.return_position_y(k)
+      targetFile << fluid.get_position_x(k) << "," << fluid.get_position_y(k)
                  << "\n";
     }
   }
 }
 
-void time_integration(SPH& sph,
-                      const SimulationParameters& simulationParameters,
-                      std::ofstream& finalPositionsFile,
-                      std::ofstream& energiesFile) {
-  std ::cout << "Time integration started -- OK"
-             << "\n";
-
-  for (int t = 0; t < simulationParameters.total_iter; t++) {
-    // In each iteration the distances between the particles are recalculated,
-    // as well as their densities
-    sph.calc_particle_distance();
-    sph.calc_density();
-    sph.calc_pressure();
-    sph.particle_iterations();
-
-    if (t % simulationParameters.frequency == 0) {
-      storeToFile(sph, simulationParameters.nb_particles, "energy",
-                  energiesFile, simulationParameters.dt, t);
-    }
-  }
-  // Store particles' positions after integration is completed
-  storeToFile(sph, simulationParameters.nb_particles, "position",
-              finalPositionsFile);
-
-  std ::cout << "Time integration finished -- OK"
-             << "\n";
-}

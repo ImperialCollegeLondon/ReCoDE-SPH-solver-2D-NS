@@ -1,14 +1,14 @@
 // Functions to create the initial conditions
 #ifndef IC_H
 #define IC_H
-#include "sph.h"
+#include "fluid.h"
 
-SPH ic_basic(int n, double *position_x, double *position_y);
+fluid ic_basic(int n, double *position_x, double *position_y);
 
-SPH ic_block_drop(int &n, double length, double width, double center_x,
+fluid ic_block_drop(int &n, double length, double width, double center_x,
                   double center_y);
 
-SPH ic_droplet(int &n, double radius, double center_x, double center_y);
+fluid ic_droplet(int &n, double radius, double center_x, double center_y);
 
 int closest_integer_sqrt(int n);
 

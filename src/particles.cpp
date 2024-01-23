@@ -105,12 +105,15 @@ void particles::calc_particle_distance() {
       dy = position_y[i] - position_y[j];
 
       distance[i * nb_particles + j] = sqrt(dx * dx + dy * dy);
+
     }
   }
 }
 
 
-double particles::get_position_x(int l) { return position_x[l]; }
+double particles::get_position_x(int k) { return position_x[k]; }
 
-double particles::get_position_y(int l) { return position_y[l]; }
+double particles::get_position_y(int k) { return position_y[k]; }
+
+double particles::get_distance_q(int k) { return distance_q[k]; }
 

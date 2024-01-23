@@ -3,28 +3,28 @@
 #include <cmath>
 #include <iostream>
 
-#include "sph.h"
+#include "fluid.h"
 
 // ========== Initial Conditions ==========
 
-SPH ic_basic(int nb_particles, double *position_x, double *position_y) {
-  SPH sph(nb_particles);
+fluid ic_basic(int nb_particles, double *position_x, double *position_y) {
+  fluid fluid(nb_particles);
 
   for (int i = 0; i < nb_particles; i++) {
-    sph(0, i) = position_x[i];
-    sph(1, i) = position_y[i];
-    sph(2, i) = 0.0;
-    sph(3, i) = 0.0;
+    fluid(0, i) = position_x[i];
+    fluid(1, i) = position_y[i];
+    fluid(2, i) = 0.0;
+    fluid(3, i) = 0.0;
   }
 
-  return sph;
+  return fluid;
 }
 
-SPH ic_block_drop(int &nb_particles, double length, double width,
+fluid ic_block_drop(int &nb_particles, double length, double width,
                   double center_x, double center_y) {
   int n1, n2;
   nb_particles = rectangle_n(nb_particles, length, width, n1, n2);
-  SPH sph(nb_particles);
+  fluid fluid(nb_particles);
 
   // Distance between neighboring particles in x and y
   double dx = length / double((n1 - 1));
@@ -39,8 +39,8 @@ SPH ic_block_drop(int &nb_particles, double length, double width,
   for (int i = 0; i < n1; i++) {
     for (int j = 0; j < n2; j++) {
       kx = i * n2 + j;
-      sph(0, kx) = position_x + double(rand()) / RAND_MAX / 100000;
-      sph(2, kx) = 0.0;
+      fluid(0, kx) = position_x + double(rand()) / RAND_MAX / 100000;
+      fluid(2, kx) = 0.0;
     }
     position_x += dx;
   }
@@ -50,17 +50,17 @@ SPH ic_block_drop(int &nb_particles, double length, double width,
     position_y = center_y - width / 2.0;
     for (int j = 0; j < n2; j++) {
       ky = i * n2 + j;
-      sph(1, ky) = position_y + double(rand()) / RAND_MAX / 100000;
-      sph(3, ky) = 0.0;
+      fluid(1, ky) = position_y + double(rand()) / RAND_MAX / 100000;
+      fluid(3, ky) = 0.0;
       position_y += dy;
     }
   }
 
-  return sph;
+  return fluid;
 }
 
 // Droplet
-SPH ic_droplet(int &nb_particles, double radius, double center_x,
+fluid ic_droplet(int &nb_particles, double radius, double center_x,
                double center_y) {
   nb_particles = closest_integer_sqrt(nb_particles);
 
@@ -98,18 +98,18 @@ SPH ic_droplet(int &nb_particles, double radius, double center_x,
   }
 
   nb_particles = count;
-  SPH sph(nb_particles);
+  fluid fluid(nb_particles);
   kx = 0;
   for (int i = 0; i < el; i++) {
     for (int j = 0; j < el; j++) {
       if (std::hypot(position_y_store[i * el + j] - center_y,
                      position_x_store[i * el + j] - center_x) <= radius) {
-        sph(0, kx) =
+        fluid(0, kx) =
             position_x_store[i * el + j] + double(rand()) / RAND_MAX / 100000;
-        sph(1, kx) =
+        fluid(1, kx) =
             position_y_store[i * el + j] + double(rand()) / RAND_MAX / 100000;
-        sph(2, kx) = 0.0;
-        sph(3, kx) = 0.0;
+        fluid(2, kx) = 0.0;
+        fluid(3, kx) = 0.0;
         kx++;
       }
     }
@@ -118,7 +118,7 @@ SPH ic_droplet(int &nb_particles, double radius, double center_x,
   delete[] position_x_store;
   delete[] position_y_store;
 
-  return sph;
+  return fluid;
 }
 
 int rectangle_n(int nb_particles, double length, double width, int &n1,

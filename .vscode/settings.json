@@ -92,6 +92,7 @@
         "cinttypes": "cpp",
         "filesystem": "cpp",
         "list": "cpp",
-        "cfenv": "cpp"
+        "cfenv": "cpp",
+        "__functional_03": "cpp"
     }
 }
