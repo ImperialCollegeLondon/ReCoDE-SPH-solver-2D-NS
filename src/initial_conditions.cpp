@@ -7,8 +7,7 @@
 
 // ========== Initial Conditions ==========
 
-SPH ic_basic(unsigned int nb_particles, double *position_x,
-             double *position_y) {
+SPH ic_basic(int nb_particles, double *position_x, double *position_y) {
   SPH sph(nb_particles);
 
   for (int i = 0; i < nb_particles; i++) {
@@ -21,9 +20,9 @@ SPH ic_basic(unsigned int nb_particles, double *position_x,
   return sph;
 }
 
-SPH ic_block_drop(unsigned int &nb_particles, double length, double width,
+SPH ic_block_drop(int &nb_particles, double length, double width,
                   double center_x, double center_y) {
-  unsigned int n1, n2;
+  int n1, n2;
   nb_particles = rectangle_n(nb_particles, length, width, n1, n2);
   SPH sph(nb_particles);
 
@@ -61,14 +60,14 @@ SPH ic_block_drop(unsigned int &nb_particles, double length, double width,
 }
 
 // Droplet
-SPH ic_droplet(unsigned int &nb_particles, double radius, double center_x,
+SPH ic_droplet(int &nb_particles, double radius, double center_x,
                double center_y) {
   nb_particles = closest_integer_sqrt(nb_particles);
-  std::cout << "Number of particles: " << nb_particles << std::endl;
+
   double *position_x_store = new double[nb_particles];
   double *position_y_store = new double[nb_particles];
-  unsigned int el = std::sqrt(nb_particles);
-  std::cout << "Number of particles per side: " << el << std::endl;
+  int el = std::sqrt(nb_particles);
+
   int kx;
 
   // For uniform distribution the step in y has to be equal to the step in x
@@ -97,7 +96,7 @@ SPH ic_droplet(unsigned int &nb_particles, double radius, double center_x,
       }
     }
   }
-  std::cout << "Number of particles in the circle: " << count << std::endl;
+
   nb_particles = count;
   SPH sph(nb_particles);
   kx = 0;
@@ -122,8 +121,8 @@ SPH ic_droplet(unsigned int &nb_particles, double radius, double center_x,
   return sph;
 }
 
-unsigned int rectangle_n(unsigned int nb_particles, double length, double width,
-                         unsigned int &n1, unsigned int &n2) {
+int rectangle_n(int nb_particles, double length, double width, int &n1,
+                int &n2) {
   // Function that transforms the user's particle related input to the closest
   // values that can be use to create a rectangle block
   double division = length / width;
@@ -135,11 +134,11 @@ unsigned int rectangle_n(unsigned int nb_particles, double length, double width,
   return n1 * n2;
 }
 
-unsigned int closest_integer_sqrt(unsigned int num) {
+int closest_integer_sqrt(int num) {
   // Function that returns the closest number that has an integer square root
   double root = std::sqrt(num);
 
-  unsigned int integerRoot = static_cast<unsigned int>(root + 0.5);
+  int integerRoot = static_cast<int>(root + 0.5);
 
   return integerRoot * integerRoot;
 }
