@@ -4,3 +4,5 @@ mkdocs-jupyter==0.24.5
 mkdocs-material==9.4.6
 python-markdown-math==0.8
 pre-commit
+matplotlib==3.8.2
+pandas==2.2.0

@@ -9,20 +9,24 @@
 #define SPH_H
 class SPH {
  private:
-  unsigned int nb_particles;  // size of the Matrix
+  int nb_particles;  // size of the Matrix
 
-  int t;  // time
-
+  int t;      // time
   double dt;  // timestep
 
-  double h;  // Radius of influence
-
   // Constants of the problem
-  const double gas_constant = 2000.0;
-  const double density_resting = 1000.0;
-  const double viscosity = 1.0;
-  const double coeff_restitution = 0.5;
-  const double acceleration_gravity = 9.81;
+  double h;  // Radius of influence
+  double gas_constant;
+  double density_resting;
+  double viscosity;
+  double coeff_restitution;
+  double acceleration_gravity;
+
+  // Boundaries
+  double left_wall;
+  double right_wall;
+  double bottom_wall;
+  double top_wall;
 
   // Positions
   double *position_x;
@@ -56,7 +60,7 @@ class SPH {
  public:
   /******** CONSTRUCTORS/DESTRUCTOR********/
 
-  SPH() = default;  // Default constructor
+  SPH() = delete;  // Constructor without number of particles shouldn't exist
 
   ~SPH();  // Destructor
 
@@ -67,15 +71,45 @@ class SPH {
 
   double &operator()(unsigned row, unsigned col);
 
+  SPH &operator=(const SPH &sph);
+
   /**********MEMBER-FUNCTIONS*********/
 
   // Setter Functions.
 
-  // Assign value to dt
-  void set_timestep(double dt);
+  inline void set_timestep(double dt) { this->dt = dt; }
 
-  // Assign value to h
-  void set_rad_infl(double h);
+  inline void set_rad_infl(double h) { this->h = h; }
+
+  inline void set_gas_constant(double gas_constant) {
+    this->gas_constant = gas_constant;
+  }
+
+  inline void set_density_resting(double density_resting) {
+    this->density_resting = density_resting;
+  }
+
+  inline void set_viscosity(double viscosity) { this->viscosity = viscosity; }
+
+  inline void set_coeff_restitution(double coeff_restitution) {
+    this->coeff_restitution = coeff_restitution;
+  }
+
+  inline void set_acceleration_gravity(double acceleration_gravity) {
+    this->acceleration_gravity = acceleration_gravity;
+  }
+
+  inline void set_left_wall(double left_wall) { this->left_wall = left_wall; }
+
+  inline void set_right_wall(double right_wall) {
+    this->right_wall = right_wall;
+  }
+
+  inline void set_bottom_wall(double bottom_wall) {
+    this->bottom_wall = bottom_wall;
+  }
+
+  inline void set_top_wall(double top_wall) { this->top_wall = top_wall; }
 
   // Function to calculate the mass of the particles before the simulation
   // starts
@@ -119,10 +153,10 @@ class SPH {
   void boundaries(int particle_index);
 
   // Function to return the position x
-  double return_position_x(int l);
+  inline double return_position_x(int l) { return position_x[l]; }
 
   // Function to return the position y
-  double return_position_y(int l);
+  inline double return_position_y(int l) { return position_y[l]; }
 
   // Function to calculate the kinetic energy
   double return_kinetic_energy();

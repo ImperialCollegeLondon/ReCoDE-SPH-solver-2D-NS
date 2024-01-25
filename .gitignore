@@ -12,7 +12,10 @@ venv
 .venv
 
 # Output
-output
+output/
 
 # VSCode
 .vscode\
+
+# Docker
+Dockerfile

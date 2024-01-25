@@ -3,20 +3,15 @@
 #define IC_H
 #include "sph.h"
 
-void ic_one_particle(int n, SPH &sph);
+SPH ic_basic(int n, double *position_x, double *position_y);
 
-void ic_two_particles(int n, SPH &sph);
+SPH ic_block_drop(int &n, double length, double width, double center_x,
+                  double center_y);
 
-void ic_three_particles(int n, SPH &sph);
+SPH ic_droplet(int &n, double radius, double center_x, double center_y);
 
-void ic_four_particles(int n, SPH &sph);
+int closest_integer_sqrt(int n);
 
-void ic_dam_break(int n, SPH &sph);
-
-void ic_block_drop(int n, int n1, int n2, SPH &sph);
-
-void ic_droplet(int n, SPH &sph);
-
-int dropletn(int n);
+int rectangle_n(int n, double length, double width, int &n1, int &n2);
 
 #endif
