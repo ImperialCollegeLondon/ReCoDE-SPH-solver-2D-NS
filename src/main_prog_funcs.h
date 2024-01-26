@@ -10,40 +10,12 @@
 #include <tuple>
 
 #include "fluid.h"
-
 #include "sph_solver.h"
-
 
 namespace po = boost::program_options;
 
-struct SimulationParameters {
-  // Declare the parameters of the problem
-  int total_iter;  // total number of iterations required for the time
-                   // integration
-  double dt;       // time step
-
-  // Constants
-  double h;
-  double gas_constant;
-  double density_resting;
-  double viscosity;
-  double acceleration_gravity;
-  double coeff_restitution;
-
-  // Domain boundaries
-  double left_wall;
-  double right_wall;
-  double bottom_wall;
-  double top_wall;
-
-  // Number of particles
-  int nb_particles;
-
-  // Output frequency
-  int frequency;
-};
-
-fluid initialise(sph_solver &solver, SimulationParameters &parameters);
+fluid initialise(sph_solver &solver,
+                 sph_solver::SimulationParameters &parameters);
 std::tuple<std::ofstream, std::ofstream, std::ofstream> init_output_files(
     std::string folderPath);
 

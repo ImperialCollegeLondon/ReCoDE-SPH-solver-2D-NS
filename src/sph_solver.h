@@ -3,11 +3,9 @@
 
 #include "fluid.h"
 
-class sph_solver{
-
-private:
-
-  int t;      // time
+class sph_solver {
+ private:
+  int t;  // time
 
   int number_of_particles;
 
@@ -27,10 +25,35 @@ private:
   double force_gravity_y;
   double force_gravity_x = 0.0;
 
-public:
+ public:
+  struct SimulationParameters {
+    // Declare the parameters of the problem
+    int total_iter;  // total number of iterations required for the time
+                     // integration
+    double dt;       // time step
 
- /******** CONSTRUCTORS/DESTRUCTOR********/
+    // Constants
+    double h;
+    double gas_constant;
+    double density_resting;
+    double viscosity;
+    double acceleration_gravity;
+    double coeff_restitution;
 
+    // Domain boundaries
+    double left_wall;
+    double right_wall;
+    double bottom_wall;
+    double top_wall;
+
+    // Number of particles
+    int nb_particles;
+
+    // Output frequency
+    int frequency;
+  };
+
+  /******** CONSTRUCTORS/DESTRUCTOR********/
 
   /**********MEMBER-FUNCTIONS*********/
 
@@ -55,40 +78,37 @@ public:
   void set_top_wall(double top_wall);
 
   // Function to perform the time integration
-  void time_integration(fluid &data, int nb_particles, int total_iter, double h,
-                      double dt, int frequency,
-                      std::ofstream &finalPositionsFile,
-                      std::ofstream &energiesFile);
+  void time_integration(fluid &data,
+                        const SimulationParameters &simulationParameters,
+                        std::ofstream &finalPositionsFile,
+                        std::ofstream &energiesFile);
 
   // Function to perform the particle iterations
-  void particle_iterations(fluid& data);
+  void particle_iterations(fluid &data);
 
   // Function to calculate the pressure force
-  double calc_pressure_force(fluid& data, int particle_index, int dir);
+  double calc_pressure_force(fluid &data, int particle_index, int dir);
 
   // Function to calculate the viscous force
-  double calc_viscous_force(fluid& data, int particle_index, int dir);
+  double calc_viscous_force(fluid &data, int particle_index, int dir);
 
   // Function to calculate the gravity force
-  double calc_gravity_force(fluid& data, int particle_index);
+  double calc_gravity_force(fluid &data, int particle_index);
 
   // Function to update the positions of the particles
-  void update_position(fluid& data, int particle_index);
+  void update_position(fluid &data, int particle_index);
 
   // Function to initialise the time integration scheme - velocity
-  double scheme_init(fluid& data, int particle_index,
-                        double &force_pressure, double &force_viscous,
-                        double &force_gravity);
+  double scheme_init(fluid &data, int particle_index, double &force_pressure,
+                     double &force_viscous, double &force_gravity);
 
   // Function for time integration - velocity
-  double velocity_integration(fluid& data, int particle_index,
-                                 double &force_pressure, double &force_viscous,
-                                 double &force_gravity);
+  double velocity_integration(fluid &data, int particle_index,
+                              double &force_pressure, double &force_viscous,
+                              double &force_gravity);
 
   // Function to treat the boundaries
-  void boundaries(fluid& data, int particle_index);
-
-
+  void boundaries(fluid &data, int particle_index);
 };
 
 #endif

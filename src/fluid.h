@@ -1,18 +1,16 @@
 #pragma once
-#include "particles.h"
 #include "fstream"
+#include "particles.h"
 
 class fluid : public particles {
-
-private:
-
-// Constants of the problem
-  double gas_constant ;
+ private:
+  // Constants of the problem
+  double gas_constant;
   double density_resting;
   double viscosity;
   double acceleration_gravity;
 
-  double h; // Radius of influence
+  double h;  // Radius of influence
 
   // Mass
   double mass_assumed = 1.0;
@@ -23,13 +21,10 @@ private:
   // Pressure
   double *pressure;
 
-public:
-
-
-  fluid(const unsigned n_new);  
+ public:
+  fluid(const unsigned n_new);
 
   fluid &operator=(const fluid &fluid);
-
 
   // Assign value to gas_constant
   void set_gas_constant(double gas_constant);

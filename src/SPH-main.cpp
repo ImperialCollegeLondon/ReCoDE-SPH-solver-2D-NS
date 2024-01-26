@@ -13,16 +13,15 @@
 
 #include "initial_conditions.h"
 #include "main_prog_funcs.h"
-#include "fluid.h"
-#include "sph_solver.h"
 
 // Start of the main programme
 int main(int argc, char* argv[]) {
-  SimulationParameters simulationParameters;
+  sph_solver::SimulationParameters simulationParameters;
   std::string OUTPUT_FOLDER = "../output";
   // Read input files, initialise the sph class and the parameters of the
   // problem
-  SPH sph = initialise(simulationParameters);
+  sph_solver solver;
+  fluid fluid = initialise(solver, simulationParameters);
 
   std ::cout << "Initialisation finished -- OK"
              << "\n";
@@ -35,10 +34,12 @@ int main(int argc, char* argv[]) {
              << "\n";
 
   // Store particles' positions before integration has started
-  storeToFile(fluid, simulationParameters.nb_particles, "position", initialPositions);
+  storeToFile(fluid, simulationParameters.nb_particles, "position",
+              initialPositions);
 
   // Time integration loop
-  solver.time_integration(fluid, simulationParameters.nb_particles, simulationParameters, finalPositionsFile, energiesFile);
+  solver.time_integration(fluid, simulationParameters, finalPositionsFile,
+                          energiesFile);
 
   std ::cout << "SPH-SOLVER executed successfully -- OK"
              << "\n";
@@ -46,7 +47,8 @@ int main(int argc, char* argv[]) {
   return 0;
 }
 
-fluid initialise(sph_solver &solver, SimulationParameters& simulationParameters) {
+fluid initialise(sph_solver& solver,
+                 sph_solver::SimulationParameters& simulationParameters) {
   // Process to obtain the inputs provided by the user
   po::options_description desc("Allowed options");
   desc.add_options()("init_condition", po::value<std::string>(),
@@ -309,7 +311,8 @@ fluid initialise(sph_solver &solver, SimulationParameters& simulationParameters)
       std::cerr << e.what() << std::endl;
       exit(1);
     }
-    fluid = ic_block_drop(simulationParameters.nb_particles, length, width, center_x, center_y);
+    fluid = ic_block_drop(simulationParameters.nb_particles, length, width,
+                          center_x, center_y);
     // Droplet case
   } else if (ic_case == "ic-droplet") {
     // Get the droplet radius and center coordinates from the ic file
@@ -343,7 +346,8 @@ fluid initialise(sph_solver &solver, SimulationParameters& simulationParameters)
       std::cerr << e.what() << std::endl;
       exit(1);
     }
-    fluid = ic_droplet(simulationParameters.nb_particles, radius, center_x, center_y);
+    fluid = ic_droplet(simulationParameters.nb_particles, radius, center_x,
+                       center_y);
   } else {
     std::cerr << "Error: Initial condition function not found! Make sure "
               << "that the value of the init_condition in the case.txt file is "
@@ -382,8 +386,6 @@ fluid initialise(sph_solver &solver, SimulationParameters& simulationParameters)
   simulationParameters.coeff_restitution =
       constants_vm["coeff_restitution"].as<double>();
 
-
-  sph.set_top_wall(simulationParameters.top_wall);
   solver.set_timestep(simulationParameters.dt);
 
   fluid.set_rad_infl(simulationParameters.h);
@@ -391,7 +393,7 @@ fluid initialise(sph_solver &solver, SimulationParameters& simulationParameters)
   fluid.set_density_resting(simulationParameters.density_resting);
   fluid.set_viscosity(simulationParameters.viscosity);
   fluid.set_acceleration_gravity(simulationParameters.acceleration_gravity);
-  
+
   solver.set_coeff_restitution(simulationParameters.coeff_restitution);
   solver.set_left_wall(simulationParameters.left_wall);
   solver.set_right_wall(simulationParameters.right_wall);
@@ -441,8 +443,8 @@ std::tuple<std::ofstream, std::ofstream, std::ofstream> init_output_files(
                          std::move(energies));
 }
 
-void storeToFile(fluid &fluid, int nb_particles, std::string type,
-                 std::ofstream &targetFile, double dt, int currentIteration) {
+void storeToFile(fluid& fluid, int nb_particles, std::string type,
+                 std::ofstream& targetFile, double dt, int currentIteration) {
   if (type == "energy") {
     // Write energies on the Energy-File
     targetFile << currentIteration * dt << "," << fluid.get_kinetic_energy()
@@ -456,4 +458,3 @@ void storeToFile(fluid &fluid, int nb_particles, std::string type,
     }
   }
 }
-

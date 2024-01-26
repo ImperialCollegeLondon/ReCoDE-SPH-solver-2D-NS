@@ -16,13 +16,11 @@ particles::particles(const unsigned n_new) : nb_particles(n_new) {
   distance = new double[nb_particles * nb_particles];
   distance_q = new double[nb_particles * nb_particles];
 
-
   particle_speed_sq = new double[nb_particles];
 }
 
 // Destructor
 particles::~particles() {
-
   delete[] position_x;
   delete[] particle_speed_sq;
   delete[] position_y;
@@ -30,7 +28,6 @@ particles::~particles() {
   delete[] velocity_y;
   delete[] distance;
   delete[] distance_q;
-  
 }
 
 // Overloading of ()
@@ -57,7 +54,6 @@ double &particles::operator()(unsigned row, unsigned col) {
 // Overloading of operator=
 particles &particles::operator=(const particles &particles) {
   if (this != &particles) {
-
     delete[] distance;
     delete[] distance_q;
     delete[] particle_speed_sq;
@@ -76,13 +72,16 @@ particles &particles::operator=(const particles &particles) {
     distance = new double[nb_particles * nb_particles];
     distance_q = new double[nb_particles * nb_particles];
 
-
     particle_speed_sq = new double[nb_particles];
 
-    std::memcpy(position_x, particles.position_x, nb_particles * sizeof(double));
-    std::memcpy(position_y, particles.position_y, nb_particles * sizeof(double));
-    std::memcpy(velocity_x, particles.velocity_x, nb_particles * sizeof(double));
-    std::memcpy(velocity_y, particles.velocity_y, nb_particles * sizeof(double));
+    std::memcpy(position_x, particles.position_x,
+                nb_particles * sizeof(double));
+    std::memcpy(position_y, particles.position_y,
+                nb_particles * sizeof(double));
+    std::memcpy(velocity_x, particles.velocity_x,
+                nb_particles * sizeof(double));
+    std::memcpy(velocity_y, particles.velocity_y,
+                nb_particles * sizeof(double));
 
     std::memcpy(distance, particles.distance,
                 nb_particles * nb_particles * sizeof(double));
@@ -94,7 +93,6 @@ particles &particles::operator=(const particles &particles) {
   return *this;
 }
 
-
 void particles::calc_particle_distance() {
   double dx;
   double dy;
@@ -105,15 +103,12 @@ void particles::calc_particle_distance() {
       dy = position_y[i] - position_y[j];
 
       distance[i * nb_particles + j] = sqrt(dx * dx + dy * dy);
-
     }
   }
 }
-
 
 double particles::get_position_x(int k) { return position_x[k]; }
 
 double particles::get_position_y(int k) { return position_y[k]; }
 
 double particles::get_distance_q(int k) { return distance_q[k]; }
-

@@ -9,9 +9,7 @@
 #define PARTICLES_H
 class particles {
  protected:
-
   unsigned int nb_particles;  // size of the Matrix
-
 
   // Positions
   double *position_x;
@@ -20,7 +18,7 @@ class particles {
   // Velocities
   double *velocity_x;
   double *velocity_y;
-  
+
   double *particle_speed_sq;
 
   // Distances
@@ -30,12 +28,13 @@ class particles {
  public:
   /******** CONSTRUCTORS/DESTRUCTOR********/
 
-  particles() = delete;  // Constructor without number of particles shouldn't exist
+  particles() =
+      delete;  // Constructor without number of particles shouldn't exist
 
   ~particles();  // Destructor
 
-  particles(const unsigned n_new);  // User defined constructor for allocating the
-                              // dimensions of the Matrix
+  particles(const unsigned n_new);  // User defined constructor for allocating
+                                    // the dimensions of the Matrix
 
   /**********OVERLOADINGS**********/
 
@@ -44,7 +43,6 @@ class particles {
   particles &operator=(const particles &particles);
 
   /**********MEMBER-FUNCTIONS*********/
-
 
   // Function to calculate the matrix with rij
   void calc_particle_distance();
@@ -57,8 +55,6 @@ class particles {
 
   // Function to get the normalised distance between the particles
   double get_distance_q(int k);
-
-
 };
 
 #endif

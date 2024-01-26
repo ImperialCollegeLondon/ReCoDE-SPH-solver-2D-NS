@@ -6,17 +6,13 @@
 #include <iomanip>
 #include <iostream>
 // User defined constructor
-fluid::fluid(const unsigned n_new) : particles(n_new){
-
+fluid::fluid(const unsigned n_new) : particles(n_new) {
   pressure = new double[nb_particles];
   density = new double[nb_particles];
-  
 }
-
 
 fluid &fluid::operator=(const fluid &fluid) {
   if (this != &fluid) {
-
     delete[] distance;
     delete[] distance_q;
     delete[] particle_speed_sq;
@@ -36,7 +32,6 @@ fluid &fluid::operator=(const fluid &fluid) {
 
     distance = new double[nb_particles * nb_particles];
     distance_q = new double[nb_particles * nb_particles];
-
 
     particle_speed_sq = new double[nb_particles];
 
@@ -78,17 +73,14 @@ void fluid::set_acceleration_gravity(double acceleration_gravity) {
 }
 
 void fluid::calc_mass() {
-    
   calc_particle_distance();
   calc_density();
   double sumden = 0.0;
   for (int i = 0; i < nb_particles; i++) {
     sumden += density[i];
-
   }
 
   mass_assumed = nb_particles * density_resting / sumden;
-
 }
 
 void fluid::calc_density() {
@@ -123,16 +115,13 @@ void fluid::calc_density() {
       }
 
       density[i] += mass_assumed * phi;
-
     }
   }
-
 }
 
 void fluid::calc_pressure() {
   for (int i = 0; i < nb_particles; i++) {
-    pressure[i] =
-        gas_constant * (density[i] - density_resting);
+    pressure[i] = gas_constant * (density[i] - density_resting);
   }
 }
 
@@ -149,7 +138,6 @@ double fluid::get_acceleration_gravity() { return acceleration_gravity; }
 double fluid::get_rad_infl() { return h; }
 
 double fluid::get_kinetic_energy() {
-
   double sum = 0;
   for (int i = 0; i < nb_particles; i++) {
     particle_speed_sq[i] =
