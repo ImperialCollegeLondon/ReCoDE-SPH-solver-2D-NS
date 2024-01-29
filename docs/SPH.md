@@ -119,5 +119,9 @@ $$ m = \frac{N \rho_{0}}{\sum_{i} \rho_{i}} $$
 ## Boundary Conditions
 All the boundaries are solid walls with damped reflecting boundary conditions. If particles are within a distance h of the boundary, their velocity and position should be updated to reverse the motion of the particle and keep it within the domain. For example, on the right boundary, the $x$-component of position and velocity would be modified as:
 
-$$ x = 1 - h \\
-u  = - eu $$
+$$
+\begin{split}
+  x = 1 - h\\
+  u = - eu
+\end{split}
+$$
