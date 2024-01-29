@@ -61,7 +61,7 @@ $$ \mathbf{F} _{pi} = −\sum_j \frac{m}{\rho_j} \frac{p_i + p_j}{2} \nabla \phi
 where $`\phi_p`$ is the the kernel density function for pressure, given by:
 
 $$ \nabla \phi_p (\mathbf{r} _{ij}, h) = \begin{cases}
--30 \pi h^3 \mathbf{r} _{ij} \frac{(1 - q _{ij})^2}{q _{ij}} & \text{for } q _{ij} < 1 \text{ and } i \neq j\\
+-\frac{30}{\pi h^3} \mathbf{r} _{ij} \frac{(1 - q _{ij})^2}{q _{ij}} & \text{for } q _{ij} < 1 \text{ and } i \neq j\\
 0 & \text{otherwise}
 \end{cases} $$
 
@@ -71,12 +71,12 @@ while otherwise it is set to 0.
 
 The force acting on each particle due to viscous effects is calculated as
 
-$$ \mathbf{F}_{vi} = −\mu \sum_j m \rho_j \mathbf{v} _{ij} \nabla^2 \phi v(r_i, h) $$
+$$ \mathbf{F}_{vi} = −\mu \sum_j \frac{m}{\rho_j} \mathbf{v} _{ij} \nabla^2 \phi_{v}(r_i, h) $$
 
-where $`\mathbf{v}_{ij} = \mathbf{v}_i − \mathbf{v}_j`$, $`\mathbf{v}_{i}`$ is the velocity of particle $i$, $\mu$ is the dynamic viscosity and $`\nabla^{2} \phi v(r_i, h)`$ is given by
+where $`\mathbf{v}_{ij} = \mathbf{v}_i − \mathbf{v}_j`$, $`\mathbf{v}_{i}`$ is the velocity of particle $i$, $\mu$ is the dynamic viscosity and $`\nabla^{2} \phi_{v}(r_i, h)`$ is given by
 
 $$ \nabla^{2} \phi_v(\mathbf{r}_i, h) = \begin{cases}
-40 \pi h^4 (1 - q) & \text{for } q < 1 \text{ and } i \neq j\\
+\frac{40} {\pi h^4} (1 - q) & \text{for } q < 1 \text{ and } i \neq j\\
 0 & \text{otherwise}
 \end{cases}
  $$
@@ -99,8 +99,12 @@ We solve the equation as a function of time by finding the velocity and position
 
 We begin with the initial conditions of the system, which are the positions and velocities of the particles at time $t = 0$. We iteratively use the state of the system at time step $t$ to find the state of the system at time step $t + 1$ using a leap-frog scheme, which provides improved stability characteristics:
 
-$$ v^{t+\frac{1}{2}}_i = v^{t-\frac{1}{2}}_i + {a_i}^{t} \Delta{t}\\
-x^{(t+1)}_i = x^{t}_i + v^{t+ \frac{1}{2}}_i \Delta{t} $$
+$$
+\begin{split}
+  v^{t+\frac{1}{2}}_i = v^{t-\frac{1}{2}}_i + {a_i}^{t} \Delta{t}\\
+  x^{(t+1)}_i = x^{t}_i + v^{t+ \frac{1}{2}}_i \Delta{t}
+\end{split}
+$$
 
 However, because the velocity is calculated at half-steps, we need to initialise the scheme on the first time step using:
 
