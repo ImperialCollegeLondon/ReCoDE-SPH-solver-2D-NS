@@ -16,12 +16,12 @@
 
 // Start of the main programme
 int main(int argc, char* argv[]) {
-  sph_solver::SimulationParameters simulationParameters;
+ 
   std::string OUTPUT_FOLDER = "../output";
   // Read input files, initialise the sph class and the parameters of the
   // problem
   sph_solver solver;
-  fluid fluid = initialise(solver, simulationParameters);
+  fluid fluid = initialise(solver);
 
   std ::cout << "Initialisation finished -- OK"
              << "\n";
@@ -34,11 +34,11 @@ int main(int argc, char* argv[]) {
              << "\n";
 
   // Store particles' positions before integration has started
-  storeToFile(fluid, simulationParameters.nb_particles, "position",
+  storeToFile(fluid, "position",
               initialPositions);
 
   // Time integration loop
-  solver.time_integration(fluid, simulationParameters, finalPositionsFile,
+  solver.time_integration(fluid, finalPositionsFile,
                           energiesFile);
 
   std ::cout << "SPH-SOLVER executed successfully -- OK"
@@ -47,8 +47,10 @@ int main(int argc, char* argv[]) {
   return 0;
 }
 
-fluid initialise(sph_solver& solver,
-                 sph_solver::SimulationParameters& simulationParameters) {
+fluid initialise(sph_solver& solver) {
+
+  int nb_particles;  //  Number of particles
+
   // Process to obtain the inputs provided by the user
   po::options_description desc("Allowed options");
   desc.add_options()("init_condition", po::value<std::string>(),
@@ -116,10 +118,11 @@ fluid initialise(sph_solver& solver,
     exit(1);
   }
 
-  simulationParameters.dt = case_vm["dt"].as<double>();  // Time step dt
+  solver.set_timestep(case_vm["dt"].as<double>());
+// Time step dt
   // Error handling for the time step
   try {
-    if (simulationParameters.dt <= 0 or simulationParameters.dt > total_time) {
+    if (case_vm["dt"].as<double>() <= 0 or case_vm["dt"].as<double>() > total_time) {
       throw std::runtime_error(
           "Error: Time step must be positive and lower than the total "
           "integration time!");
@@ -131,15 +134,15 @@ fluid initialise(sph_solver& solver,
     exit(1);
   }
 
-  simulationParameters.total_iter =
-      ceil(total_time /
-           simulationParameters.dt);  // Transform time in seconds to iterations
+  solver.set_total_iter( ceil(total_time /
+           case_vm["dt"].as<double>())); // Transform time in seconds to iterations
 
-  simulationParameters.frequency = case_vm["output_frequency"].as<int>();
+  solver.set_output_frequency(case_vm["output_frequency"].as<int>());
   // Error handling for the output frequency
   try {
-    if (simulationParameters.frequency <= 0 or
-        simulationParameters.frequency > simulationParameters.total_iter) {
+    if (case_vm["output_frequency"].as<int>() <= 0 or
+        case_vm["output_frequency"].as<int>()> ceil(total_time /
+           case_vm["dt"].as<double>())) {
       throw std::runtime_error(
           "Error: Output frequency must be positive and lower than the total "
           "number of iterations!");
@@ -169,15 +172,15 @@ fluid initialise(sph_solver& solver,
   }
   po::notify(domain_vm);
 
-  simulationParameters.left_wall = domain_vm["left_wall"].as<double>();
-  simulationParameters.right_wall = domain_vm["right_wall"].as<double>();
-  simulationParameters.bottom_wall = domain_vm["bottom_wall"].as<double>();
-  simulationParameters.top_wall = domain_vm["top_wall"].as<double>();
+  solver.set_left_wall(domain_vm["left_wall"].as<double>());
+  solver.set_right_wall(domain_vm["right_wall"].as<double>());
+  solver.set_top_wall(domain_vm["top_wall"].as<double>());
+  solver.set_bottom_wall(domain_vm["bottom_wall"].as<double>());
 
   // Error handling for the domain boundaries input
   try {
-    if (simulationParameters.left_wall >= simulationParameters.right_wall ||
-        simulationParameters.bottom_wall >= simulationParameters.top_wall) {
+    if (domain_vm["left_wall"].as<double>() >= domain_vm["right_wall"].as<double>() ||
+        domain_vm["bottom_wall"].as<double>() >= domain_vm["top_wall"].as<double>()) {
       throw std::runtime_error(
           "Error: Please adjust your domain boundaries so that left_wall < "
           "right wall and bottom_wall < top_wall.");
@@ -222,10 +225,10 @@ fluid initialise(sph_solver& solver,
 
   // Get the number of particles based on the ic case
   if (ic_case == "ic-droplet" || ic_case == "ic-block-drop") {
-    simulationParameters.nb_particles = ic_vm["n"].as<int>();
+    nb_particles = ic_vm["n"].as<int>();
     // Error handling for the number of particles
     try {
-      if (simulationParameters.nb_particles <= 0) {
+      if (nb_particles <= 0) {
         throw std::runtime_error(
             "Error: Number of particles must be positive!");
       }
@@ -236,7 +239,7 @@ fluid initialise(sph_solver& solver,
       exit(1);
     }
   } else {
-    simulationParameters.nb_particles =
+    nb_particles =
         initConditionToParticlesMap[case_vm["init_condition"]
                                         .as<std::string>()];
   }
@@ -244,23 +247,23 @@ fluid initialise(sph_solver& solver,
    * therefore the appropriate matrices are initialized, the particles
    * are ordered in the correct positions
    **/
-  fluid fluid(simulationParameters.nb_particles);
+  fluid fluid(nb_particles);
 
   // Fixed particles ic cases
   if (ic_case == "ic-one-particle" || ic_case == "ic-two-particles" ||
       ic_case == "ic-three-particles" || ic_case == "ic-four-particles") {
     // Get particles' initial poistions from the ic file
-    double* init_x = new double[simulationParameters.nb_particles];
-    double* init_y = new double[simulationParameters.nb_particles];
-    for (int i = 0; i < simulationParameters.nb_particles; i++) {
+    double* init_x = new double[nb_particles];
+    double* init_y = new double[nb_particles];
+    for (int i = 0; i < nb_particles; i++) {
       init_x[i] = ic_vm["init_x_" + std::to_string(i + 1)].as<double>();
       init_y[i] = ic_vm["init_y_" + std::to_string(i + 1)].as<double>();
       // Error handling for the initial positions
       try {
-        if (init_x[i] < simulationParameters.left_wall ||
-            init_x[i] > simulationParameters.right_wall ||
-            init_y[i] < simulationParameters.bottom_wall ||
-            init_y[i] > simulationParameters.top_wall) {
+        if (init_x[i] < domain_vm["left_wall"].as<double>() ||
+            init_x[i] > domain_vm["right_wall"].as<double>() ||
+            init_y[i] < domain_vm["bottom_wall"].as<double>() ||
+            init_y[i] > domain_vm["top_wall"].as<double>()) {
           throw std::runtime_error(
               "Error: Particles must be within the domain boundaries! Please "
               "adjust the initial position coordinates.");
@@ -274,7 +277,7 @@ fluid initialise(sph_solver& solver,
         exit(1);
       }
     }
-    fluid = ic_basic(simulationParameters.nb_particles, init_x, init_y);
+    fluid = ic_basic(nb_particles, init_x, init_y);
     delete[] init_x;
     delete[] init_y;
     // Block drop case
@@ -297,10 +300,10 @@ fluid initialise(sph_solver& solver,
     double center_y = ic_vm["center_y"].as<double>();
     // Error handling for the block initial position (center_x, center_y)
     try {
-      if (center_x - length / 2.0 < simulationParameters.left_wall ||
-          center_x + length / 2.0 > simulationParameters.right_wall ||
-          center_y - width / 2.0 < simulationParameters.bottom_wall ||
-          center_y + width / 2.0 > simulationParameters.top_wall) {
+      if (center_x - length / 2.0 < domain_vm["left_wall"].as<double>() ||
+          center_x + length / 2.0 > domain_vm["right_wall"].as<double>() ||
+          center_y - width / 2.0 < domain_vm["bottom_wall"].as<double>() ||
+          center_y + width / 2.0 > domain_vm["top_wall"].as<double>()) {
         throw std::runtime_error(
             "Error: The block must be within the domain boundaries! Please "
             "adjust the center coordinates.");
@@ -311,7 +314,7 @@ fluid initialise(sph_solver& solver,
       std::cerr << e.what() << std::endl;
       exit(1);
     }
-    fluid = ic_block_drop(simulationParameters.nb_particles, length, width,
+    fluid = ic_block_drop(nb_particles, length, width,
                           center_x, center_y);
     // Droplet case
   } else if (ic_case == "ic-droplet") {
@@ -332,10 +335,10 @@ fluid initialise(sph_solver& solver,
     double center_y = ic_vm["center_y"].as<double>();
     // Error handling for the droplet initial position (center_x, center_y)
     try {
-      if (center_x - radius < simulationParameters.left_wall ||
-          center_x + radius > simulationParameters.right_wall ||
-          center_y - radius < simulationParameters.bottom_wall ||
-          center_y + radius > simulationParameters.top_wall) {
+      if (center_x - radius < domain_vm["left_wall"].as<double>() ||
+          center_x + radius > domain_vm["right_wall"].as<double>() ||
+          center_y - radius < domain_vm["bottom_wall"].as<double>() ||
+          center_y + radius > domain_vm["top_wall"].as<double>()) {
         throw std::runtime_error(
             "Error: The droplet must be within the domain boundaries! Please "
             "adjust the center coordinates.");
@@ -346,7 +349,7 @@ fluid initialise(sph_solver& solver,
       std::cerr << e.what() << std::endl;
       exit(1);
     }
-    fluid = ic_droplet(simulationParameters.nb_particles, radius, center_x,
+    fluid = ic_droplet(nb_particles, radius, center_x,
                        center_y);
   } else {
     std::cerr << "Error: Initial condition function not found! Make sure "
@@ -375,30 +378,14 @@ fluid initialise(sph_solver& solver,
   }
   po::notify(constants_vm);
 
-  simulationParameters.h =
-      constants_vm["h"].as<double>();  // Radius of influence
-  simulationParameters.gas_constant = constants_vm["gas_constant"].as<double>();
-  simulationParameters.density_resting =
-      constants_vm["density_resting"].as<double>();
-  simulationParameters.viscosity = constants_vm["viscosity"].as<double>();
-  simulationParameters.acceleration_gravity =
-      constants_vm["acceleration_gravity"].as<double>();
-  simulationParameters.coeff_restitution =
-      constants_vm["coeff_restitution"].as<double>();
 
-  solver.set_timestep(simulationParameters.dt);
+  solver.set_coeff_restitution(constants_vm["coeff_restitution"].as<double>());
 
-  fluid.set_rad_infl(simulationParameters.h);
-  fluid.set_gas_constant(simulationParameters.gas_constant);
-  fluid.set_density_resting(simulationParameters.density_resting);
-  fluid.set_viscosity(simulationParameters.viscosity);
-  fluid.set_acceleration_gravity(simulationParameters.acceleration_gravity);
-
-  solver.set_coeff_restitution(simulationParameters.coeff_restitution);
-  solver.set_left_wall(simulationParameters.left_wall);
-  solver.set_right_wall(simulationParameters.right_wall);
-  solver.set_bottom_wall(simulationParameters.bottom_wall);
-  solver.set_top_wall(simulationParameters.top_wall);
+  fluid.set_rad_infl(constants_vm["h"].as<double>());
+  fluid.set_gas_constant(constants_vm["gas_constant"].as<double>());
+  fluid.set_density_resting(constants_vm["density_resting"].as<double>());
+  fluid.set_viscosity(constants_vm["viscosity"].as<double>());
+  fluid.set_acceleration_gravity(constants_vm["acceleration_gravity"].as<double>()); 
 
   // Calculate the mass of the particles
   fluid.calc_mass();
@@ -443,7 +430,7 @@ std::tuple<std::ofstream, std::ofstream, std::ofstream> init_output_files(
                          std::move(energies));
 }
 
-void storeToFile(fluid& fluid, int nb_particles, std::string type,
+void storeToFile(fluid& fluid, std::string type,
                  std::ofstream& targetFile, double dt, int currentIteration) {
   if (type == "energy") {
     // Write energies on the Energy-File
@@ -452,7 +439,7 @@ void storeToFile(fluid& fluid, int nb_particles, std::string type,
                << fluid.get_potential_energy() + fluid.get_kinetic_energy()
                << "\n";
   } else if (type == "position") {
-    for (int k = 0; k < nb_particles; k++) {
+    for (int k = 0; k < fluid.get_number_of_particles(); k++) {
       targetFile << fluid.get_position_x(k) << "," << fluid.get_position_y(k)
                  << "\n";
     }

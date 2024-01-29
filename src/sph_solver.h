@@ -9,6 +9,10 @@ class sph_solver {
 
   int number_of_particles;
 
+  int total_iterations;
+
+  int output_frequency;
+
   double dt;  // time-step
 
   // Boundaries
@@ -26,32 +30,6 @@ class sph_solver {
   double force_gravity_x = 0.0;
 
  public:
-  struct SimulationParameters {
-    // Declare the parameters of the problem
-    int total_iter;  // total number of iterations required for the time
-                     // integration
-    double dt;       // time step
-
-    // Constants
-    double h;
-    double gas_constant;
-    double density_resting;
-    double viscosity;
-    double acceleration_gravity;
-    double coeff_restitution;
-
-    // Domain boundaries
-    double left_wall;
-    double right_wall;
-    double bottom_wall;
-    double top_wall;
-
-    // Number of particles
-    int nb_particles;
-
-    // Output frequency
-    int frequency;
-  };
 
   /******** CONSTRUCTORS/DESTRUCTOR********/
 
@@ -61,6 +39,12 @@ class sph_solver {
 
   // Assign value to dt
   void set_timestep(double dt);
+
+   // Assign value to the total iterations
+  void set_total_iter(double total_iter);
+
+  // Assign value to the frequency
+  void set_output_frequency(double output_frequency);
 
   // Assign value to coeff_restitution
   void set_coeff_restitution(double coeff_restitution);
@@ -79,7 +63,6 @@ class sph_solver {
 
   // Function to perform the time integration
   void time_integration(fluid &data,
-                        const SimulationParameters &simulationParameters,
                         std::ofstream &finalPositionsFile,
                         std::ofstream &energiesFile);
 

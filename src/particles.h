@@ -9,7 +9,7 @@
 #define PARTICLES_H
 class particles {
  protected:
-  unsigned int nb_particles;  // size of the Matrix
+  unsigned int nb_particles;  // number of particles and characteristic size of the class arrays
 
   // Positions
   double *position_x;
@@ -43,6 +43,9 @@ class particles {
   particles &operator=(const particles &particles);
 
   /**********MEMBER-FUNCTIONS*********/
+
+  // Function to get the number of particles
+  int get_number_of_particles();
 
   // Function to calculate the matrix with rij
   void calc_particle_distance();

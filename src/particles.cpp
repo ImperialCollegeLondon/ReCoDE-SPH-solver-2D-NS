@@ -93,6 +93,8 @@ particles &particles::operator=(const particles &particles) {
   return *this;
 }
 
+int particles::get_number_of_particles() { return nb_particles; }
+
 void particles::calc_particle_distance() {
   double dx;
   double dy;

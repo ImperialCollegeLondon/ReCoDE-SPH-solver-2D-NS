@@ -14,13 +14,12 @@
 
 namespace po = boost::program_options;
 
-fluid initialise(sph_solver &solver,
-                 sph_solver::SimulationParameters &parameters);
+fluid initialise(sph_solver &solver);
 std::tuple<std::ofstream, std::ofstream, std::ofstream> init_output_files(
     std::string folderPath);
 
 void createDirectory(std::string folderPath);
-void storeToFile(fluid &fluid, int nb_particles, std::string type,
+void storeToFile(fluid &fluid, std::string type,
                  std::ofstream &targetFile, double dt = 0.0,
                  int currentIteration = 0);
 #endif

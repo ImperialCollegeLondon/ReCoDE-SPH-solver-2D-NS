@@ -62,6 +62,7 @@ fluid ic_block_drop(int &nb_particles, double length, double width,
 // Droplet
 fluid ic_droplet(int &nb_particles, double radius, double center_x,
                  double center_y) {
+
   nb_particles = closest_integer_sqrt(nb_particles);
 
   double *position_x_store = new double[nb_particles];

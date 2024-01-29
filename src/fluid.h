@@ -13,7 +13,7 @@ class fluid : public particles {
   double h;  // Radius of influence
 
   // Mass
-  double mass_assumed = 1.0;
+  double mass = 1.0;
 
   // Density
   double *density;

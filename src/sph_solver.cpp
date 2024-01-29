@@ -11,6 +11,10 @@
 
 void sph_solver::set_timestep(double dt) { this->dt = dt; }
 
+void sph_solver::set_total_iter(double total_iter) { this->total_iterations = total_iter; }
+
+void sph_solver::set_output_frequency(double f) { this->output_frequency = f; }
+
 void sph_solver::set_coeff_restitution(double coeff_restitution) {
   this->coeff_restitution = coeff_restitution;
 }
@@ -30,14 +34,13 @@ void sph_solver::set_bottom_wall(double bottom_wall) {
 void sph_solver::set_top_wall(double top_wall) { this->top_wall = top_wall; }
 
 void sph_solver::time_integration(
-    fluid &data, const SimulationParameters &simulationParameters,
-    std::ofstream &finalPositionsFile, std::ofstream &energiesFile) {
+  fluid &data,std::ofstream &finalPositionsFile, std::ofstream &energiesFile) {
   std ::cout << "Time integration started -- OK"
              << "\n";
 
-  number_of_particles = simulationParameters.nb_particles;
+  number_of_particles = data.get_number_of_particles();
 
-  for (int time = 0; time < simulationParameters.total_iter; time++) {
+  for (int time = 0; time < total_iterations; time++) {
     t = time;
     // In each iteration the distances between the particles are recalculated,
     // as well as their densities
@@ -46,13 +49,13 @@ void sph_solver::time_integration(
     data.calc_pressure();
     particle_iterations(data);
 
-    if (time % simulationParameters.frequency == 0) {
-      storeToFile(data, simulationParameters.nb_particles, "energy",
+    if (time % output_frequency == 0) {
+      storeToFile(data, "energy",
                   energiesFile, dt, t);
     }
   }
   // Store particles' positions after integration is completed
-  storeToFile(data, simulationParameters.nb_particles, "position",
+  storeToFile(data, "position",
               finalPositionsFile);
 
   std ::cout << "Time integration finished -- OK"

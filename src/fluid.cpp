@@ -80,7 +80,7 @@ void fluid::calc_mass() {
     sumden += density[i];
   }
 
-  mass_assumed = nb_particles * density_resting / sumden;
+  mass = nb_particles * density_resting / sumden;
 }
 
 void fluid::calc_density() {
@@ -114,7 +114,7 @@ void fluid::calc_density() {
         phi = 0.0;
       }
 
-      density[i] += mass_assumed * phi;
+      density[i] += mass * phi;
     }
   }
 }
@@ -131,7 +131,7 @@ double fluid::get_density(int index) { return density[index]; }
 
 double fluid::get_viscosity() { return viscosity; }
 
-double fluid::get_mass() { return mass_assumed; }
+double fluid::get_mass() { return mass; }
 
 double fluid::get_acceleration_gravity() { return acceleration_gravity; }
 
@@ -146,7 +146,7 @@ double fluid::get_kinetic_energy() {
     sum += particle_speed_sq[i];
   }
 
-  return 0.5 * mass_assumed * sum;
+  return 0.5 * mass * sum;
 }
 
 double fluid::get_potential_energy() {
@@ -156,5 +156,5 @@ double fluid::get_potential_energy() {
     sum += position_y[i] - h;
   }
 
-  return mass_assumed * acceleration_gravity * sum;
+  return mass * acceleration_gravity * sum;
 }
