@@ -31,12 +31,14 @@ The density of the fluid associated with each particle $i$ is approximated as
 
 $$ \rho_i = \sum_{j} m \phi_d(\mathbf{r} _{ij}, h), $$
 
-where $r_{ij} = x_{i} −x_{j}$ and $m$ is the mass of a particle and the kernel density function for density, $\phi_{d}(r_{ij},h)$ is given by
+where $\mathbf{r}_ {ij} = \mathbf{x}_ {i} − \mathbf{x}_ {j}$ and $m$ is the mass of a particle and the kernel density function for density, $\phi_ {d}(\mathbf{r}_ {ij},h)$ is given by 
 
 $$\phi_d (\mathbf{r} _{ij}, h) = \begin{cases}
 \frac{4}{\pi h^2(1 - q _{ij}^2)^3} & \text{if } q _{ij} < 1\\
 0 & \text{otherwise}
 \end{cases}$$
+
+where $q_ {ij}$ is the distance between particle $i$ and particle $j$, normalised by the interaction radius $h$, given by
 
 $$ q_{ij} = \frac{||\mathbf{r}_{ij}||}{h} $$
 
@@ -48,11 +50,11 @@ The pressure is calculated based on the ideal gas law
 
 $$ p_i = k(\rho_{i} − \rho_{0}), $$
 
-where $`\rho_{0}`$ is a resting density and $k$ is a gas constant.
+where $`\rho_ {0}`$ is a resting density and $k$ is a gas constant.
 
 ## Pressure force
 
-The force exerted on the particle due to pressure from neighbouring fluid particles is calculated as
+The force exerted on the particle due to pressure from neighboring fluid particles is calculated as
 
 $$ \mathbf{F} _{pi} = −\sum_j \frac{m}{\rho_j} \frac{p_i + p_j}{2} \nabla \phi_p (\mathbf{r} _{ij}, h), $$
 
@@ -71,7 +73,7 @@ The force acting on each particle due to viscous effects is calculated as
 
 $$ \mathbf{F}_{vi} = −\mu \sum_j m \rho_j \mathbf{v} _{ij} \nabla^2 \phi v(r_i, h) $$
 
-where $`\mathbf{v}_{ij} = \mathbf{v}_i − \mathbf{v}_j`$, $`\mathbf{v}_{i}`$ is the velocity of particle $i$, $\mu$ is the dynamic viscosity and $`\nabla^{2} \phi v(r_i, h)`$ is given by:
+where $`\mathbf{v}_{ij} = \mathbf{v}_i − \mathbf{v}_j`$, $`\mathbf{v}_{i}`$ is the velocity of particle $i$, $\mu$ is the dynamic viscosity and $`\nabla^{2} \phi v(r_i, h)`$ is given by
 
 $$ \nabla^{2} \phi_v(\mathbf{r}_i, h) = \begin{cases}
 40 \pi h^4 (1 - q) & \text{for } q < 1 \text{ and } i \neq j\\
@@ -104,7 +106,7 @@ However, because the velocity is calculated at half-steps, we need to initialise
 
 $$v^{\frac{1}{2}}_i = v^{0}_i + a_i^0 \frac{\Delta{t}}{2}$$
 
-where $\Delta t$ is the time step size. To ensure convergence, a small time-step is required. A value of $\Delta t = 10^{−4}$ s is suggested.
+where $\Delta t$ is the time step size. To ensure convergence, a small time-step is required. A value of $\Delta t = 10^{−4}$ $s$ is suggested.
 
 ## Initial Condition
 
@@ -117,5 +119,5 @@ $$ m = \frac{N \rho_{0}}{\sum_{i} \rho_{i}} $$
 ## Boundary Conditions
 All the boundaries are solid walls with damped reflecting boundary conditions. If particles are within a distance h of the boundary, their velocity and position should be updated to reverse the motion of the particle and keep it within the domain. For example, on the right boundary, the $x$-component of position and velocity would be modified as:
 
-$$ x  = 1 - h $$
-$$ u  = - eu $$
+$$ x = 1 - h \\
+u  = - eu $$
