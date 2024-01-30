@@ -280,8 +280,8 @@ void storeToFile(fluid& fluid, int nb_particles, std::string type,
 ```
 
 <div style="text-align: center;">
-    <img src="docs/images/energies_README.png" alt="Alt Text 1" style="display: inline-block; width: 400px;">
-    <img src="docs/images/positions_README.png" alt="Alt Text 2" style="display: inline-block; width: 400px;">
+    <img src="images/energies_README.png" alt="Alt Text 1" style="display: inline-block; width: 400px;">
+    <img src="images/positions_README.png" alt="Alt Text 2" style="display: inline-block; width: 400px;">
 </div>
 
  ***Energy plots (left) and initial position (right) for a droplet of 60 particles.***
