@@ -1,379 +1,122 @@
-# Overview
+<!-- Your Project title, make it sound catchy! -->
 
-The code herein contains a serial C++ implementation of the SPH methodology described in `SPH.md`. The variables associated with the particles' positions, velocities and forces, are stored as members of an object called `fluid`, while the methods of another class called `sph_solver` manifest the steps of the algorithm.
+# RECODE-SPH-SOLVER-2D-NS
 
-# Files
+<!-- Provide a short description to your project -->
 
-The `src` directory comprises five `*.cpp` files and their corresponding header (`*.h`) files, as well as the files to build the code.
+## Description
 
-- `src/SPH-main.cpp`
-- `src/sph.{h, cpp}`
-- `src/initial_conditions.{h, cpp}`
-- `src/main_prog_func.h`
-- `src/particles.{h, cpp}`
-- `src/fluid.{h, cpp}`
-- `src/sph_solver.{h, cpp}`
-- `src/CMakeLists.txt`
+In this project we present a numerical code in `C++` which solves the two-dimensional Navier-Stokes equations using the SPH approach. The focus lies in the implementation (and documnetation) of good `C++` practices and the development of skills related to efficient, robust, extensible and readable scientific code. The learning process regarding this project can be twofold:
 
-# Compiling and executing the code
+1) The student can study the material provided in the `main` branch of the present repository. It is independent of all the other branches and can be used as a standalone educational resource. In this the implemented SPH methodology is explained as well as the structure of the source code and the post-processing scripts.
 
-The list of requirements for the source code is:
+2) The student can start by studying progressively the branches `v0 - v5` in order to experience the process which was followed in order to improve and optimize the herein code. Several comments have been added for each individual version in the corresponding branch, to highlight the improvements which were implemented compared to its ancestors.
 
-- A `C++20` version
-- The `Boost` library
+<!-- What should the students going through your exemplar learn -->
 
-To compile the code, the user has to change the working directory to `exec/build` and then run the following instructions in the terminal:
+## Learning Outcomes
 
-```
-cmake ../../src
-```
+- Advanced I/O (Inputs/Outputs)
+- OOP (Objector Oriented Programming)
+- C++ Containers
+- Performance and memory optimization tools and skills
+- Parallel programming using MPI
 
-and then:
+<!-- How long should they spend reading and practising using your Code.
+Provide your best estimate -->
 
-```
-cmake --build .
-```
+| Task       | Time    |
+| ---------- | ------- |
+| Reading    | 10 hours |
+| Practicing | 4 hours |
 
-This produces an executable file, called `SPH-SOLVER`, in the `exec/build` folder. To execute the code, the user needs to run the following:
+## Requirements
 
-```
-./SPH-SOLVER
-```
+<!--
+If your exemplar requires students to have a background knowledge of something
+especially this is the place to mention that.
 
-To clean the `build` directory, the user can use the following command:
+List any resources you would recommend to get the students started.
 
-```
-cmake --build . --target clean
-```
+If there is an existing exemplar in the ReCoDE repositories link to that.
+-->
+- Any experience with basic programming concepts (for loops, functions, reading and writing files etc.).
 
-This will effectively delete the binary from the `build` directory.
+- Some experience with `C++` (familiarity with pointers, C++ classes and the use of external libraries).
 
-# Setting up a case
+- Basic understanding of numerical analysis concepts (time marching, temporal integration etc.)
 
-To set up a case the user has to set the parameters of the problem by using the `.txt` files which can be found in the `exec/input` directory. In `case.txt` the user can specify the type of initial condition, the total simulated time (in seconds), the timestep, and the desired output frequency. The initial condition (IC) can be one of the following
+### Academic
 
-- A single particle (`ic-one-particle`) : to test the correctness of time integration and gravity forcing, as well as the bottom boundary condition.
+<!-- List the system requirements and how to obtain them, that can be as simple
+as adding a hyperlink to as detailed as writting step-by-step instructions.
+How detailed the instructions should be will vary on a case-by-case basis.
 
-- Two particles (`ic-two-particles`) : to assess the pressure force and viscous terms.
+Here are some examples:
 
-- Three particles (`ic-three-particles`) : to assess left and right boundary conditions.
+- 50 GB of disk space to hold Dataset X
+- Anaconda
+- Python 3.11 or newer
+- Access to the HPC
+- PETSc v3.16
+- gfortran compiler
+- Paraview
+-->
 
-- Four particles (`ic-four-particles`) : to assess multiple particle interaction.
+### System
 
-- A Block drop (`ic-block-drop`): a grid of particles occupying a rectangular region.
+<!-- Instructions on how the student should start going through the exemplar.
 
-- A Droplet (`ic-droplet`): particles occupying a circular region.
+Structure this section as you see fit but try to be clear, concise and accurate
+when writing your instructions.
 
-After selecting the desired IC, the user has to specify its parameters (number and position of the particles) in the homonymous to the IC `.txt` file. The domain is rectangular and two-dimensional with corners which have coordinates that can be specified in `domain.txt`. Finally, the constant parameters of the problem which characterize the fluid and the solver set-up can be specified in `constants.txt`.
+For example:
+Start by watching the introduction video,
+then study Jupyter notebooks 1-3 in the `intro` folder
+and attempt to complete exercise 1a and 1b.
 
-- `case.txt`
-  - initial condition (`init_condition`)
-  - simulation time (`T`)
-  - time-step (`dt`)
-  - -output frequency (`output_frequency`)
-- `constants.txt`:
-  - radius of influence (`h`)
-  - gas constant (`gas_constant`)
-  - resting density (`density_resting`)
-  - viscosity (`viscosity`)
-  - acceleration due to gravity (`acceleration_gravity`)
-  - coefficient of restituion (`coeff_restitution`)
-- `domain.txt`: defines the dimensions of the domain utilised in the simulation
-- `ic-one-particle.txt`: sets the initial positions when the selected initial condition is "ic-one-particle"
-- `ic-{two, three, four}-particles.txt`: sets the initial positions for the corresponding cases
-- `ic-block-drop.txt`: sets initial conditions for SPH, including the number of particles, the length and width of the block, and the initial axes positions for the center of the block
-- `ic-droplet.txt`: sets initial conditions for SPH, including the number of particles, the size of the radius of the droplet, and the initial axes positions for the center of the droplet
+Once done, start going through through the PDF in the `main` folder.
+By the end of it you should be able to solve exercises 2 to 4.
 
-# Code description
+A final exercise can be found in the `final` folder.
 
-## Reading Inputs
+Solutions to the above can be found in `solutions`.
+-->
 
-The program expects the aforementioned parameters. When the function `initialize()` is invoked by the main program to read the `.txt` files, the `<boost/program_options.hpp>` library is utilised. This library facilitates the mapping of these parameters to their corresponding values, which are then stored in their respective variables. This approach enhances the flexibility and robustness of the input reading process. Users can specify input parameters in the `.txt` files in any order, provided they are presented as `key = value` pairs.
+## Getting Started
 
-```cpp
-// Process to obtain the inputs provided by the user
-po::options_description desc("Allowed options");
-desc.add_options()("init_condition", po::value<std::string>(),
-                    "take an initial condition")("T", po::value<double>(),
-                                                "take integration time")(
-    "dt", po::value<double>(), "take time-step")("h", po::value<double>(),
-                                                "take radius of influence")(
-    "gas_constant", po::value<double>(), "take gas constant")(
-    "density_resting", po::value<double>(), "take resting density")(
-    "viscosity", po::value<double>(), "take viscosity")(
-    "acceleration_gravity", po::value<double>(), "take acc due to gravity")(
-    "coeff_restitution", po::value<double>(), "take coeff of restitution")(
-    "left_wall", po::value<double>(), "take left wall position")(
-    "right_wall", po::value<double>(), "take right wall position")(
-    "bottom_wall", po::value<double>(), "take bottom wall position")(
-    "top_wall", po::value<double>(), "take top wall position")(
-    "length", po::value<double>(), "take length of the block")(
-    "width", po::value<double>(), "take width of the block")(
-    "radius", po::value<double>(), "take radius of the droplet")(
-    "n", po::value<int>(), "take number of particles")(
-    "center_x", po::value<double>(), "take center of the particle mass in x")(
-    "center_y", po::value<double>(), "take center of the particle mass in y")(
-    "init_x_1", po::value<double>(), "take x_1")(
-    "init_y_1", po::value<double>(), "take y_2")(
-    "init_x_2", po::value<double>(), "take x_2")(
-    "init_y_2", po::value<double>(), "take y_2")(
-    "init_x_3", po::value<double>(), "take x_3")(
-    "init_y_3", po::value<double>(), "take y_3")(
-    "init_x_4", po::value<double>(), "take x_4")(
-    "init_y_4", po::value<double>(), "take y_4")(
-    "output_frequency", po::value<int>(),
-    "take frequency that output will be written to file");
+<!-- An overview of the files and folder in the exemplar.
+Not all files and directories need to be listed, just the important
+sections of your project, like the learning material, the code, the tests, etc.
 
+A good starting point is using the command `tree` in a terminal(Unix),
+copying its output and then removing the unimportant parts.
 
-    ...
+You can use ellipsis (...) to suggest that there are more files or folders
+in a tree node.
 
+-->
 
-// Map the inputs read from the initial condition file to expected inputs
-std::string ic_case = case_vm["init_condition"].as<std::string>();
-po::variables_map ic_vm;
-std::ifstream icFile;
-// Open the file of the initial condition the user has chosen
-try {
-icFile.open("../input/" + ic_case + ".txt");
-// Throw an exception if the file cannot be opened
-if (!icFile.is_open()) {
-    throw std::runtime_error(
-        "Error opening file: " + ic_case +
-        ".txt Make sure that the value of the init_condition in the case.txt "
-        "file is one of the following: ic-one-particle, ic-two-particles, "
-        "ic-three-particles, ic-four-particles, ic-droplet, ic-block-drop.");
-}
-po::store(po::parse_config_file(icFile, desc), ic_vm);
-} catch (std::runtime_error& e) {
-// Handle the exception by printing the error message and exiting the
-// program
-std::cerr << e.what() << std::endl;
-exit(1);
-}
-po::notify(ic_vm);
+## Project Structure
+
+```log
+.
+├── examples
+│   ├── ex1
+│   └── ex2
+├── src
+|   ├── file1.py
+|   ├── file2.cpp
+|   ├── ...
+│   └── data
+├── app
+├── docs
+├── main
+└── test
 ```
 
-Additionally, error handling is integrated into the input file reading process to guarantee that the provided values conform to the constraints imposed by the underlying mathematical models and the physical meaning of each variable. For example, if the user attempts to set a negative value for the timestep, or a value that is greater than the integration time, the program will throw an error and instruct the user to choose a more suitable value.
+<!-- Change this to your License. Make sure you have added the file on GitHub -->
 
-```cpp
-simulationParameters.dt = case_vm["dt"].as<double>();  // Time step dt
-// Error handling for the time step
-try {
-if (simulationParameters.dt <= 0 or simulationParameters.dt > total_time) {
-    throw std::runtime_error(
-        "Error: Time step must be positive and lower than the total "
-        "integration time!");
-}
-} catch (std::runtime_error& e) {
-// Handle the exception by printing the error message and exiting the
-// program
-std::cerr << e.what() << std::endl;
-exit(1);
-}
-```
+## License
 
-## Class initialisation
-
-The code makes use of three different classes which are purposed to represent the fluid and the algorithm which is being deployed in this project. More details regarding the classes and the design choices can be found in the `docs/OOP_concepts.md` and the reader is advised to study it before proceeding with this chapter.
-
-Firstly, one sph_solver object and one fluid pointer to an object are being declared in the main program. The pointer declaration is used for the `fluid`, because to initialise the object properly the number of particles is required in the user defined constructor and this information is not yet available since the input files have not been read. These objects are passed as a reference to the `initialise()` function. 
-
-Once the input values are read and stored, the provided IC is used to determine the number of particles. This means that although the user has already provided a number of particles, this is just an indication, since the IC (droplet and block drop) require specific formation and the particles to be distributed uniformly. These two conditions cannot be satisfied simultaneously by any number of particles and therefore several adjustments need to be made. The functions `closest_integer_sqrt()` and `rectangle_n()` from `initial_conditions.h` are functions suitable for this purpose. 
-
-The IC functions are being called within the `initialise()` function and a reference to the pointer of the fluid object is passed as an argument, as well as the updated number of particles. Inside these functions the user defined constructor of the `fluid` is being called and the memory allocation process for the object's containers is invoked. In this, the containers are declared as `new` raw pointers to arrays, dynamically allocating memory proportional to the number of particles. The function used to initialise the `fluid` class for the simple cases of 1,2,3 and 4 particles is demonstrated below.
-
-```cpp
-void ic_basic(fluid **fluid_ptr, int nb_particles, double *position_x,
-              double *position_y) {
-  // Allocate memory for the fluid object and call the constructor
-  *fluid_ptr = new fluid(nb_particles);
-
-  fluid &fluid = **fluid_ptr;  // Use a reference to the object
-
-  for (int i = 0; i < nb_particles; i++) {
-    fluid(0, i) = position_x[i];
-    fluid(1, i) = position_y[i];
-    fluid(2, i) = 0.0;
-    fluid(3, i) = 0.0;
-  }
-
-  return;
-}
-```
-
-To avoid the use of multiple `if` statements, two `std::map` objects are used to map the different conditions to their corresponding number of particles and their corresponding initialisation function. The workflow for the droplet case is demonstrated below.
-
-```cpp
-
-  // Get the number of particles based on the ic case
-  if (ic_case == "ic-droplet" || ic_case == "ic-block-drop") {
-    nb_particles = ic_vm["n"].as<int>();
-    // Error handling for the number of particles
-    try {
-      if (nb_particles <= 0) {
-        throw std::runtime_error(
-            "Error: Number of particles must be positive!");
-      }
-    } catch (std::runtime_error& e) {
-      // Handle the exception by printing the error message and exiting the
-      // program
-      std::cerr << e.what() << std::endl;
-      exit(1);
-    }
-  } else {
-    nb_particles = initConditionToParticlesMap[case_vm["init_condition"]
-                                                   .as<std::string>()];
-  }
-
-  ...
-
-  } else if (ic_case == "ic-droplet") {
-    // Get the droplet radius and center coordinates from the ic file
-    double radius = ic_vm["radius"].as<double>();
-    // Error handling for the droplet radius
-    try {
-      if (radius <= 0) {
-        throw std::runtime_error("Error: Radius must be positive!");
-      }
-    } catch (std::runtime_error& e) {
-      // Handle the exception by printing the error message and exiting the
-      // program
-      std::cerr << e.what() << std::endl;
-      exit(1);
-    }
-    double center_x = ic_vm["center_x"].as<double>();
-    double center_y = ic_vm["center_y"].as<double>();
-    // Error handling for the droplet initial position (center_x, center_y)
-    try {
-      if (center_x - radius < domain_vm["left_wall"].as<double>() ||
-          center_x + radius > domain_vm["right_wall"].as<double>() ||
-          center_y - radius < domain_vm["bottom_wall"].as<double>() ||
-          center_y + radius > domain_vm["top_wall"].as<double>()) {
-        throw std::runtime_error(
-            "Error: The droplet must be within the domain boundaries! Please "
-            "adjust the center coordinates.");
-      }
-    } catch (std::runtime_error& e) {
-      // Handle the exception by printing the error message and exiting the
-      // program
-      std::cerr << e.what() << std::endl;
-      exit(1);
-    }
-    ic_droplet(fluid_ptr, nb_particles, radius, center_x, center_y);
-  } else {
-    std::cerr << "Error: Initial condition function not found! Make sure "
-              << "that the value of the init_condition in the case.txt file is "
-              << "one of the following: ic-one-particle, ic-two-particles, "
-              << "ic-three-particles, ic-four-particles, ic-droplet, "
-              << "ic-block-drop." << std::endl;
-    exit(1);
-  }
-
-
-```
-
-Finally, after the object initialisation, the rest of the parameters which are required by the `sph_solver` and the `fluid` objects are being set with the use of setter functions.
-
-```cpp
-  sph_solver.set_timestep(case_vm["dt"].as<double>());
-  sph_solver.set_total_iter(ceil(
-      total_time /
-      case_vm["dt"].as<double>()));
-  sph_solver.set_output_frequency(case_vm["output_frequency"].as<int>());
-  sph_solver.set_coeff_restitution(
-      constants_vm["coeff_restitution"].as<double>());
-  sph_solver.set_left_wall(domain_vm["left_wall"].as<double>());
-  sph_solver.set_right_wall(domain_vm["right_wall"].as<double>());
-  sph_solver.set_top_wall(domain_vm["top_wall"].as<double>());
-  sph_solver.set_bottom_wall(domain_vm["bottom_wall"].as<double>());
-
-  fluid* objPtr = *fluid_ptr;
-
-  objPtr->set_rad_infl(constants_vm["h"].as<double>());
-  objPtr->set_gas_constant(constants_vm["gas_constant"].as<double>());
-  objPtr->set_density_resting(constants_vm["density_resting"].as<double>());
-  objPtr->set_viscosity(constants_vm["viscosity"].as<double>());
-  objPtr->set_acceleration_gravity(
-      constants_vm["acceleration_gravity"].as<double>());
-
-  // Calculate the mass of the particles
-  objPtr->calc_mass();
-```
-
-## Output files
-
-The output files are being initialised with the use of the `init_output_files()`. The outputs are exported in `.csv` format which displays good readability and facilitates data manipulation compared to `.txt` files. They are stored in a centralised location, specifically within the `/exec/output/` directory. This centralisation simplifies data organisation and retrieval, making it easier for users to access and analyse output data.
-
-Upon successful execution, the program generates two types of files:
-
-- _Energies File_: This file, containing Total, Kinetic, and Potential energies, is updated at each timestep. The results can be visualized by using the script `post/plot_energies.py`.
-
-- _Particle Positions File_: This file captures the positions of the particles at a given timestep, and it can be visualized using the script `post/visualize_particles.py`.
-
-```cpp
-void storeToFile(fluid& fluid, int nb_particles, std::string type,
-                 std::ofstream& targetFile, double dt, int currentIteration) {
-  if (type == "energy") {
-    // Write energies on the Energy-File
-    targetFile << currentIteration * dt << "," << fluid.get_kinetic_energy()
-               << "," << fluid.get_potential_energy() << ","
-               << fluid.get_potential_energy() + fluid.get_kinetic_energy()
-               << "\n";
-  } else if (type == "position") {
-    for (int k = 0; k < nb_particles; k++) {
-      targetFile << fluid.get_position_x(k) << "," << fluid.get_position_y(k)
-                 << "\n";
-    }
-  }
-}
-```
-
-<div style="text-align: center;">
-    <img src="docs/images/energies_README.png" alt="Alt Text 1" style="display: inline-block; width: 400px;">
-    <img src="docs/images/positions_README.png" alt="Alt Text 2" style="display: inline-block; width: 400px;">
-</div>
-
- ***Energy plots (left) and initial position (right) for a droplet of 60 particles.***
-
-## Time integration
-
-Following the initialisation of the class and the output files, the function `sph_solver::time_integration()` is invoked. Within this function, the steps of the SPH algorithm are executed, and the outputs are exported.
-
-```cpp
-
-/* ***************************** SPH-main.cpp ****************************** */
-
-  // Time integration loop
-  sph_solver.time_integration(*sph_fluid, finalPositionsFile, energiesFile);
-
-/* **************************** sph_solver.cpp ***************************** */
-
-  void sph_solver::time_integration(fluid &data,
-                                  std::ofstream &finalPositionsFile,
-                                  std::ofstream &energiesFile) {
-  std ::cout << "Time integration started -- OK"
-             << "\n";
-
-  number_of_particles = data.get_number_of_particles();
-
-  for (int time = 0; time < total_iterations; time++) {
-    t = time;
-    // In each iteration the distances between the particles are recalculated,
-    // as well as their density and pressure
-    data.calc_particle_distance();
-    data.calc_density();
-    data.calc_pressure();
-    particle_iterations(data);
-
-    if (time % output_frequency == 0) {
-      storeToFile(data, "energy", energiesFile, dt, t);
-    }
-  }
-  // Store particles' positions after integration is completed
-  storeToFile(data, "position", finalPositionsFile, dt, total_iterations);
-
-  std ::cout << "Time integration finished -- OK"
-             << "\n";
-}
-
-```
+This project is licensed under the [BSD-3-Clause license](LICENSE.md)
