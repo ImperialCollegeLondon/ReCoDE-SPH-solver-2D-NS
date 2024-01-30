@@ -6,6 +6,9 @@
 #include <iomanip>
 #include <iostream>
 
+// Default constructor
+particles::particles() {}
+
 // User defined constructor
 particles::particles(const unsigned n_new) : nb_particles(n_new) {
   position_x = new double[nb_particles];

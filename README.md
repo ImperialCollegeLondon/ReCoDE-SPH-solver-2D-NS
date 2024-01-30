@@ -1,10 +1,8 @@
-# Description of the code
+# Overview
 
-## Overview
+The code herein contains a serial C++ implementation of the SPH methodology described in `SPH.md`. The variables associated with the particles' positions, velocities and forces, are stored as members of an object called `fluid`, while the methods of another class called sph_solver manifest the steps of the algorithm.
 
-The code in `v2` contains a serial C++ implementation of the algorithm described in `SPH.md`. The variables associated with the particles' positions, velocities and forces, are stored as members of an object called `SPH`. The methods of the SPH class manifest the functions that embody the steps of the algorithm. While the current version of the code produces accurate results, subsequent chapters will enhance its capabilities and improve its structure. The functionality and rationale behind each improvement will be analysed in detail.
-
-## Files
+# Files
 
 The `src` directory comprises five `*.cpp` files and their corresponding header (`*.h`) files, as well as the files to build the code.
 
@@ -17,9 +15,9 @@ The `src` directory comprises five `*.cpp` files and their corresponding header 
 - `src/sph_solver.{h, cpp}`
 - `src/CMakeLists.txt`
 
-## Compiling and executing the code
+# Compiling and executing the code
 
-The list of requirements for the v0 code is:
+The list of requirements for the source code is:
 
 - A `C++20` version
 - The `Boost` library
@@ -50,9 +48,9 @@ cmake --build . --target clean
 
 This will effectively delete the binary from the `build` directory.
 
-## Setting up a case
+# Setting up a case
 
-To set up a case the user has to set the parameters of the problem by using the `.txt` files which can be found in the `exec/input` directory. In `case.txt` the user can specify the type of initial condition, the total simulated time (in seconds), the timestep, and the desired output frequency. The initial condition can be one of the following
+To set up a case the user has to set the parameters of the problem by using the `.txt` files which can be found in the `exec/input` directory. In `case.txt` the user can specify the type of initial condition, the total simulated time (in seconds), the timestep, and the desired output frequency. The initial condition (IC) can be one of the following
 
 - A single particle (`ic-one-particle`) : to test the correctness of time integration and gravity forcing, as well as the bottom boundary condition.
 
@@ -66,7 +64,7 @@ To set up a case the user has to set the parameters of the problem by using the 
 
 - A Droplet (`ic-droplet`): particles occupying a circular region.
 
-After selecting the desired initial condition, the user has to specify its parameters (number and position of the particles) in the homonymous to the initial condition `.txt` file. The domain is rectangular and two-dimensional with corners which have coordinates that can be specified in `domain.txt`. Finally, the constant parameters of the problem which characterize the fluid and the solver set-up can be specified in `constants.txt`.
+After selecting the desired IC, the user has to specify its parameters (number and position of the particles) in the homonymous to the IC `.txt` file. The domain is rectangular and two-dimensional with corners which have coordinates that can be specified in `domain.txt`. Finally, the constant parameters of the problem which characterize the fluid and the solver set-up can be specified in `constants.txt`.
 
 - `case.txt`
   - initial condition (`init_condition`)
@@ -86,7 +84,9 @@ After selecting the desired initial condition, the user has to specify its param
 - `ic-block-drop.txt`: sets initial conditions for SPH, including the number of particles, the length and width of the block, and the initial axes positions for the center of the block
 - `ic-droplet.txt`: sets initial conditions for SPH, including the number of particles, the size of the radius of the droplet, and the initial axes positions for the center of the droplet
 
-### Reading Inputs
+# Code description
+
+## Reading Inputs
 
 The program expects the aforementioned parameters. When the function `initialize()` is invoked by the main program to read the `.txt` files, the `<boost/program_options.hpp>` library is utilised. This library facilitates the mapping of these parameters to their corresponding values, which are then stored in their respective variables. This approach enhances the flexibility and robustness of the input reading process. Users can specify input parameters in the `.txt` files in any order, provided they are presented as `key = value` pairs.
 
@@ -171,77 +171,157 @@ std::cerr << e.what() << std::endl;
 exit(1);
 }
 ```
+
 ## Class initialisation
 
-Once the input values are stored, the provided initial condition is used to determine the number of particles. It is also utilized to declare containers within the sph object, responsible for storing information related to particle properties, and to allocate memory. This process takes place in the constructor of the class. There, the containers are declared as `new` raw pointers, dynamically allocating memory proportional on the number of particles.
+The code makes use of three different classes which are purposed to represent the fluid and the algorithm which is being deployed in this project. More details regarding the classes and the design choices can be found in the `docs/OOP_concepts.md` and the reader is advised to study it before proceeding with this chapter.
 
-```cpp
-// User defined constructor
-SPH::SPH(const unsigned n_new) : nb_particles(n_new) {
+Firstly, one sph_solver object and one fluid pointer to an object are being declared in the main program. The pointer declaration is used for the `fluid`, because to initialise the object properly the number of particles is required in the user defined constructor and this information is not yet available since the input files have not been read. These objects are passed as a reference to the `initialise()` function. 
 
-  position_x = new double[nb_particles];
-  position_y = new double[nb_particles];
-  velocity_x = new double[nb_particles];
-  velocity_y = new double[nb_particles];
+Once the input values are read and stored, the provided IC is used to determine the number of particles. This means that although the user has already provided a number of particles, this is just an indication, since the IC (droplet and block drop) require specific formation and the particles to be distributed uniformly. These two conditions cannot be satisfied simultaneously by any number of particles and therefore several adjustments need to be made. The functions `closest_integer_sqrt()` and `rectangle_n()` from `initial_conditions.h` are functions suitable for this purpose. 
 
-  distance = new double[nb_particles * nb_particles];
-  distance_q = new double[nb_particles * nb_particles];
+The IC functions are being called within the `initialise()` function and a reference to the pointer of the fluid object is passed as an argument, as well as the updated number of particles. Inside these functions the user defined constructor of the `fluid` is being called and the memory allocation process for the object's containers is invoked. In this, the containers are declared as `new` raw pointers to arrays, dynamically allocating memory proportional to the number of particles.
 
-  particle_density = new double[nb_particles];
-
-  particle_pressure = new double[nb_particles];
-
-  particle_speed_sq = new double[nb_particles];
-}
-
-```
 
 To avoid the use of multiple `if` statements, two `std::map` objects are used to map the different conditions to their corresponding number of particles and their corresponding initialisation function.
 
 ```cpp
-// Create map to associate initial condition names with number of particles
-std::map<std::string, int> initConditionToParticlesMap = {
-    {"ic-one-particle", 1},      {"ic-two-particles", 2},
-    {"ic-three-particles", 3},   {"ic-four-particles", 4},
-    {"ic-dam-break", n3},        {"ic-block-drop", n1 * n2},
-    {"ic-droplet", dropletn(n3)}};
+// Fixed nb_particles ic cases
+  std::map<std::string, int> initConditionToParticlesMap = {
+      {"ic-one-particle", 1},
+      {"ic-two-particles", 2},
+      {"ic-three-particles", 3},
+      {"ic-four-particles", 4}};
 
-nb_particles =
-    initConditionToParticlesMap[vm["init_condition"].as<std::string>()];
-
-// Define the solver object (called sph)
-// In its definition, the number of particles is required
-SPH sph(nb_particles);
-
-// Create map to associate function names with function pointers
-std::map<std::string, std::function<void(int, SPH &)>> functionMap = {
-    {"ic-one-particle", ic_one_particle},
-    {"ic-two-particles", ic_two_particles},
-    {"ic-three-particles", ic_three_particles},
-    {"ic-four-particles", ic_four_particles},
-    {"ic-dam-break", ic_dam_break},
-    {"ic-droplet", ic_droplet}};
-
-// Get the function pointer from the map
-auto initFunc = functionMap.find(vm["init_condition"].as<std::string>());
-if (initFunc != functionMap.end()) {
-    int n_particles = nb_particles;
-
-    // The ic-droplet case requires a different n argument.
-    if (vm["init_condition"].as<std::string>() == "ic-droplet") {
-        n_particles = n3;
+  // Get the number of particles based on the ic case
+  if (ic_case == "ic-droplet" || ic_case == "ic-block-drop") {
+    nb_particles = ic_vm["n"].as<int>();
+    // Error handling for the number of particles
+    try {
+      if (nb_particles <= 0) {
+        throw std::runtime_error(
+            "Error: Number of particles must be positive!");
+      }
+    } catch (std::runtime_error& e) {
+      // Handle the exception by printing the error message and exiting the
+      // program
+      std::cerr << e.what() << std::endl;
+      exit(1);
     }
-    // Retrieves and runs the provided function object
-    initFunc->second(n_particles, sph);
+  } else {
+    nb_particles = initConditionToParticlesMap[case_vm["init_condition"]
+                                                   .as<std::string>()];
+  }
 
-} else if (vm["init_condition"].as<std::string>() == "ic-block-drop") {
-    /**The ic-block-drop case is not in the map because it has two
-    * additional parameters, so it requires a different case.
-    **/
-    ic_block_drop(nb_particles, n1, n2, sph);
-} else {
-    std::cerr << "Error: Function not found!" << std::endl;
-}
+  // Fixed particles ic cases
+  if (ic_case == "ic-one-particle" || ic_case == "ic-two-particles" ||
+      ic_case == "ic-three-particles" || ic_case == "ic-four-particles") {
+    // Get particles' initial poistions from the ic file
+    double* init_x = new double[nb_particles];
+    double* init_y = new double[nb_particles];
+    for (int i = 0; i < nb_particles; i++) {
+      init_x[i] = ic_vm["init_x_" + std::to_string(i + 1)].as<double>();
+      init_y[i] = ic_vm["init_y_" + std::to_string(i + 1)].as<double>();
+      // Error handling for the initial positions
+      try {
+        if (init_x[i] < domain_vm["left_wall"].as<double>() ||
+            init_x[i] > domain_vm["right_wall"].as<double>() ||
+            init_y[i] < domain_vm["bottom_wall"].as<double>() ||
+            init_y[i] > domain_vm["top_wall"].as<double>()) {
+          throw std::runtime_error(
+              "Error: Particles must be within the domain boundaries! Please "
+              "adjust the initial position coordinates.");
+        }
+      } catch (std::runtime_error& e) {
+        // Handle the exception by printing the error message and exiting the
+        // program
+        std::cerr << e.what() << std::endl;
+        delete[] init_x;
+        delete[] init_y;
+        exit(1);
+      }
+    }
+    ic_basic(fluid_ptr, nb_particles, init_x, init_y);
+    delete[] init_x;
+    delete[] init_y;
+    // Block drop case
+  } else if (ic_case == "ic-block-drop") {
+    // Get the block dimensions and center coordinates from the ic file
+    double length = ic_vm["length"].as<double>();
+    double width = ic_vm["width"].as<double>();
+    // Error handling for the block size (length, width)
+    try {
+      if (length <= 0 || width <= 0) {
+        throw std::runtime_error("Error: Length and width must be positive!");
+      }
+    } catch (std::runtime_error& e) {
+      // Handle the exception by printing the error message and exiting the
+      // program
+      std::cerr << e.what() << std::endl;
+      exit(1);
+    }
+    double center_x = ic_vm["center_x"].as<double>();
+    double center_y = ic_vm["center_y"].as<double>();
+    // Error handling for the block initial position (center_x, center_y)
+    try {
+      if (center_x - length / 2.0 < domain_vm["left_wall"].as<double>() ||
+          center_x + length / 2.0 > domain_vm["right_wall"].as<double>() ||
+          center_y - width / 2.0 < domain_vm["bottom_wall"].as<double>() ||
+          center_y + width / 2.0 > domain_vm["top_wall"].as<double>()) {
+        throw std::runtime_error(
+            "Error: The block must be within the domain boundaries! Please "
+            "adjust the center coordinates.");
+      }
+    } catch (std::runtime_error& e) {
+      // Handle the exception by printing the error message and exiting the
+      // program
+      std::cerr << e.what() << std::endl;
+      exit(1);
+    }
+    ic_block_drop(fluid_ptr,nb_particles, length, width, center_x, center_y);
+    // Droplet case
+  } else if (ic_case == "ic-droplet") {
+    // Get the droplet radius and center coordinates from the ic file
+    double radius = ic_vm["radius"].as<double>();
+    // Error handling for the droplet radius
+    try {
+      if (radius <= 0) {
+        throw std::runtime_error("Error: Radius must be positive!");
+      }
+    } catch (std::runtime_error& e) {
+      // Handle the exception by printing the error message and exiting the
+      // program
+      std::cerr << e.what() << std::endl;
+      exit(1);
+    }
+    double center_x = ic_vm["center_x"].as<double>();
+    double center_y = ic_vm["center_y"].as<double>();
+    // Error handling for the droplet initial position (center_x, center_y)
+    try {
+      if (center_x - radius < domain_vm["left_wall"].as<double>() ||
+          center_x + radius > domain_vm["right_wall"].as<double>() ||
+          center_y - radius < domain_vm["bottom_wall"].as<double>() ||
+          center_y + radius > domain_vm["top_wall"].as<double>()) {
+        throw std::runtime_error(
+            "Error: The droplet must be within the domain boundaries! Please "
+            "adjust the center coordinates.");
+      }
+    } catch (std::runtime_error& e) {
+      // Handle the exception by printing the error message and exiting the
+      // program
+      std::cerr << e.what() << std::endl;
+      exit(1);
+    }
+    ic_droplet(fluid_ptr, nb_particles, radius, center_x, center_y);
+  } else {
+    std::cerr << "Error: Initial condition function not found! Make sure "
+              << "that the value of the init_condition in the case.txt file is "
+              << "one of the following: ic-one-particle, ic-two-particles, "
+              << "ic-three-particles, ic-four-particles, ic-droplet, "
+              << "ic-block-drop." << std::endl;
+    exit(1);
+  }
+
 
 ```
 

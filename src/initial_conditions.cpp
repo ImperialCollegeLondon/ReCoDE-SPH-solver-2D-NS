@@ -7,8 +7,12 @@
 
 // ========== Initial Conditions ==========
 
-fluid ic_basic(int nb_particles, double *position_x, double *position_y) {
-  fluid fluid(nb_particles);
+void ic_basic(fluid **fluid_ptr, int nb_particles, double *position_x,
+              double *position_y) {
+  // Allocate memory for the fluid object and call the constructor
+  *fluid_ptr = new fluid(nb_particles);
+
+  fluid &fluid = **fluid_ptr;  // Use a reference to the object
 
   for (int i = 0; i < nb_particles; i++) {
     fluid(0, i) = position_x[i];
@@ -17,15 +21,18 @@ fluid ic_basic(int nb_particles, double *position_x, double *position_y) {
     fluid(3, i) = 0.0;
   }
 
-  return fluid;
+  return;
 }
 
 // Block drop
-fluid ic_block_drop(int &nb_particles, double length, double width,
-                    double center_x, double center_y) {
+void ic_block_drop(fluid **fluid_ptr, int &nb_particles, double length,
+                   double width, double center_x, double center_y) {
   int n1, n2;
   nb_particles = rectangle_n(nb_particles, length, width, n1, n2);
-  fluid fluid(nb_particles);
+  // Allocate memory for the fluid object and call the constructor
+  *fluid_ptr = new fluid(nb_particles);
+
+  fluid &fluid = **fluid_ptr;  // Use a reference to the object
 
   // Distance between neighboring particles in x and y
   double dx = length / double((n1 - 1));
@@ -57,12 +64,12 @@ fluid ic_block_drop(int &nb_particles, double length, double width,
     }
   }
 
-  return fluid;
+  return;
 }
 
 // Droplet
-fluid ic_droplet(int &nb_particles, double radius, double center_x,
-                 double center_y) {
+void ic_droplet(fluid **fluid_ptr, int &nb_particles, double radius,
+                double center_x, double center_y) {
   nb_particles = closest_integer_sqrt(nb_particles);
 
   double *position_x_store = new double[nb_particles];
@@ -99,7 +106,11 @@ fluid ic_droplet(int &nb_particles, double radius, double center_x,
   }
 
   nb_particles = count;
-  fluid fluid(nb_particles);
+  // Allocate memory for the fluid object and call the constructor
+  *fluid_ptr = new fluid(nb_particles);
+
+  fluid &fluid = **fluid_ptr;  // Use a reference to the object
+
   kx = 0;
   for (int i = 0; i < el; i++) {
     for (int j = 0; j < el; j++) {
@@ -119,7 +130,7 @@ fluid ic_droplet(int &nb_particles, double radius, double center_x,
   delete[] position_x_store;
   delete[] position_y_store;
 
-  return fluid;
+  return;
 }
 
 int rectangle_n(int nb_particles, double length, double width, int &n1,

@@ -29,9 +29,9 @@ class particles {
  public:
   /******** CONSTRUCTORS/DESTRUCTOR********/
 
-  particles() =
-      delete;  // Constructor without number of particles shouldn't exist
-
+  // particles() =
+  // delete;  // Constructor without number of particles shouldn't exist
+  particles();
   ~particles();  // Destructor
 
   particles(const unsigned n_new);  // User defined constructor for allocating

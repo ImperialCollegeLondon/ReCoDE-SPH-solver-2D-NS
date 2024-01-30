@@ -19,8 +19,11 @@ int main(int argc, char* argv[]) {
   std::string OUTPUT_FOLDER = "../output";
   // Read input files, initialise the sph class and the parameters of the
   // problem
-  sph_solver solver;
-  fluid fluid = initialise(solver);
+  sph_solver sph_solver;
+
+  fluid* sph_fluid = new fluid;  // Allocate memory for the fluid object
+
+  initialise(&sph_fluid, sph_solver);
 
   std ::cout << "Initialisation finished -- OK"
              << "\n";
@@ -33,10 +36,10 @@ int main(int argc, char* argv[]) {
              << "\n";
 
   // Store particles' positions before integration has started
-  storeToFile(fluid, "position", initialPositions);
+  storeToFile(*sph_fluid, "position", initialPositions);
 
   // Time integration loop
-  solver.time_integration(fluid, finalPositionsFile, energiesFile);
+  sph_solver.time_integration(*sph_fluid, finalPositionsFile, energiesFile);
 
   std ::cout << "SPH-SOLVER executed successfully -- OK"
              << "\n";
@@ -44,7 +47,7 @@ int main(int argc, char* argv[]) {
   return 0;
 }
 
-fluid initialise(sph_solver& solver) {
+void initialise(fluid** fluid_ptr, sph_solver& sph_solver) {
   int nb_particles;  //  Number of particles
 
   // Process to obtain the inputs provided by the user
@@ -114,7 +117,6 @@ fluid initialise(sph_solver& solver) {
     exit(1);
   }
 
-  solver.set_timestep(case_vm["dt"].as<double>());
   // Time step dt
   // Error handling for the time step
   try {
@@ -131,11 +133,6 @@ fluid initialise(sph_solver& solver) {
     exit(1);
   }
 
-  solver.set_total_iter(ceil(
-      total_time /
-      case_vm["dt"].as<double>()));  // Transform time in seconds to iterations
-
-  solver.set_output_frequency(case_vm["output_frequency"].as<int>());
   // Error handling for the output frequency
   try {
     if (case_vm["output_frequency"].as<int>() <= 0 or
@@ -169,11 +166,6 @@ fluid initialise(sph_solver& solver) {
     exit(1);
   }
   po::notify(domain_vm);
-
-  solver.set_left_wall(domain_vm["left_wall"].as<double>());
-  solver.set_right_wall(domain_vm["right_wall"].as<double>());
-  solver.set_top_wall(domain_vm["top_wall"].as<double>());
-  solver.set_bottom_wall(domain_vm["bottom_wall"].as<double>());
 
   // Error handling for the domain boundaries input
   try {
@@ -243,9 +235,6 @@ fluid initialise(sph_solver& solver) {
                                                    .as<std::string>()];
   }
 
-  // Initialise an instant of the fluid object
-  fluid fluid(nb_particles);
-
   // Fixed particles ic cases
   if (ic_case == "ic-one-particle" || ic_case == "ic-two-particles" ||
       ic_case == "ic-three-particles" || ic_case == "ic-four-particles") {
@@ -274,7 +263,7 @@ fluid initialise(sph_solver& solver) {
         exit(1);
       }
     }
-    fluid = ic_basic(nb_particles, init_x, init_y);
+    ic_basic(fluid_ptr, nb_particles, init_x, init_y);
     delete[] init_x;
     delete[] init_y;
     // Block drop case
@@ -311,7 +300,7 @@ fluid initialise(sph_solver& solver) {
       std::cerr << e.what() << std::endl;
       exit(1);
     }
-    fluid = ic_block_drop(nb_particles, length, width, center_x, center_y);
+    ic_block_drop(fluid_ptr, nb_particles, length, width, center_x, center_y);
     // Droplet case
   } else if (ic_case == "ic-droplet") {
     // Get the droplet radius and center coordinates from the ic file
@@ -345,7 +334,7 @@ fluid initialise(sph_solver& solver) {
       std::cerr << e.what() << std::endl;
       exit(1);
     }
-    fluid = ic_droplet(nb_particles, radius, center_x, center_y);
+    ic_droplet(fluid_ptr, nb_particles, radius, center_x, center_y);
   } else {
     std::cerr << "Error: Initial condition function not found! Make sure "
               << "that the value of the init_condition in the case.txt file is "
@@ -373,19 +362,31 @@ fluid initialise(sph_solver& solver) {
   }
   po::notify(constants_vm);
 
-  solver.set_coeff_restitution(constants_vm["coeff_restitution"].as<double>());
+  sph_solver.set_timestep(case_vm["dt"].as<double>());
+  sph_solver.set_total_iter(ceil(
+      total_time /
+      case_vm["dt"].as<double>()));  // Transform time in seconds to iterations
+  sph_solver.set_output_frequency(case_vm["output_frequency"].as<int>());
+  sph_solver.set_coeff_restitution(
+      constants_vm["coeff_restitution"].as<double>());
+  sph_solver.set_left_wall(domain_vm["left_wall"].as<double>());
+  sph_solver.set_right_wall(domain_vm["right_wall"].as<double>());
+  sph_solver.set_top_wall(domain_vm["top_wall"].as<double>());
+  sph_solver.set_bottom_wall(domain_vm["bottom_wall"].as<double>());
 
-  fluid.set_rad_infl(constants_vm["h"].as<double>());
-  fluid.set_gas_constant(constants_vm["gas_constant"].as<double>());
-  fluid.set_density_resting(constants_vm["density_resting"].as<double>());
-  fluid.set_viscosity(constants_vm["viscosity"].as<double>());
-  fluid.set_acceleration_gravity(
+  fluid* objPtr = *fluid_ptr;
+
+  objPtr->set_rad_infl(constants_vm["h"].as<double>());
+  objPtr->set_gas_constant(constants_vm["gas_constant"].as<double>());
+  objPtr->set_density_resting(constants_vm["density_resting"].as<double>());
+  objPtr->set_viscosity(constants_vm["viscosity"].as<double>());
+  objPtr->set_acceleration_gravity(
       constants_vm["acceleration_gravity"].as<double>());
 
   // Calculate the mass of the particles
-  fluid.calc_mass();
+  objPtr->calc_mass();
 
-  return fluid;
+  return;
 }
 
 void createDirectory(std::string folderPath) {

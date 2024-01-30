@@ -3,12 +3,13 @@
 #define IC_H
 #include "fluid.h"
 
-fluid ic_basic(int n, double *position_x, double *position_y);
+void ic_basic(fluid **fluid_ptr, int n, double *position_x, double *position_y);
 
-fluid ic_block_drop(int &n, double length, double width, double center_x,
-                    double center_y);
+void ic_block_drop(fluid **fluid_ptr, int &n, double length, double width,
+                   double center_x, double center_y);
 
-fluid ic_droplet(int &n, double radius, double center_x, double center_y);
+void ic_droplet(fluid **fluid_ptr, int &n, double radius, double center_x,
+                double center_y);
 
 int closest_integer_sqrt(int n);
 

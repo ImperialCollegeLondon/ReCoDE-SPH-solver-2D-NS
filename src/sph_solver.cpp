@@ -58,7 +58,7 @@ void sph_solver::time_integration(fluid &data,
     }
   }
   // Store particles' positions after integration is completed
-  storeToFile(data, "position", finalPositionsFile);
+  storeToFile(data, "position", finalPositionsFile, dt, total_iterations);
 
   std ::cout << "Time integration finished -- OK"
              << "\n";

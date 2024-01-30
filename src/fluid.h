@@ -22,6 +22,8 @@ class fluid : public particles {
   double *pressure;
 
  public:
+  fluid();
+
   fluid(const unsigned n_new);
 
   fluid &operator=(const fluid &fluid);
