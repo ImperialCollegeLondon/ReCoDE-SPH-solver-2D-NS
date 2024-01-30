@@ -180,7 +180,7 @@ Firstly, one sph_solver object and one fluid pointer to an object are being decl
 
 Once the input values are read and stored, the provided IC is used to determine the number of particles. This means that although the user has already provided a number of particles, this is just an indication, since the IC (droplet and block drop) require specific formation and the particles to be distributed uniformly. These two conditions cannot be satisfied simultaneously by any number of particles and therefore several adjustments need to be made. The functions `closest_integer_sqrt()` and `rectangle_n()` from `initial_conditions.h` are functions suitable for this purpose. 
 
-The IC functions are being called within the `initialise()` function and a reference to the pointer of the fluid object is passed as an argument, as well as the updated number of particles. Inside these functions the user defined constructor of the `fluid` is being called and the memory allocation process for the object's containers is invoked. In this, the containers are declared as `new` raw pointers to arrays, dynamically allocating memory proportional to the number of particles.
+The IC functions are being called within the `initialise()` function and a reference to the pointer of the fluid object is passed as an argument, as well as the updated number of particles. Inside these functions the user defined constructor of the `fluid` is being called and the memory allocation process for the object's containers is invoked. In this, the containers are declared as `new` raw pointers to arrays, dynamically allocating memory proportional to the number of particles. The function used to initialise the `fluid` class for the simple cases of 1,2,3 and 4 particles is demonstrated below.
 
 ```cpp
 void ic_basic(fluid **fluid_ptr, int nb_particles, double *position_x,
@@ -201,15 +201,9 @@ void ic_basic(fluid **fluid_ptr, int nb_particles, double *position_x,
 }
 ```
 
-To avoid the use of multiple `if` statements, two `std::map` objects are used to map the different conditions to their corresponding number of particles and their corresponding initialisation function.
+To avoid the use of multiple `if` statements, two `std::map` objects are used to map the different conditions to their corresponding number of particles and their corresponding initialisation function. The workflow for the droplet case is demonstrated below.
 
 ```cpp
-// Fixed nb_particles ic cases
-  std::map<std::string, int> initConditionToParticlesMap = {
-      {"ic-one-particle", 1},
-      {"ic-two-particles", 2},
-      {"ic-three-particles", 3},
-      {"ic-four-particles", 4}};
 
   // Get the number of particles based on the ic case
   if (ic_case == "ic-droplet" || ic_case == "ic-block-drop") {
@@ -231,73 +225,8 @@ To avoid the use of multiple `if` statements, two `std::map` objects are used to
                                                    .as<std::string>()];
   }
 
-  // Fixed particles ic cases
-  if (ic_case == "ic-one-particle" || ic_case == "ic-two-particles" ||
-      ic_case == "ic-three-particles" || ic_case == "ic-four-particles") {
-    // Get particles' initial poistions from the ic file
-    double* init_x = new double[nb_particles];
-    double* init_y = new double[nb_particles];
-    for (int i = 0; i < nb_particles; i++) {
-      init_x[i] = ic_vm["init_x_" + std::to_string(i + 1)].as<double>();
-      init_y[i] = ic_vm["init_y_" + std::to_string(i + 1)].as<double>();
-      // Error handling for the initial positions
-      try {
-        if (init_x[i] < domain_vm["left_wall"].as<double>() ||
-            init_x[i] > domain_vm["right_wall"].as<double>() ||
-            init_y[i] < domain_vm["bottom_wall"].as<double>() ||
-            init_y[i] > domain_vm["top_wall"].as<double>()) {
-          throw std::runtime_error(
-              "Error: Particles must be within the domain boundaries! Please "
-              "adjust the initial position coordinates.");
-        }
-      } catch (std::runtime_error& e) {
-        // Handle the exception by printing the error message and exiting the
-        // program
-        std::cerr << e.what() << std::endl;
-        delete[] init_x;
-        delete[] init_y;
-        exit(1);
-      }
-    }
-    ic_basic(fluid_ptr, nb_particles, init_x, init_y);
-    delete[] init_x;
-    delete[] init_y;
-    // Block drop case
-  } else if (ic_case == "ic-block-drop") {
-    // Get the block dimensions and center coordinates from the ic file
-    double length = ic_vm["length"].as<double>();
-    double width = ic_vm["width"].as<double>();
-    // Error handling for the block size (length, width)
-    try {
-      if (length <= 0 || width <= 0) {
-        throw std::runtime_error("Error: Length and width must be positive!");
-      }
-    } catch (std::runtime_error& e) {
-      // Handle the exception by printing the error message and exiting the
-      // program
-      std::cerr << e.what() << std::endl;
-      exit(1);
-    }
-    double center_x = ic_vm["center_x"].as<double>();
-    double center_y = ic_vm["center_y"].as<double>();
-    // Error handling for the block initial position (center_x, center_y)
-    try {
-      if (center_x - length / 2.0 < domain_vm["left_wall"].as<double>() ||
-          center_x + length / 2.0 > domain_vm["right_wall"].as<double>() ||
-          center_y - width / 2.0 < domain_vm["bottom_wall"].as<double>() ||
-          center_y + width / 2.0 > domain_vm["top_wall"].as<double>()) {
-        throw std::runtime_error(
-            "Error: The block must be within the domain boundaries! Please "
-            "adjust the center coordinates.");
-      }
-    } catch (std::runtime_error& e) {
-      // Handle the exception by printing the error message and exiting the
-      // program
-      std::cerr << e.what() << std::endl;
-      exit(1);
-    }
-    ic_block_drop(fluid_ptr,nb_particles, length, width, center_x, center_y);
-    // Droplet case
+  ...
+
   } else if (ic_case == "ic-droplet") {
     // Get the droplet radius and center coordinates from the ic file
     double radius = ic_vm["radius"].as<double>();
@@ -401,12 +330,10 @@ void storeToFile(fluid& fluid, int nb_particles, std::string type,
 
 <div style="text-align: center;">
     <img src="docs/images/energies_README.png" alt="Alt Text 1" style="display: inline-block; width: 400px;">
-    <figcaption>Energy plots for a droplet of 60 particles.</figcaption>
     <img src="docs/images/positions_README.png" alt="Alt Text 2" style="display: inline-block; width: 400px;">
-    <figcaption>Initial positions for a droplet of 60 particles.</figcaption>
 </div>
 
-
+ ***Energy plots (left) and initial position (right) for a droplet of 60 particles.***
 
 ## Time integration
 
