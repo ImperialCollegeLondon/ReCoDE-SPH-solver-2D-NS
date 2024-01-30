@@ -1,11 +1,10 @@
 # Smooth Particle Hydrodynamics (SPH)
+
 Smooth particle hydrodynamics (SPH) is a branch of computational fluid dynamics, which belongs in the category of particle-based and mesh-free methods. It was first developed for astrophysical flows related problems and has gained an increasing popularity over the last few years due to its very good applicability and easy extensibility in problems describing free surface and multiphase flows in both simple and complex geometries.
 
 In the SPH formulation, the fluid is being discretised by fictitious particles whose interpolated properties can approximate any function $f(x)$ that is of interest over a domain $\Omega$:
 
-
 $$ f(\mathbf{x}) \sim \int_{\Omega} f(\mathbf{x}')W(\mathbf{x}-\mathbf{x}',h) \mathrm{d}\mathbf{x}' $$
-
 
 In this equation, $W$ is a kernel function and $h$ is defined as the smoothing length that characterizes the size of the support domain of the kernel. The discrete equivalent of the above expression for the $`i^{th}`$ particle can be written as
 
@@ -23,6 +22,7 @@ More information on SPH and its applications can be found in the following resou
 - https://arxiv.org/pdf/2104.00537.pdf
 
 # The algorithm
+
 In this exemplar the following algorithm which describes the solution steps of a 2D formulation of the Navier-Stokes equation is implemented:
 
 ## Density
@@ -71,7 +71,7 @@ while otherwise it is set to 0.
 
 The force acting on each particle due to viscous effects is calculated as
 
-$$ \mathbf{F}_{vi} = −\mu \sum_j \frac{m}{\rho_j} \mathbf{v} _{ij} \nabla^2 \phi_{v}(r_i, h) $$
+$$ \mathbf{F} _{vi} = −\mu \sum_j \frac{m}{\rho_j} \mathbf{v} _{ij} \nabla^2 \phi_{v}(r_i, h) $$
 
 where $`\mathbf{v}_{ij} = \mathbf{v}_i − \mathbf{v}_j`$, $`\mathbf{v}_{i}`$ is the velocity of particle $i$, $\mu$ is the dynamic viscosity and $`\nabla^{2} \phi_{v}(r_i, h)`$ is given by
 
@@ -121,6 +121,7 @@ Once the particles are placed, the particle densities should be evaluated with a
 $$ m = \frac{N \rho_{0}}{\sum_{i} \rho_{i}} $$
 
 ## Boundary Conditions
+
 All the boundaries are solid walls with damped reflecting boundary conditions. If particles are within a distance h of the boundary, their velocity and position should be updated to reverse the motion of the particle and keep it within the domain. For example, on the right boundary, the $x$-component of position and velocity would be modified as:
 
 $$
