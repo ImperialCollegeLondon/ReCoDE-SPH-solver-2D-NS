@@ -399,6 +399,15 @@ void storeToFile(fluid& fluid, int nb_particles, std::string type,
 }
 ```
 
+<div style="text-align: center;">
+    <img src="docs/images/energies_README.png" alt="Alt Text 1" style="display: inline-block; width: 400px;">
+    <figcaption>Energy plots for a droplet of 60 particles.</figcaption>
+    <img src="docs/images/positions_README.png" alt="Alt Text 2" style="display: inline-block; width: 400px;">
+    <figcaption>Initial positions for a droplet of 60 particles.</figcaption>
+</div>
+
+
+
 ## Time integration
 
 Following the initialisation of the class and the output files, the function `sph_solver::time_integration()` is invoked. Within this function, the aforementioned steps of the SPH algorithm are being implemented, and the outputs are exported.
