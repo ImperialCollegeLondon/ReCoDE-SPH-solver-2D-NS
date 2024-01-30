@@ -9,7 +9,8 @@
 #define PARTICLES_H
 class particles {
  protected:
-  unsigned int nb_particles;  // number of particles and characteristic size of the class arrays
+  unsigned int nb_particles;  // number of particles and characteristic size of
+                              // the class arrays
 
   // Positions
   double *position_x;

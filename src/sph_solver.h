@@ -30,9 +30,6 @@ class sph_solver {
   double force_gravity_x = 0.0;
 
  public:
-
-  /******** CONSTRUCTORS/DESTRUCTOR********/
-
   /**********MEMBER-FUNCTIONS*********/
 
   // Setter Functions.
@@ -40,7 +37,7 @@ class sph_solver {
   // Assign value to dt
   void set_timestep(double dt);
 
-   // Assign value to the total iterations
+  // Assign value to the total iterations
   void set_total_iter(double total_iter);
 
   // Assign value to the frequency
@@ -62,8 +59,7 @@ class sph_solver {
   void set_top_wall(double top_wall);
 
   // Function to perform the time integration
-  void time_integration(fluid &data,
-                        std::ofstream &finalPositionsFile,
+  void time_integration(fluid &data, std::ofstream &finalPositionsFile,
                         std::ofstream &energiesFile);
 
   // Function to perform the particle iterations

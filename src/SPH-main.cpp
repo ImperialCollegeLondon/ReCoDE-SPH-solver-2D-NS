@@ -16,7 +16,6 @@
 
 // Start of the main programme
 int main(int argc, char* argv[]) {
- 
   std::string OUTPUT_FOLDER = "../output";
   // Read input files, initialise the sph class and the parameters of the
   // problem
@@ -34,12 +33,10 @@ int main(int argc, char* argv[]) {
              << "\n";
 
   // Store particles' positions before integration has started
-  storeToFile(fluid, "position",
-              initialPositions);
+  storeToFile(fluid, "position", initialPositions);
 
   // Time integration loop
-  solver.time_integration(fluid, finalPositionsFile,
-                          energiesFile);
+  solver.time_integration(fluid, finalPositionsFile, energiesFile);
 
   std ::cout << "SPH-SOLVER executed successfully -- OK"
              << "\n";
@@ -48,7 +45,6 @@ int main(int argc, char* argv[]) {
 }
 
 fluid initialise(sph_solver& solver) {
-
   int nb_particles;  //  Number of particles
 
   // Process to obtain the inputs provided by the user
@@ -119,10 +115,11 @@ fluid initialise(sph_solver& solver) {
   }
 
   solver.set_timestep(case_vm["dt"].as<double>());
-// Time step dt
+  // Time step dt
   // Error handling for the time step
   try {
-    if (case_vm["dt"].as<double>() <= 0 or case_vm["dt"].as<double>() > total_time) {
+    if (case_vm["dt"].as<double>() <= 0 or
+        case_vm["dt"].as<double>() > total_time) {
       throw std::runtime_error(
           "Error: Time step must be positive and lower than the total "
           "integration time!");
@@ -134,15 +131,16 @@ fluid initialise(sph_solver& solver) {
     exit(1);
   }
 
-  solver.set_total_iter( ceil(total_time /
-           case_vm["dt"].as<double>())); // Transform time in seconds to iterations
+  solver.set_total_iter(ceil(
+      total_time /
+      case_vm["dt"].as<double>()));  // Transform time in seconds to iterations
 
   solver.set_output_frequency(case_vm["output_frequency"].as<int>());
   // Error handling for the output frequency
   try {
     if (case_vm["output_frequency"].as<int>() <= 0 or
-        case_vm["output_frequency"].as<int>()> ceil(total_time /
-           case_vm["dt"].as<double>())) {
+        case_vm["output_frequency"].as<int>() >
+            ceil(total_time / case_vm["dt"].as<double>())) {
       throw std::runtime_error(
           "Error: Output frequency must be positive and lower than the total "
           "number of iterations!");
@@ -179,8 +177,10 @@ fluid initialise(sph_solver& solver) {
 
   // Error handling for the domain boundaries input
   try {
-    if (domain_vm["left_wall"].as<double>() >= domain_vm["right_wall"].as<double>() ||
-        domain_vm["bottom_wall"].as<double>() >= domain_vm["top_wall"].as<double>()) {
+    if (domain_vm["left_wall"].as<double>() >=
+            domain_vm["right_wall"].as<double>() ||
+        domain_vm["bottom_wall"].as<double>() >=
+            domain_vm["top_wall"].as<double>()) {
       throw std::runtime_error(
           "Error: Please adjust your domain boundaries so that left_wall < "
           "right wall and bottom_wall < top_wall.");
@@ -239,14 +239,11 @@ fluid initialise(sph_solver& solver) {
       exit(1);
     }
   } else {
-    nb_particles =
-        initConditionToParticlesMap[case_vm["init_condition"]
-                                        .as<std::string>()];
+    nb_particles = initConditionToParticlesMap[case_vm["init_condition"]
+                                                   .as<std::string>()];
   }
-  /**After the number of particles is introduced inside the class and
-   * therefore the appropriate matrices are initialized, the particles
-   * are ordered in the correct positions
-   **/
+
+  // Initialise an instant of the fluid object
   fluid fluid(nb_particles);
 
   // Fixed particles ic cases
@@ -314,8 +311,7 @@ fluid initialise(sph_solver& solver) {
       std::cerr << e.what() << std::endl;
       exit(1);
     }
-    fluid = ic_block_drop(nb_particles, length, width,
-                          center_x, center_y);
+    fluid = ic_block_drop(nb_particles, length, width, center_x, center_y);
     // Droplet case
   } else if (ic_case == "ic-droplet") {
     // Get the droplet radius and center coordinates from the ic file
@@ -349,8 +345,7 @@ fluid initialise(sph_solver& solver) {
       std::cerr << e.what() << std::endl;
       exit(1);
     }
-    fluid = ic_droplet(nb_particles, radius, center_x,
-                       center_y);
+    fluid = ic_droplet(nb_particles, radius, center_x, center_y);
   } else {
     std::cerr << "Error: Initial condition function not found! Make sure "
               << "that the value of the init_condition in the case.txt file is "
@@ -378,14 +373,14 @@ fluid initialise(sph_solver& solver) {
   }
   po::notify(constants_vm);
 
-
   solver.set_coeff_restitution(constants_vm["coeff_restitution"].as<double>());
 
   fluid.set_rad_infl(constants_vm["h"].as<double>());
   fluid.set_gas_constant(constants_vm["gas_constant"].as<double>());
   fluid.set_density_resting(constants_vm["density_resting"].as<double>());
   fluid.set_viscosity(constants_vm["viscosity"].as<double>());
-  fluid.set_acceleration_gravity(constants_vm["acceleration_gravity"].as<double>()); 
+  fluid.set_acceleration_gravity(
+      constants_vm["acceleration_gravity"].as<double>());
 
   // Calculate the mass of the particles
   fluid.calc_mass();
@@ -430,8 +425,8 @@ std::tuple<std::ofstream, std::ofstream, std::ofstream> init_output_files(
                          std::move(energies));
 }
 
-void storeToFile(fluid& fluid, std::string type,
-                 std::ofstream& targetFile, double dt, int currentIteration) {
+void storeToFile(fluid& fluid, std::string type, std::ofstream& targetFile,
+                 double dt, int currentIteration) {
   if (type == "energy") {
     // Write energies on the Energy-File
     targetFile << currentIteration * dt << "," << fluid.get_kinetic_energy()
