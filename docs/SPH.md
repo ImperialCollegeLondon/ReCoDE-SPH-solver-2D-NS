@@ -2,15 +2,15 @@
 
 Smooth particle hydrodynamics (SPH) is a branch of computational fluid dynamics, which belongs in the category of particle-based and mesh-free methods. It was first developed for astrophysical flows related problems and has gained an increasing popularity over the last few years due to its very good applicability and easy extensibility in problems describing free surface and multiphase flows in both simple and complex geometries.
 
-In the SPH formulation, the fluid is being discretised by fictitious particles whose interpolated properties can approximate any function f(x) that is of interest over a domain $\Omega$.
+In the SPH formulation, the fluid is being discretised by fictitious particles whose interpolated properties can approximate any function $f(x)$ that is of interest over a domain $\Omega$:
 
-$$f(x) \sim \int_{\Omega} f(x')W(x-x',h)dx'$$
+$$ f(\mathbf{x}) \sim \int_{\Omega} f(\mathbf{x}')W(\mathbf{x}-\mathbf{x}',h) \mathrm{d}\mathbf{x}' $$
 
-In this W is a kernel function and h is defined as the smoothing length that characterizes the size of the support domain of the kernel. The discrete equivalent of the above expression for the $i^{th}$ particle can be written as:
+In this equation, $W$ is a kernel function and $h$ is defined as the smoothing length that characterizes the size of the support domain of the kernel. The discrete equivalent of the above expression for the $`i^{th}`$ particle can be written as
 
-$$f_i = \sum_{j}^{N} \frac{m_j}{\rho_{j}} f_j W_{ij} $$
+$$ f_i = \sum_{j}^{N} \frac{m_j}{\rho_{j}} f_j W_{ij} $$
 
-The kernel function provides the weight which is assigned to each particle based on their distance from the point of interest (i.e. the point where the function f(x) is to be evaluated). The movement of the particles obeys Newton's second law of motion and the forces applied on the particles are being calculated as explained above.
+The kernel function provides the weight which is assigned to each particle based on their distance from the point of interest (i.e. the point where the function $`f(\mathbf{x})`$ is to be evaluated). The movement of the particles obeys Newton's second law of motion and the forces applied on the particles are being calculated as explained above.
 
 More information on SPH and its applications can be found in the following resources
 
@@ -27,45 +27,43 @@ In this exemplar the following algorithm which describes the solution steps of a
 
 ## Density
 
-The density of the fluid associated with each particle i is approximated as
+The density of the fluid associated with each particle $i$ is approximated as
 
-$$\rho_i = \sum_{j} m \phi_d(r_{ij} ,h)  $$
+$$ \rho_i = \sum_{j} m \phi_d(\mathbf{r} _{ij}, h), $$
 
-where $r_{ij} = x_{i} −x_{j}$ and $m$ is the mass of a particle and the kernel density function for density, $\phi_{d}(r_{ij},h)$ is given by
+where $\mathbf{r}_ {ij} = \mathbf{x}_ {i} − \mathbf{x}_ {j}$ and $m$ is the mass of a particle and the kernel density function for density, $\phi_ {d}(\mathbf{r}_ {ij},h)$ is given by 
 
-$$
-\phi_{d}(r_{ij},h) = \begin{cases}
-\frac{4}{\pi h^2{(1 −q_{ij}^2)^3}} & \text{if $q_{ij} < 1$}\\
+$$\phi_d (\mathbf{r} _{ij}, h) = \begin{cases}
+\frac{4}{\pi h^2(1 - q _{ij}^2)^3} & \text{if } q _{ij} < 1\\
 0 & \text{otherwise}
-\end{cases}
-$$
+\end{cases}$$
 
-where $q_{ij}$ is the distance between particle $i$ and particle $j$, normalised by the interaction radius, given by
+where $q_ {ij}$ is the distance between particle $i$ and particle $j$, normalised by the interaction radius $h$, given by
 
-$$q_{ij} = \frac{||r_{ij}||} {h} $$
+$$ q_{ij} = \frac{||\mathbf{r}_{ij}||}{h} $$
+
+The interaction radius describes the distance over which a particle has an influence on the behaviour of the system.
 
 ## Pressure
 
 The pressure is calculated based on the ideal gas law
 
-$$p_i = k(\rho_{i} −\rho_{0})$$
+$$ p_i = k(\rho_{i} − \rho_{0}), $$
 
-where $\rho_{0}$ is a resting density and $k$ is a gas constant.
+where $`\rho_ {0}`$ is a resting density and $k$ is a gas constant.
 
 ## Pressure force
 
 The force exerted on the particle due to pressure from neighboring fluid particles is calculated as
 
-$$F_{pi} = −\sum_{j} \frac{m}{\rho_{j}} \frac{(p_i + p_j)}{2} \nabla(\phi_{p})(r_{ij} ,h)$$
+$$ \mathbf{F} _{pi} = −\sum_j \frac{m}{\rho_j} \frac{p_i + p_j}{2} \nabla \phi_p (\mathbf{r} _{ij}, h) $$
 
-where $\phi_d$ is the the kernel density function for pressure :
+where $`\phi_p`$ is the the kernel density function for pressure, given by:
 
-$$
-\nabla(\phi_{p})(r_{ij} ,h) = \begin{cases}
-− 30 \pi h^3 r_{ij} \frac{(1−q)^2}{q} & \text{for } q_{ij} < 1 \text{ and } i \neq j\\
+$$ \nabla \phi_p (\mathbf{r} _{ij}, h) = \begin{cases}
+-\frac{30}{\pi h^3} \mathbf{r} _{ij} \frac{(1 - q _{ij})^2}{q _{ij}} & \text{for } q _{ij} < 1 \text{ and } i \neq j\\
 0 & \text{otherwise}
-\end{cases}
-$$
+\end{cases} $$
 
 while otherwise it is set to 0.
 
@@ -73,55 +71,62 @@ while otherwise it is set to 0.
 
 The force acting on each particle due to viscous effects is calculated as
 
-$$F_{vi} = −\mu \sum_{j} m\rho_{j} v_{ij} \nabla^{2} \phi v(r_i,h)$$
+$$ \mathbf{F} _{vi} = −\mu \sum_j \frac{m}{\rho_j} \mathbf{v} _{ij} \nabla^{2} \phi _{v}(r_i, h) $$
 
-where $v_{ij} = v_i −v_j$, $v_{i}$ is the velocity of particle i and $\mu$ is the dynamic viscosity.
+where $`\mathbf{v}_{ij} = \mathbf{v}_i − \mathbf{v}_j`$, $`\mathbf{v}_{i}`$ is the velocity of particle $i$, $\mu$ is the dynamic viscosity and $`\nabla^{2} \phi_{v}(r_i, h)`$ is given by
 
-If $q \lt 1$ and $i \neq j$
-
-$$\nabla^{2} \phi v(r_i,h) = 40 \pi h^4 (1 −q)$$
-
-while otherwise it is set to 0.
+$$ \nabla^{2} \phi_v(\mathbf{r}_i, h) = \begin{cases}
+\frac{40} {\pi h^4} (1 - q) & \text{for } q < 1 \text{ and } i \neq j\\
+0 & \text{otherwise}
+\end{cases}
+ $$
 
 ## Gravity force:
 
 Finally, the force due to gravity is calculated as
 
-$$F_{gi} = (0, −\rho_{i}g)$$
+$$ \mathbf{F} _{gi} = (0, −\rho_i g) $$
 
 ## Acceleration
 
 The acceleration of each particle is calculated as:
 
-$$a_i =\frac{F_{pi} + F_{vi} + F_{gi}} {\rho_{i}}$$
+$$ \mathbf{a} _i = \frac{\mathbf{F} _{pi} + \mathbf{F} _{vi} + \mathbf{F} _{gi}}{\rho_i} $$
 
 ## Time integration
 
-We solve the equation as a function of time by finding the velocity and position of each particle at each of a number of time steps. We denote a property $x$ of particle $i$ at time step $t$ as $x^{t}_i$. The state of the property half way between time steps $t$ and $t + 1$ is denoted as $x^{t + \frac{1}{2}}_i$.
+We solve the equation as a function of time by finding the velocity and position of each particle at each of a number of time steps. We denote a property $x$ of particle $i$ at time step $t$ as $`x^{t}_i`$. The state of the property half way between time steps $t$ and $t + 1$ is denoted as $`x^{t + \frac{1}{2}}_i`$.
 
-We begin with the initial conditions of the system, which are the positions and velocities of the particles at time $t = 0$. We iteratively use the state of the system at time step $t$ to find the state of the system at time step $t + 1$ using a leap-frog scheme which provides improved stability characteristics.
+We begin with the initial conditions of the system, which are the positions and velocities of the particles at time $t = 0$. We iteratively use the state of the system at time step $t$ to find the state of the system at time step $t + 1$ using a leap-frog scheme, which provides improved stability characteristics:
 
-$$v^{t+\frac{1}{2}}_i = v^{t-\frac{1}{2}}_i + {a_i}^{t} \Delta{t}$$
-
-$$x^{(t+1)}_i = x^{t}_i + v^{t+ \frac{1}{2}}_i \Delta{t}$$
+$$
+\begin{split}
+  v^{t+\frac{1}{2}}_i = v^{t-\frac{1}{2}}_i + {a_i}^{t} \Delta{t}\\
+  x^{(t+1)}_i = x^{t}_i + v^{t+ \frac{1}{2}}_i \Delta{t}
+\end{split}
+$$
 
 However, because the velocity is calculated at half-steps, we need to initialise the scheme on the first time step using:
 
 $$v^{\frac{1}{2}}_i = v^{0}_i + a_i^0 \frac{\Delta{t}}{2}$$
 
-where $∆t$ is the time step size. To ensure convergence, a small time-step is required. A value of $∆t = 10^{−4}$s is suggested.
+where $\Delta t$ is the time step size. To ensure convergence, a small time-step is required. A value of $\Delta t = 10^{−4}$ $s$ is suggested.
 
 ## Initial Condition
 
 To initialise the simulation, one or more particles must be specified. These should be evenly distributed.
 
-Once the particles are placed, the particle densities should be evaluated with an assumed mass of m = 1 and the mass subsequently scaled so that the density is equal to the reference density:
+Once the particles are placed, the particle densities should be evaluated with an assumed mass of $m = 1$ and the mass subsequently scaled so that the density is equal to the reference density:
 
-$$ m = \frac{N \rho*{0}}{\sum*{i} \rho\_{i}} $$
+$$ m = \frac{N \rho_{0}}{\sum_{i} \rho_{i}} $$
 
 ## Boundary Conditions
 
-All the boundaries are solid walls with damped reflecting boundary conditions. If particles are within a distance h of the boundary, their velocity and position should be updated to reverse the motion of the particle and keep it within the domain. For example, on the right boundary, the x-component of position and velocity would be modified as:
+All the boundaries are solid walls with damped reflecting boundary conditions. If particles are within a distance h of the boundary, their velocity and position should be updated to reverse the motion of the particle and keep it within the domain. For example, on the right boundary, the $x$-component of position and velocity would be modified as:
 
-$$ x  = 1 - h $$
-$$ u  = - eu $$
+$$
+\begin{split}
+  x = 1 - h\\
+  u = - eu
+\end{split}
+$$
