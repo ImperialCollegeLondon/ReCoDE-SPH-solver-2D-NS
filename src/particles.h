@@ -22,8 +22,8 @@ class particles {
  public:
   /******** CONSTRUCTORS/DESTRUCTOR********/
 
-  particles();   // Default constructor
-  ~particles();  // Destructor
+  particles() = default;  // Default constructor
+  ~particles();           // Destructor
 
   particles(const unsigned n_new);  // User defined constructor for allocating
                                     // the dimensions of the Matrix

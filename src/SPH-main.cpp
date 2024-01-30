@@ -22,11 +22,11 @@ int main(int argc, char* argv[]) {
   // Initialise a sph_solver object
   sph_solver sph_solver;
 
-  // Allocate memory for the fluid object
-  fluid* sph_fluid = new fluid;
+  // Declaring a fluid pointer (This is a nullptr at this stage)
+  fluid* sph_fluid = nullptr;
 
   // Call the initialise function to initialise the objects based on the inputs
-  initialise(&sph_fluid, sph_solver);
+  initialise(sph_fluid, sph_solver);
 
   std ::cout << "Initialisation finished -- OK"
              << "\n";
@@ -47,13 +47,16 @@ int main(int argc, char* argv[]) {
   std ::cout << "SPH-SOLVER executed successfully -- OK"
              << "\n";
 
-  // delete the fluid object from the memory
-  delete sph_fluid;
+  // delete the fluid object from the memory, if it was allocated
+  // properly
+  if (sph_fluid) {
+    delete sph_fluid;
+  }
 
   return 0;
 }
 
-void initialise(fluid** fluid_ptr, sph_solver& sph_solver) {
+void initialise(fluid*& fluid_ptr, sph_solver& sph_solver) {
   int nb_particles;  //  Number of particles
 
   // Process to obtain the inputs provided by the user
@@ -105,6 +108,9 @@ void initialise(fluid** fluid_ptr, sph_solver& sph_solver) {
     // Handle the exception by printing the error message and exiting the
     // program
     std::cerr << e.what() << std::endl;
+    if (fluid_ptr) {
+      delete fluid_ptr;
+    }
     exit(1);
   }
   po::notify(case_vm);
@@ -120,6 +126,9 @@ void initialise(fluid** fluid_ptr, sph_solver& sph_solver) {
     // Handle the exception by printing the error message and exiting the
     // program
     std::cerr << e.what() << std::endl;
+    if (fluid_ptr) {
+      delete fluid_ptr;
+    }
     exit(1);
   }
 
@@ -136,6 +145,9 @@ void initialise(fluid** fluid_ptr, sph_solver& sph_solver) {
     // Handle the exception by printing the error message and exiting the
     // program
     std::cerr << e.what() << std::endl;
+    if (fluid_ptr) {
+      delete fluid_ptr;
+    }
     exit(1);
   }
 
@@ -152,6 +164,9 @@ void initialise(fluid** fluid_ptr, sph_solver& sph_solver) {
     // Handle the exception by printing the error message and exiting the
     // program
     std::cerr << e.what() << std::endl;
+    if (fluid_ptr) {
+      delete fluid_ptr;
+    }
     exit(1);
   }
 
@@ -169,6 +184,9 @@ void initialise(fluid** fluid_ptr, sph_solver& sph_solver) {
     // Handle the exception by printing the error message and exiting the
     // program
     std::cerr << e.what() << std::endl;
+    if (fluid_ptr) {
+      delete fluid_ptr;
+    }
     exit(1);
   }
   po::notify(domain_vm);
@@ -187,6 +205,9 @@ void initialise(fluid** fluid_ptr, sph_solver& sph_solver) {
     // Handle the exception by printing the error message and exiting the
     // program
     std::cerr << e.what() << std::endl;
+    if (fluid_ptr) {
+      delete fluid_ptr;
+    }
     exit(1);
   }
 
@@ -210,6 +231,9 @@ void initialise(fluid** fluid_ptr, sph_solver& sph_solver) {
     // Handle the exception by printing the error message and exiting the
     // program
     std::cerr << e.what() << std::endl;
+    if (fluid_ptr) {
+      delete fluid_ptr;
+    }
     exit(1);
   }
   po::notify(ic_vm);
@@ -234,6 +258,9 @@ void initialise(fluid** fluid_ptr, sph_solver& sph_solver) {
       // Handle the exception by printing the error message and exiting the
       // program
       std::cerr << e.what() << std::endl;
+      if (fluid_ptr) {
+        delete fluid_ptr;
+      }
       exit(1);
     }
   } else {
@@ -264,6 +291,9 @@ void initialise(fluid** fluid_ptr, sph_solver& sph_solver) {
         // Handle the exception by printing the error message and exiting the
         // program
         std::cerr << e.what() << std::endl;
+        if (fluid_ptr) {
+          delete fluid_ptr;
+        }
         delete[] init_x;
         delete[] init_y;
         exit(1);
@@ -286,6 +316,9 @@ void initialise(fluid** fluid_ptr, sph_solver& sph_solver) {
       // Handle the exception by printing the error message and exiting the
       // program
       std::cerr << e.what() << std::endl;
+      if (fluid_ptr) {
+        delete fluid_ptr;
+      }
       exit(1);
     }
     double center_x = ic_vm["center_x"].as<double>();
@@ -304,6 +337,9 @@ void initialise(fluid** fluid_ptr, sph_solver& sph_solver) {
       // Handle the exception by printing the error message and exiting the
       // program
       std::cerr << e.what() << std::endl;
+      if (fluid_ptr) {
+        delete fluid_ptr;
+      }
       exit(1);
     }
     ic_block_drop(fluid_ptr, nb_particles, length, width, center_x, center_y);
@@ -320,6 +356,9 @@ void initialise(fluid** fluid_ptr, sph_solver& sph_solver) {
       // Handle the exception by printing the error message and exiting the
       // program
       std::cerr << e.what() << std::endl;
+      if (fluid_ptr) {
+        delete fluid_ptr;
+      }
       exit(1);
     }
     double center_x = ic_vm["center_x"].as<double>();
@@ -338,6 +377,9 @@ void initialise(fluid** fluid_ptr, sph_solver& sph_solver) {
       // Handle the exception by printing the error message and exiting the
       // program
       std::cerr << e.what() << std::endl;
+      if (fluid_ptr) {
+        delete fluid_ptr;
+      }
       exit(1);
     }
     ic_droplet(fluid_ptr, nb_particles, radius, center_x, center_y);
@@ -379,19 +421,16 @@ void initialise(fluid** fluid_ptr, sph_solver& sph_solver) {
   sph_solver.set_top_wall(domain_vm["top_wall"].as<double>());
   sph_solver.set_bottom_wall(domain_vm["bottom_wall"].as<double>());
 
-  // Dereference the double pointer to get the actual object
-  fluid* objPtr = *fluid_ptr;
-
   // Define the fluid based on the inputs
-  objPtr->set_rad_infl(constants_vm["h"].as<double>());
-  objPtr->set_gas_constant(constants_vm["gas_constant"].as<double>());
-  objPtr->set_density_resting(constants_vm["density_resting"].as<double>());
-  objPtr->set_viscosity(constants_vm["viscosity"].as<double>());
-  objPtr->set_acceleration_gravity(
+  fluid_ptr->set_rad_infl(constants_vm["h"].as<double>());
+  fluid_ptr->set_gas_constant(constants_vm["gas_constant"].as<double>());
+  fluid_ptr->set_density_resting(constants_vm["density_resting"].as<double>());
+  fluid_ptr->set_viscosity(constants_vm["viscosity"].as<double>());
+  fluid_ptr->set_acceleration_gravity(
       constants_vm["acceleration_gravity"].as<double>());
 
   // Calculate the mass of the particles
-  objPtr->calc_mass();
+  fluid_ptr->calc_mass();
 
   return;
 }

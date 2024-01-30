@@ -22,7 +22,7 @@ class fluid : public particles {
   double *pressure;
 
  public:
-  fluid();
+  fluid() = default;  // Default constructor
 
   fluid(const unsigned n_new);
 

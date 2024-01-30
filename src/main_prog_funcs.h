@@ -14,7 +14,7 @@
 
 namespace po = boost::program_options;
 
-void initialise(fluid **fluid_ptr, sph_solver &solver);
+void initialise(fluid *&fluid_ptr, sph_solver &solver);
 std::tuple<std::ofstream, std::ofstream, std::ofstream> init_output_files(
     std::string folderPath);
 
