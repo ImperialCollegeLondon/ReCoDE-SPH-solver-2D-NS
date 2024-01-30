@@ -1,6 +1,6 @@
 # Overview
 
-The code herein contains a serial C++ implementation of the SPH methodology described in `SPH.md`. The variables associated with the particles' positions, velocities and forces, are stored as members of an object called `fluid`, while the methods of another class called sph_solver manifest the steps of the algorithm.
+The code herein contains a serial C++ implementation of the SPH methodology described in `SPH.md`. The variables associated with the particles' positions, velocities and forces, are stored as members of an object called `fluid`, while the methods of another class called `sph_solver` manifest the steps of the algorithm.
 
 # Files
 
@@ -125,7 +125,7 @@ desc.add_options()("init_condition", po::value<std::string>(),
     "take frequency that output will be written to file");
 
 
-    ....
+    ...
 
 
 // Map the inputs read from the initial condition file to expected inputs
@@ -182,6 +182,24 @@ Once the input values are read and stored, the provided IC is used to determine 
 
 The IC functions are being called within the `initialise()` function and a reference to the pointer of the fluid object is passed as an argument, as well as the updated number of particles. Inside these functions the user defined constructor of the `fluid` is being called and the memory allocation process for the object's containers is invoked. In this, the containers are declared as `new` raw pointers to arrays, dynamically allocating memory proportional to the number of particles.
 
+```cpp
+void ic_basic(fluid **fluid_ptr, int nb_particles, double *position_x,
+              double *position_y) {
+  // Allocate memory for the fluid object and call the constructor
+  *fluid_ptr = new fluid(nb_particles);
+
+  fluid &fluid = **fluid_ptr;  // Use a reference to the object
+
+  for (int i = 0; i < nb_particles; i++) {
+    fluid(0, i) = position_x[i];
+    fluid(1, i) = position_y[i];
+    fluid(2, i) = 0.0;
+    fluid(3, i) = 0.0;
+  }
+
+  return;
+}
+```
 
 To avoid the use of multiple `if` statements, two `std::map` objects are used to map the different conditions to their corresponding number of particles and their corresponding initialisation function.
 
@@ -325,31 +343,39 @@ To avoid the use of multiple `if` statements, two `std::map` objects are used to
 
 ```
 
-## Time integration
-
-Following the initialisation of the class and the output files, the function `time_integration()` is invoked. Within this function, the aforementioned `SPH::` functions are executed at each timestep.
+Finally, after the object initialisation, the rest of the parameters which are required by the `sph_solver` and the `fluid` objects are being set with the use of setter functions.
 
 ```cpp
-for (int t = 0; t < total_iter; t++) {
+  sph_solver.set_timestep(case_vm["dt"].as<double>());
+  sph_solver.set_total_iter(ceil(
+      total_time /
+      case_vm["dt"].as<double>()));
+  sph_solver.set_output_frequency(case_vm["output_frequency"].as<int>());
+  sph_solver.set_coeff_restitution(
+      constants_vm["coeff_restitution"].as<double>());
+  sph_solver.set_left_wall(domain_vm["left_wall"].as<double>());
+  sph_solver.set_right_wall(domain_vm["right_wall"].as<double>());
+  sph_solver.set_top_wall(domain_vm["top_wall"].as<double>());
+  sph_solver.set_bottom_wall(domain_vm["bottom_wall"].as<double>());
 
-    sph.calc_particle_distance();
-    sph.calc_density();
-    sph.particle_iterations();
-}
+  fluid* objPtr = *fluid_ptr;
+
+  objPtr->set_rad_infl(constants_vm["h"].as<double>());
+  objPtr->set_gas_constant(constants_vm["gas_constant"].as<double>());
+  objPtr->set_density_resting(constants_vm["density_resting"].as<double>());
+  objPtr->set_viscosity(constants_vm["viscosity"].as<double>());
+  objPtr->set_acceleration_gravity(
+      constants_vm["acceleration_gravity"].as<double>());
+
+  // Calculate the mass of the particles
+  objPtr->calc_mass();
 ```
 
-The total number of timesteps is determined by the total integration time and the prescribed timestep as follows:
+## Output files
 
-```
-total_iter =
-      ceil(total_time / dt); // Transform time in seconds to iterations
-```
+The output files are being initialised with the use of the `init_output_files()`. The outputs are exported in `.csv` format which displays good readability and facilitates data manipulation compared to `.txt` files. They are stored in a centralised location, specifically within the `/exec/output/` directory. This centralisation simplifies data organisation and retrieval, making it easier for users to access and analyse output data.
 
-## Outputs
-
-The outputs are exported in `.csv` format which displays good readability and facilitates data manipulation compared to `.txt` files. They are stored in a centralised location, specifically within the `/exec/output/` directory. This centralisation simplifies data organisation and retrieval, making it easier for users to access and analyse output data.
-
-Uppon successful execution, the program generates two types of files:
+Upon successful execution, the program generates two types of files:
 
 - _Energies File_: This file, containing Total, Kinetic, and Potential energies, is updated at each timestep. The results can be visualized by using the script `post/plot_energies.py`.
 
@@ -372,3 +398,47 @@ void storeToFile(fluid& fluid, int nb_particles, std::string type,
   }
 }
 ```
+
+## Time integration
+
+Following the initialisation of the class and the output files, the function `sph_solver::time_integration()` is invoked. Within this function, the aforementioned steps of the SPH algorithm are being implemented, and the outputs are exported.
+
+```cpp
+
+/* ***************************** SPH-main.cpp ****************************** */
+
+ // Time integration loop
+  sph_solver.time_integration(*sph_fluid, finalPositionsFile, energiesFile);
+
+  /* **************************** sph_solver.cpp **************************** */
+
+  void sph_solver::time_integration(fluid &data,
+                                  std::ofstream &finalPositionsFile,
+                                  std::ofstream &energiesFile) {
+  std ::cout << "Time integration started -- OK"
+             << "\n";
+
+  number_of_particles = data.get_number_of_particles();
+
+  for (int time = 0; time < total_iterations; time++) {
+    t = time;
+    // In each iteration the distances between the particles are recalculated,
+    // as well as their density and pressure
+    data.calc_particle_distance();
+    data.calc_density();
+    data.calc_pressure();
+    particle_iterations(data);
+
+    if (time % output_frequency == 0) {
+      storeToFile(data, "energy", energiesFile, dt, t);
+    }
+  }
+  // Store particles' positions after integration is completed
+  storeToFile(data, "position", finalPositionsFile, dt, total_iterations);
+
+  std ::cout << "Time integration finished -- OK"
+             << "\n";
+}
+
+```
+

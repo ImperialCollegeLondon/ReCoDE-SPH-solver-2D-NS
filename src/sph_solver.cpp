@@ -47,7 +47,7 @@ void sph_solver::time_integration(fluid &data,
   for (int time = 0; time < total_iterations; time++) {
     t = time;
     // In each iteration the distances between the particles are recalculated,
-    // as well as their densities
+    // as well as their density and pressure
     data.calc_particle_distance();
     data.calc_density();
     data.calc_pressure();
@@ -149,16 +149,16 @@ void sph_solver::update_position(fluid &data, int particle_index) {
   // First step to initialise the scheme
   if (t == 0) {
     data(2, particle_index) =
-        data(2, particle_index) + scheme_init(data, particle_index,
-                                              force_pressure_x, force_viscous_x,
-                                              force_gravity_x);
+        data(2, particle_index) +
+        0.5 * velocity_integration(data, particle_index, force_pressure_x,
+                                   force_viscous_x, force_gravity_x);
     data(0, particle_index) =
         data(0, particle_index) + data(2, particle_index) * dt;
 
     data(3, particle_index) =
-        data(3, particle_index) + scheme_init(data, particle_index,
-                                              force_pressure_y, force_viscous_y,
-                                              force_gravity_y);
+        data(3, particle_index) +
+        0.5 * velocity_integration(data, particle_index, force_pressure_y,
+                                   force_viscous_y, force_gravity_y);
     data(1, particle_index) =
         data(1, particle_index) + data(3, particle_index) * dt;
 
@@ -180,19 +180,6 @@ void sph_solver::update_position(fluid &data, int particle_index) {
     data(1, particle_index) =
         data(1, particle_index) + data(3, particle_index) * dt;
   }
-}
-
-///////////MERGE THE FOLLOWING TWO AFTER TESTING///////////////////
-
-double sph_solver::scheme_init(fluid &data, int particle_index,
-                               double &force_pressure, double &force_viscous,
-                               double &force_gravity) {
-  double acceleration;
-
-  acceleration = (force_pressure + force_viscous + force_gravity) /
-                 data.get_density(particle_index);
-
-  return acceleration * dt * 0.5;
 }
 
 double sph_solver::velocity_integration(fluid &data, int particle_index,

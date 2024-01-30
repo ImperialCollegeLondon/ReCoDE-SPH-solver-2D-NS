@@ -77,10 +77,6 @@ class sph_solver {
   // Function to update the positions of the particles
   void update_position(fluid &data, int particle_index);
 
-  // Function to initialise the time integration scheme - velocity
-  double scheme_init(fluid &data, int particle_index, double &force_pressure,
-                     double &force_viscous, double &force_gravity);
-
   // Function for time integration - velocity
   double velocity_integration(fluid &data, int particle_index,
                               double &force_pressure, double &force_viscous,

@@ -363,9 +363,7 @@ void initialise(fluid** fluid_ptr, sph_solver& sph_solver) {
   po::notify(constants_vm);
 
   sph_solver.set_timestep(case_vm["dt"].as<double>());
-  sph_solver.set_total_iter(ceil(
-      total_time /
-      case_vm["dt"].as<double>()));  // Transform time in seconds to iterations
+  sph_solver.set_total_iter(ceil(total_time / case_vm["dt"].as<double>()));
   sph_solver.set_output_frequency(case_vm["output_frequency"].as<int>());
   sph_solver.set_coeff_restitution(
       constants_vm["coeff_restitution"].as<double>());
