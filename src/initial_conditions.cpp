@@ -7,12 +7,13 @@
 
 // ========== Initial Conditions ==========
 
-void ic_basic(fluid **fluid_ptr, int nb_particles, double *position_x,
+void ic_basic(fluid *&fluid_ptr, int nb_particles, double *position_x,
               double *position_y) {
   // Allocate memory for the fluid object and call the constructor
-  *fluid_ptr = new fluid(nb_particles);
+  // This needs to be deleted by the caller.
+  fluid_ptr = new fluid(nb_particles);
 
-  fluid &fluid = **fluid_ptr;  // Use a reference to the object
+  fluid &fluid = *fluid_ptr;  // Use a reference to the object
 
   for (int i = 0; i < nb_particles; i++) {
     fluid(0, i) = position_x[i];
@@ -25,14 +26,16 @@ void ic_basic(fluid **fluid_ptr, int nb_particles, double *position_x,
 }
 
 // Block drop
-void ic_block_drop(fluid **fluid_ptr, int &nb_particles, double length,
+void ic_block_drop(fluid *&fluid_ptr, int &nb_particles, double length,
                    double width, double center_x, double center_y) {
   int n1, n2;
   nb_particles = rectangle_n(nb_particles, length, width, n1, n2);
-  // Allocate memory for the fluid object and call the constructor
-  *fluid_ptr = new fluid(nb_particles);
 
-  fluid &fluid = **fluid_ptr;  // Use a reference to the object
+  // Allocate memory for the fluid object and call the constructor
+  // This needs to be deleted by the caller.
+  fluid_ptr = new fluid(nb_particles);
+
+  fluid &fluid = *fluid_ptr;  // Use a reference to the object
 
   // Distance between neighboring particles in x and y
   double dx = length / double((n1 - 1));
@@ -68,7 +71,7 @@ void ic_block_drop(fluid **fluid_ptr, int &nb_particles, double length,
 }
 
 // Droplet
-void ic_droplet(fluid **fluid_ptr, int &nb_particles, double radius,
+void ic_droplet(fluid *&fluid_ptr, int &nb_particles, double radius,
                 double center_x, double center_y) {
   nb_particles = closest_integer_sqrt(nb_particles);
 
@@ -107,9 +110,10 @@ void ic_droplet(fluid **fluid_ptr, int &nb_particles, double radius,
 
   nb_particles = count;
   // Allocate memory for the fluid object and call the constructor
-  *fluid_ptr = new fluid(nb_particles);
+  // This needs to be deleted by the caller.
+  fluid_ptr = new fluid(nb_particles);
 
-  fluid &fluid = **fluid_ptr;  // Use a reference to the object
+  fluid &fluid = *fluid_ptr;  // Use a reference to the object
 
   kx = 0;
   for (int i = 0; i < el; i++) {

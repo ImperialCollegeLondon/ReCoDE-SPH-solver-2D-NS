@@ -6,9 +6,6 @@
 #include <iomanip>
 #include <iostream>
 
-// Default constructor
-fluid::fluid() {}
-
 // User defined constructor
 fluid::fluid(const unsigned n_new) : particles(n_new) {
   pressure = new double[nb_particles];
