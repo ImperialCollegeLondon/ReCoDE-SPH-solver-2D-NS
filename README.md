@@ -343,10 +343,10 @@ Following the initialisation of the class and the output files, the function `sp
 
 /* ***************************** SPH-main.cpp ****************************** */
 
- // Time integration loop
+  // Time integration loop
   sph_solver.time_integration(*sph_fluid, finalPositionsFile, energiesFile);
 
-  /* **************************** sph_solver.cpp **************************** */
+/* **************************** sph_solver.cpp ***************************** */
 
   void sph_solver::time_integration(fluid &data,
                                   std::ofstream &finalPositionsFile,
