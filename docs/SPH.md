@@ -56,7 +56,7 @@ where $`\rho_ {0}`$ is a resting density and $k$ is a gas constant.
 
 The force exerted on the particle due to pressure from neighboring fluid particles is calculated as
 
-$$ \mathbf{F} _{pi} = −\sum_j \frac{m}{\rho_j} \frac{p_i + p_j}{2} \nabla \phi_p (\mathbf{r} _{ij}, h), $$
+$$ \mathbf{F} _{pi} = −\sum_j \frac{m}{\rho_j} \frac{p_i + p_j}{2} \nabla \phi_p (\mathbf{r} _{ij}, h) $$
 
 where $`\phi_p`$ is the the kernel density function for pressure, given by:
 
@@ -71,7 +71,7 @@ while otherwise it is set to 0.
 
 The force acting on each particle due to viscous effects is calculated as
 
-$$ \mathbf{F} _{vi} = −\mu \sum_j \frac{m}{\rho_j} \mathbf{v} _{ij} \nabla^2 \phi_{v}(r_i, h) $$
+$$ \mathbf{F} _{vi} = −\mu \sum_j \frac{m}{\rho_j} \mathbf{v} _{ij} \nabla^{2} \phi _{v}(r_i, h) $$
 
 where $`\mathbf{v}_{ij} = \mathbf{v}_i − \mathbf{v}_j`$, $`\mathbf{v}_{i}`$ is the velocity of particle $i$, $\mu$ is the dynamic viscosity and $`\nabla^{2} \phi_{v}(r_i, h)`$ is given by
 
