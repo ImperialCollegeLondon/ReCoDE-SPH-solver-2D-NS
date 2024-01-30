@@ -47,6 +47,9 @@ int main(int argc, char* argv[]) {
   std ::cout << "SPH-SOLVER executed successfully -- OK"
              << "\n";
 
+  // delete the fluid object from the memory
+  delete sph_fluid;
+
   return 0;
 }
 
