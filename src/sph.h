@@ -1,10 +1,3 @@
-/**In this header file, the SPH class is going to be defined
- * with the appropriate constructors and destructors
- * and the member functions. The SPH class is going to admit a matrix
- * as an input, as well as the number of particles.
- * Details on the functions, the arrays and the overloadings
- * can be found in the file : class.cpp
- **/
 #ifndef SPH_H
 #define SPH_H
 class SPH {
@@ -77,7 +70,8 @@ class SPH {
   // Assign value to h
   void set_rad_infl(double h);
 
-  // Function to calculate the mass of the particles before the simulation starts
+  // Function to calculate the mass of the particles before the simulation
+  // starts
   void calc_mass();
 
   // Function to calculate the matrix with rij
