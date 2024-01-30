@@ -337,7 +337,7 @@ void storeToFile(fluid& fluid, int nb_particles, std::string type,
 
 ## Time integration
 
-Following the initialisation of the class and the output files, the function `sph_solver::time_integration()` is invoked. Within this function, the aforementioned steps of the SPH algorithm are being implemented, and the outputs are exported.
+Following the initialisation of the class and the output files, the function `sph_solver::time_integration()` is invoked. Within this function, the steps of the SPH algorithm are executed, and the outputs are exported.
 
 ```cpp
 
@@ -377,4 +377,3 @@ Following the initialisation of the class and the output files, the function `sp
 }
 
 ```
-

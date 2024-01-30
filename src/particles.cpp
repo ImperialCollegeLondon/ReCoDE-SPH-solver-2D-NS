@@ -96,7 +96,17 @@ particles &particles::operator=(const particles &particles) {
   return *this;
 }
 
+// Getter functions
+
 int particles::get_number_of_particles() { return nb_particles; }
+
+double particles::get_position_x(int k) { return position_x[k]; }
+
+double particles::get_position_y(int k) { return position_y[k]; }
+
+double particles::get_distance_q(int k) { return distance_q[k]; }
+
+// Calculation functions
 
 void particles::calc_particle_distance() {
   double dx;
@@ -111,9 +121,3 @@ void particles::calc_particle_distance() {
     }
   }
 }
-
-double particles::get_position_x(int k) { return position_x[k]; }
-
-double particles::get_position_y(int k) { return position_y[k]; }
-
-double particles::get_distance_q(int k) { return distance_q[k]; }

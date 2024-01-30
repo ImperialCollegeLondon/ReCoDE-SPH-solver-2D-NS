@@ -148,6 +148,7 @@ double sph_solver::calc_gravity_force(fluid &data, int particle_index) {
 void sph_solver::update_position(fluid &data, int particle_index) {
   // First step to initialise the scheme
   if (t == 0) {
+    // x-direction
     data(2, particle_index) =
         data(2, particle_index) +
         0.5 * velocity_integration(data, particle_index, force_pressure_x,
@@ -155,6 +156,7 @@ void sph_solver::update_position(fluid &data, int particle_index) {
     data(0, particle_index) =
         data(0, particle_index) + data(2, particle_index) * dt;
 
+    // y-direction
     data(3, particle_index) =
         data(3, particle_index) +
         0.5 * velocity_integration(data, particle_index, force_pressure_y,
@@ -166,6 +168,7 @@ void sph_solver::update_position(fluid &data, int particle_index) {
 
   // Leap frog scheme
   else {
+    // x-direction
     data(2, particle_index) =
         data(2, particle_index) +
         velocity_integration(data, particle_index, force_pressure_x,
@@ -173,6 +176,7 @@ void sph_solver::update_position(fluid &data, int particle_index) {
     data(0, particle_index) =
         data(0, particle_index) + data(2, particle_index) * dt;
 
+    // y-direction
     data(3, particle_index) =
         data(3, particle_index) +
         velocity_integration(data, particle_index, force_pressure_y,
@@ -194,6 +198,7 @@ double sph_solver::velocity_integration(fluid &data, int particle_index,
 }
 
 void sph_solver::boundaries(fluid &data, int particle_index) {
+  // x-direction
   if (data(0, particle_index) < left_wall + data.get_rad_infl()) {
     data(0, particle_index) = left_wall + data.get_rad_infl();
     data(2, particle_index) = -coeff_restitution * data(2, particle_index);
@@ -204,6 +209,7 @@ void sph_solver::boundaries(fluid &data, int particle_index) {
     data(2, particle_index) = -coeff_restitution * data(2, particle_index);
   }
 
+  // y-direction
   if (data(1, particle_index) < bottom_wall + data.get_rad_infl()) {
     data(1, particle_index) = bottom_wall + data.get_rad_infl();
     data(3, particle_index) = -coeff_restitution * data(3, particle_index);

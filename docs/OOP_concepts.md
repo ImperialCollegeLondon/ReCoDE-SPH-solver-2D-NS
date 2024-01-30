@@ -85,7 +85,7 @@ double &particles::operator()(unsigned row, unsigned col) {
 ```
 
 ## Class-sph-fluid
-A cluster of particles, depending on its behavior can represent a variety of concepts. One of these concepts is what we will refer to herein as an SPH-fluid, which apart from being discretized in particles also has other attributes such as density, mass and pressure. Therefore, the class sph-fluid is a child class of the particles class which is extended in order to encapsulate more member variables and methods for their estimation in order to fully describe the simulated fluid. In the main program the base class will never be invoked explicitly, but only implicitly through the instantiation of a sph-fluid object. However, from the developer's perspective, by using this approach the code becomes more modular and allows for the derivation of multiple children from the base class if needed.
+A cluster of particles, depending on its behavior can represent a variety of concepts. One of these concepts is what we will refer to herein as an SPH-fluid, which apart from being discretized in particles also has other attributes such as density, mass and pressure. Therefore, the class sph-fluid is a child class of the particles class which is extended in order to encapsulate more member variables and methods to fully characterize the simulated fluid, and it's state during every timestep. In the main program the base class will never be invoked explicitly, but only implicitly through the instantiation of a sph-fluid object. However, from the developer's perspective, by using this approach the code becomes more modular and allows for the derivation of multiple children from the base class if needed.
 
 ```cpp
 class fluid : public particles {
@@ -114,4 +114,53 @@ class fluid : public particles {
 
 
 ## Class-sph_solver
-In the `sph_solver` class, are implemented the steps of the algorithm described in `SPH.md`. The main function which is called by the main program is the `sph_solver::time_integration()`
+
+In the `sph_solver` class, are implemented the steps of the algorithm described in `SPH.md`. The main function which is called by the main program is the `sph::time_integration(fluid &data, std::ofstream &finalPositionsFile, std::ofstream &energiesFile);` where the methods of the class are invoked and perform calculations on the members of the `fluid` object in order to update the positions and the velocities of the particles. Because the members of the `fluid` class have been declared either as protected (from the base class) or private, the solver class does not have direct access to its members and therefore the use of `setter` and `getter` functions and the overloaded `()` symbol is required. This is a good practice when working with OOP techniques because it promotes the idea of data hiding by the classes, and increases the robustness of the code, since the object's members cannot be directly modified from anywhere in the code, apart from inside the class. Below an example on how the `fluid` members are manipulated by one of the `sph_solver's` methods is presented.
+
+```cpp
+void sph_solver::update_position(fluid &data, int particle_index) {
+  // First step to initialise the scheme
+  if (t == 0) {
+
+    // x-direction
+    data(2, particle_index) =
+        data(2, particle_index) +
+        0.5 * velocity_integration(data, particle_index, force_pressure_x,
+                                   force_viscous_x, force_gravity_x);
+    data(0, particle_index) =
+        data(0, particle_index) + data(2, particle_index) * dt;
+
+    // y-direction
+    data(3, particle_index) =
+        data(3, particle_index) +
+        0.5 * velocity_integration(data, particle_index, force_pressure_y,
+                                   force_viscous_y, force_gravity_y);
+    data(1, particle_index) =
+        data(1, particle_index) + data(3, particle_index) * dt;
+
+  }
+
+  // Leap frog scheme
+  else {
+
+    // x-direction
+    data(2, particle_index) =
+        data(2, particle_index) +
+        velocity_integration(data, particle_index, force_pressure_x,
+                             force_viscous_x, force_gravity_x);
+    data(0, particle_index) =
+        data(0, particle_index) + data(2, particle_index) * dt;
+
+    // y-direction
+    data(3, particle_index) =
+        data(3, particle_index) +
+        velocity_integration(data, particle_index, force_pressure_y,
+                             force_viscous_y, force_gravity_y);
+    data(1, particle_index) =
+        data(1, particle_index) + data(3, particle_index) * dt;
+
+  }
+}
+
+```
+

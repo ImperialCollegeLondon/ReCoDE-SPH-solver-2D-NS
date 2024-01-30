@@ -1,10 +1,3 @@
-/**In this header file, the SPH class is going to be defined
- * with the appropriate constructors and destructors
- * and the member functions. The SPH class is going to admit a matrix
- * as an input, as well as the number of particles.
- * Details on the functions, the arrays and the overloadings
- * can be found in the file : class.cpp
- **/
 #ifndef PARTICLES_H
 #define PARTICLES_H
 class particles {
@@ -20,7 +13,7 @@ class particles {
   double *velocity_x;
   double *velocity_y;
 
-  double *particle_speed_sq;
+  double *particle_speed_sq;  // u(i)^2+v(i)^2
 
   // Distances
   double *distance;    // Array to store the distances between the particles
@@ -29,9 +22,7 @@ class particles {
  public:
   /******** CONSTRUCTORS/DESTRUCTOR********/
 
-  // particles() =
-  // delete;  // Constructor without number of particles shouldn't exist
-  particles();
+  particles();   // Default constructor
   ~particles();  // Destructor
 
   particles(const unsigned n_new);  // User defined constructor for allocating
@@ -43,13 +34,10 @@ class particles {
 
   particles &operator=(const particles &particles);
 
-  /**********MEMBER-FUNCTIONS*********/
+  // Getter functions
 
   // Function to get the number of particles
   int get_number_of_particles();
-
-  // Function to calculate the matrix with rij
-  void calc_particle_distance();
 
   // Function to get the position x
   double get_position_x(int k);
@@ -59,6 +47,11 @@ class particles {
 
   // Function to get the normalised distance between the particles
   double get_distance_q(int k);
+
+  // Calculation functions
+
+  // Function to calculate the matrix with rij
+  void calc_particle_distance();
 };
 
 #endif

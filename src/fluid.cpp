@@ -14,7 +14,7 @@ fluid::fluid(const unsigned n_new) : particles(n_new) {
   pressure = new double[nb_particles];
   density = new double[nb_particles];
 }
-
+// Copy constructor
 fluid &fluid::operator=(const fluid &fluid) {
   if (this != &fluid) {
     delete[] distance;
@@ -60,6 +60,8 @@ fluid &fluid::operator=(const fluid &fluid) {
   return *this;
 }
 
+// Setter functions
+
 void fluid::set_gas_constant(double gas_constant) {
   this->gas_constant = gas_constant;
 }
@@ -75,6 +77,44 @@ void fluid::set_viscosity(double viscosity) { this->viscosity = viscosity; }
 void fluid::set_acceleration_gravity(double acceleration_gravity) {
   this->acceleration_gravity = acceleration_gravity;
 }
+
+// Getter functions
+
+double fluid::get_pressure(int index) { return pressure[index]; }
+
+double fluid::get_density(int index) { return density[index]; }
+
+double fluid::get_viscosity() { return viscosity; }
+
+double fluid::get_mass() { return mass; }
+
+double fluid::get_acceleration_gravity() { return acceleration_gravity; }
+
+double fluid::get_rad_infl() { return h; }
+
+double fluid::get_kinetic_energy() {
+  double sum = 0;
+  for (int i = 0; i < nb_particles; i++) {
+    particle_speed_sq[i] =
+        velocity_x[i] * velocity_x[i] + velocity_y[i] * velocity_y[i];
+
+    sum += particle_speed_sq[i];
+  }
+
+  return 0.5 * mass * sum;
+}
+
+double fluid::get_potential_energy() {
+  double sum = 0;
+
+  for (int i = 0; i < nb_particles; i++) {
+    sum += position_y[i] - h;
+  }
+
+  return mass * acceleration_gravity * sum;
+}
+
+// Calculation functions
 
 void fluid::calc_mass() {
   calc_particle_distance();
@@ -127,38 +167,4 @@ void fluid::calc_pressure() {
   for (int i = 0; i < nb_particles; i++) {
     pressure[i] = gas_constant * (density[i] - density_resting);
   }
-}
-
-double fluid::get_pressure(int index) { return pressure[index]; }
-
-double fluid::get_density(int index) { return density[index]; }
-
-double fluid::get_viscosity() { return viscosity; }
-
-double fluid::get_mass() { return mass; }
-
-double fluid::get_acceleration_gravity() { return acceleration_gravity; }
-
-double fluid::get_rad_infl() { return h; }
-
-double fluid::get_kinetic_energy() {
-  double sum = 0;
-  for (int i = 0; i < nb_particles; i++) {
-    particle_speed_sq[i] =
-        velocity_x[i] * velocity_x[i] + velocity_y[i] * velocity_y[i];
-
-    sum += particle_speed_sq[i];
-  }
-
-  return 0.5 * mass * sum;
-}
-
-double fluid::get_potential_energy() {
-  double sum = 0;
-
-  for (int i = 0; i < nb_particles; i++) {
-    sum += position_y[i] - h;
-  }
-
-  return mass * acceleration_gravity * sum;
 }

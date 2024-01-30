@@ -16,13 +16,16 @@
 
 // Start of the main programme
 int main(int argc, char* argv[]) {
+  // Define the output folder
   std::string OUTPUT_FOLDER = "../output";
-  // Read input files, initialise the sph class and the parameters of the
-  // problem
+
+  // Initialise a sph_solver object
   sph_solver sph_solver;
 
-  fluid* sph_fluid = new fluid;  // Allocate memory for the fluid object
+  // Allocate memory for the fluid object
+  fluid* sph_fluid = new fluid;
 
+  // Call the initialise function to initialise the objects based on the inputs
   initialise(&sph_fluid, sph_solver);
 
   std ::cout << "Initialisation finished -- OK"
@@ -215,7 +218,7 @@ void initialise(fluid** fluid_ptr, sph_solver& sph_solver) {
       {"ic-three-particles", 3},
       {"ic-four-particles", 4}};
 
-  // Get the number of particles based on the ic case
+  // Get the number of particles based on the ic case (for the more complex ic)
   if (ic_case == "ic-droplet" || ic_case == "ic-block-drop") {
     nb_particles = ic_vm["n"].as<int>();
     // Error handling for the number of particles
@@ -362,6 +365,7 @@ void initialise(fluid** fluid_ptr, sph_solver& sph_solver) {
   }
   po::notify(constants_vm);
 
+  // Set the parameters of the solver for the specific simulation
   sph_solver.set_timestep(case_vm["dt"].as<double>());
   sph_solver.set_total_iter(ceil(total_time / case_vm["dt"].as<double>()));
   sph_solver.set_output_frequency(case_vm["output_frequency"].as<int>());
@@ -372,8 +376,10 @@ void initialise(fluid** fluid_ptr, sph_solver& sph_solver) {
   sph_solver.set_top_wall(domain_vm["top_wall"].as<double>());
   sph_solver.set_bottom_wall(domain_vm["bottom_wall"].as<double>());
 
+  // Dereference the double pointer to get the actual object
   fluid* objPtr = *fluid_ptr;
 
+  // Define the fluid based on the inputs
   objPtr->set_rad_infl(constants_vm["h"].as<double>());
   objPtr->set_gas_constant(constants_vm["gas_constant"].as<double>());
   objPtr->set_density_resting(constants_vm["density_resting"].as<double>());
@@ -427,12 +433,13 @@ std::tuple<std::ofstream, std::ofstream, std::ofstream> init_output_files(
 void storeToFile(fluid& fluid, std::string type, std::ofstream& targetFile,
                  double dt, int currentIteration) {
   if (type == "energy") {
-    // Write energies on the Energy-File
+    // Write energies in the Energy-File
     targetFile << currentIteration * dt << "," << fluid.get_kinetic_energy()
                << "," << fluid.get_potential_energy() << ","
                << fluid.get_potential_energy() + fluid.get_kinetic_energy()
                << "\n";
   } else if (type == "position") {
+    // Write positions in the position file
     for (int k = 0; k < fluid.get_number_of_particles(); k++) {
       targetFile << fluid.get_position_x(k) << "," << fluid.get_position_y(k)
                  << "\n";

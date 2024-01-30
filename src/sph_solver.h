@@ -5,18 +5,19 @@
 
 class sph_solver {
  private:
-  int t;  // time
-
   int number_of_particles;
+
+  int t;  // Time at a specific iteration
 
   int total_iterations;
 
   int output_frequency;
 
-  double dt;  // time-step
+  double dt;  // Timestep
 
   // Boundaries
   double coeff_restitution;
+
   double left_wall;
   double right_wall;
   double bottom_wall;
@@ -30,9 +31,7 @@ class sph_solver {
   double force_gravity_x = 0.0;
 
  public:
-  /**********MEMBER-FUNCTIONS*********/
-
-  // Setter Functions.
+  // Setter Functions
 
   // Assign value to dt
   void set_timestep(double dt);
@@ -57,6 +56,8 @@ class sph_solver {
 
   // Assign value to top_wall
   void set_top_wall(double top_wall);
+
+  // Calculation functions
 
   // Function to perform the time integration
   void time_integration(fluid &data, std::ofstream &finalPositionsFile,
