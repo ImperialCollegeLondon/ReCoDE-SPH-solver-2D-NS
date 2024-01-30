@@ -1,8 +1,16 @@
 <!-- Your Project title, make it sound catchy! -->
+<div align="center">
 
 # RECODE-SPH-SOLVER-2D-NS
 
+[![C++](https://img.shields.io/badge/C++-00599C?logo=c%2B%2B&logoColor=white)](https://cplusplus.com/)
+[![MPI](https://img.shields.io/badge/MPI-003366?logo=mpi&logoColor=white)](https://www.mpi-forum.org/)
+[![Boost](https://img.shields.io/badge/Boost-00599C?logo=boost&logoColor=white)](https://www.boost.org/)
+[![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+
+
 <!-- Provide a short description to your project -->
+</div>
 
 ## Description
 
