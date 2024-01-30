@@ -9,9 +9,12 @@
 #include "fluid.h"
 #include "main_prog_funcs.h"
 
+// Setter functions
 void sph_solver::set_timestep(double dt) { this->dt = dt; }
 
-void sph_solver::set_total_iter(double total_iter) { this->total_iterations = total_iter; }
+void sph_solver::set_total_iter(double total_iter) {
+  this->total_iterations = total_iter;
+}
 
 void sph_solver::set_output_frequency(double f) { this->output_frequency = f; }
 
@@ -33,8 +36,9 @@ void sph_solver::set_bottom_wall(double bottom_wall) {
 
 void sph_solver::set_top_wall(double top_wall) { this->top_wall = top_wall; }
 
-void sph_solver::time_integration(
-  fluid &data,std::ofstream &finalPositionsFile, std::ofstream &energiesFile) {
+void sph_solver::time_integration(fluid &data,
+                                  std::ofstream &finalPositionsFile,
+                                  std::ofstream &energiesFile) {
   std ::cout << "Time integration started -- OK"
              << "\n";
 
@@ -50,13 +54,11 @@ void sph_solver::time_integration(
     particle_iterations(data);
 
     if (time % output_frequency == 0) {
-      storeToFile(data, "energy",
-                  energiesFile, dt, t);
+      storeToFile(data, "energy", energiesFile, dt, t);
     }
   }
   // Store particles' positions after integration is completed
-  storeToFile(data, "position",
-              finalPositionsFile);
+  storeToFile(data, "position", finalPositionsFile);
 
   std ::cout << "Time integration finished -- OK"
              << "\n";
