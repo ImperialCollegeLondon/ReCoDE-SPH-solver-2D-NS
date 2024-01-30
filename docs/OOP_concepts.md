@@ -13,6 +13,7 @@ Depending on the application, a developer can create families of objects which u
 In this project we chose object orientation which is widely supported by C++ in order to facilitate the implementation of the SPH algorithm and exploit all the benefits that accompany the use of OOP. The basic design idea is built around three classes.
 
 ## Class-particles
+
 The first class is used to represent the building blocks of the SPH approach which are the particles. A particle however is not only relevant in the context of SPH, but it can also be used in other applications such as in the representation of multiphase flows where the particles can be droplets whose motion is two-way coupled with a carrier gas phase. Therefore, the "particles" class was decided to be kept as simple (and generic) as possible and to encapsulate only the information which can be applicable to every application that incorporates the use of cluster of particles. Therefore, the members of the "particles" class are only related to the particles' positions and velocities.
 
 It is important to emphasize that an instance of the "particles" class contains data pertaining to all the particles involved in the simulation (therefore represents the entirety of the cluster), rather than information exclusive to a single particle.
@@ -85,6 +86,7 @@ double &particles::operator()(unsigned row, unsigned col) {
 ```
 
 ## Class-sph-fluid
+
 A cluster of particles, depending on its behavior can represent a variety of concepts. One of these concepts is what we will refer to herein as an SPH-fluid, which apart from being discretized in particles also has other attributes such as density, mass and pressure. Therefore, the class sph-fluid is a child class of the particles class which is extended in order to encapsulate more member variables and methods to fully characterize the simulated fluid, and it's state during every timestep. In the main program the base class will never be invoked explicitly, but only implicitly through the instantiation of a sph-fluid object. However, from the developer's perspective, by using this approach the code becomes more modular and allows for the derivation of multiple children from the base class if needed.
 
 ```cpp
@@ -163,4 +165,3 @@ void sph_solver::update_position(fluid &data, int particle_index) {
 }
 
 ```
-
