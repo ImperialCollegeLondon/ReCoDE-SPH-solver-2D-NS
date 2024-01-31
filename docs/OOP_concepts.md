@@ -24,18 +24,18 @@ class particles {
   unsigned int nb_particles;  // size of the Matrix
 
   // Positions
-  double *position_x;
-  double *position_y;
+  double *positionX;
+  double *positionY;
 
   // Velocities
-  double *velocity_x;
-  double *velocity_y;
+  double *velocityX;
+  double *velocityY;
 
   double *particle_speed_sq;
 
   // Distances
   double *distance;    // Array to store the distances between the particles
-  double *distance_q;  // Array to store the values of the normalised distance q
+  double *distanceQ;  // Array to store the values of the normalised distance q
 
   ...
 
@@ -48,13 +48,13 @@ The particles class is initialised in the `user defined constructor` by using th
 ```cpp
 // User defined constructor
 particles::particles(const unsigned n_new) : nb_particles(n_new) {
-  position_x = new double[nb_particles];
-  position_y = new double[nb_particles];
-  velocity_x = new double[nb_particles];
-  velocity_y = new double[nb_particles];
+  positionX = new double[nb_particles];
+  positionY = new double[nb_particles];
+  velocityX = new double[nb_particles];
+  velocityY = new double[nb_particles];
 
   distance = new double[nb_particles * nb_particles];
-  distance_q = new double[nb_particles * nb_particles];
+  distanceQ = new double[nb_particles * nb_particles];
 
   particle_speed_sq = new double[nb_particles];
 }
@@ -117,17 +117,17 @@ class fluid : public particles {
 
 ## Class-sph_solver
 
-In the `sph_solver` class, are implemented the steps of the algorithm described in `SPH.md`. The main function which is called by the main program is the `sph::time_integration(fluid &data, std::ofstream &finalPositionsFile, std::ofstream &energiesFile);` where the methods of the class are invoked and perform calculations on the members of the `fluid` object in order to update the positions and the velocities of the particles. Because the members of the `fluid` class have been declared either as protected (from the base class) or private, the solver class does not have direct access to its members and therefore the use of `setter` and `getter` functions and the overloaded `()` symbol is required. This is a good practice when working with OOP techniques because it promotes the idea of data hiding by the classes, and increases the robustness of the code, since the object's members cannot be directly modified from anywhere in the code, apart from inside the class. Below an example on how the `fluid` members are manipulated by one of the `sph_solver's` methods is presented.
+In the `sph_solver` class, are implemented the steps of the algorithm described in `SPH.md`. The main function which is called by the main program is the `sph::timeIntegration(fluid &data, std::ofstream &finalPositionsFile, std::ofstream &energiesFile);` where the methods of the class are invoked and perform calculations on the members of the `fluid` object in order to update the positions and the velocities of the particles. Because the members of the `fluid` class have been declared either as protected (from the base class) or private, the solver class does not have direct access to its members and therefore the use of `setter` and `getter` functions and the overloaded `()` symbol is required. This is a good practice when working with OOP techniques because it promotes the idea of data hiding by the classes, and increases the robustness of the code, since the object's members cannot be directly modified from anywhere in the code, apart from inside the class. Below an example on how the `fluid` members are manipulated by one of the `sph_solver's` methods is presented.
 
 ```cpp
-void sph_solver::update_position(fluid &data, int particle_index) {
+void sph_solver::updatePosition(fluid &data, int particle_index) {
   // First step to initialise the scheme
   if (t == 0) {
 
     // x-direction
     data(2, particle_index) =
         data(2, particle_index) +
-        0.5 * velocity_integration(data, particle_index, force_pressure_x,
+        0.5 * velocityIntegration(data, particle_index, force_pressure_x,
                                    force_viscous_x, force_gravity_x);
     data(0, particle_index) =
         data(0, particle_index) + data(2, particle_index) * dt;
@@ -135,7 +135,7 @@ void sph_solver::update_position(fluid &data, int particle_index) {
     // y-direction
     data(3, particle_index) =
         data(3, particle_index) +
-        0.5 * velocity_integration(data, particle_index, force_pressure_y,
+        0.5 * velocityIntegration(data, particle_index, force_pressure_y,
                                    force_viscous_y, force_gravity_y);
     data(1, particle_index) =
         data(1, particle_index) + data(3, particle_index) * dt;
@@ -148,7 +148,7 @@ void sph_solver::update_position(fluid &data, int particle_index) {
     // x-direction
     data(2, particle_index) =
         data(2, particle_index) +
-        velocity_integration(data, particle_index, force_pressure_x,
+        velocityIntegration(data, particle_index, force_pressure_x,
                              force_viscous_x, force_gravity_x);
     data(0, particle_index) =
         data(0, particle_index) + data(2, particle_index) * dt;
@@ -156,7 +156,7 @@ void sph_solver::update_position(fluid &data, int particle_index) {
     // y-direction
     data(3, particle_index) =
         data(3, particle_index) +
-        velocity_integration(data, particle_index, force_pressure_y,
+        velocityIntegration(data, particle_index, force_pressure_y,
                              force_viscous_y, force_gravity_y);
     data(1, particle_index) =
         data(1, particle_index) + data(3, particle_index) * dt;

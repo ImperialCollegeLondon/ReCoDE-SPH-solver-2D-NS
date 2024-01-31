@@ -3,16 +3,16 @@
 #define IC_H
 #include "fluid.h"
 
-void ic_basic(fluid *&fluid_ptr, int n, double *position_x, double *position_y);
+void icBasic(Fluid *&fluidPtr, int n, double *positionX, double *positionY);
 
-void ic_block_drop(fluid *&fluid_ptr, int &n, double length, double width,
-                   double center_x, double center_y);
+void icBlockDrop(Fluid *&fluidPtr, int &n, double length, double width,
+                 double centerX, double centerY);
 
-void ic_droplet(fluid *&fluid_ptr, int &n, double radius, double center_x,
-                double center_y);
+void icDroplet(Fluid *&fluidPtr, int &n, double radius, double centerX,
+               double centerY);
 
-int closest_integer_sqrt(int n);
+int closestIntegerSqrt(int n);
 
-int rectangle_n(int n, double length, double width, int &n1, int &n2);
+int rectangleN(int n, double length, double width, int &n1, int &n2);
 
 #endif

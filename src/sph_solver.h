@@ -3,88 +3,88 @@
 
 #include "fluid.h"
 
-class sph_solver {
+class SphSolver {
  private:
-  int number_of_particles;
+  int numberOfParticles;
 
   int t;  // Time at a specific iteration
 
-  int total_iterations;
+  int totalterations;
 
-  int output_frequency;
+  int outputFrequency;
 
   double dt;  // Timestep
 
   // Boundaries
-  double coeff_restitution;
+  double coeffRestitution;
 
-  double left_wall;
-  double right_wall;
-  double bottom_wall;
-  double top_wall;
+  double leftWall;
+  double rightWall;
+  double bottomWall;
+  double topWall;
 
   // Forces
-  double force_pressure, force_viscous, force_gravity;
-  double force_pressure_x, force_pressure_y;
-  double force_viscous_x, force_viscous_y;
-  double force_gravity_y;
-  double force_gravity_x = 0.0;
+  double forcePressure, forceViscous, forceGravity;
+  double forcePressureX, forcePressureY;
+  double forceViscousX, forceViscousY;
+  double forceGravityY;
+  double forceGravityX = 0.0;
 
  public:
   // Setter Functions
 
   // Assign value to dt
-  void set_timestep(double dt);
+  void setTimestep(double dt);
 
   // Assign value to the total iterations
-  void set_total_iter(double total_iter);
+  void setTotalIterations(double totalterations);
 
   // Assign value to the frequency
-  void set_output_frequency(double output_frequency);
+  void setOutputFrequency(double outputFrequency);
 
-  // Assign value to coeff_restitution
-  void set_coeff_restitution(double coeff_restitution);
+  // Assign value to coeffRestitution
+  void setCoeffRestitution(double coeffRestitution);
 
-  // Assign value to left_wall
-  void set_left_wall(double left_wall);
+  // Assign value to leftWall
+  void setLeftWall(double leftWall);
 
-  // Assign value to right_wall
-  void set_right_wall(double right_wall);
+  // Assign value to rightWall
+  void setRightWall(double rightWall);
 
-  // Assign value to bottom_wall
-  void set_bottom_wall(double bottom_wall);
+  // Assign value to bottomWall
+  void setBottomWall(double bottomWall);
 
-  // Assign value to top_wall
-  void set_top_wall(double top_wall);
+  // Assign value to topWall
+  void setTopWall(double topWall);
 
   // Calculation functions
 
   // Function to perform the time integration
-  void time_integration(fluid &data, std::ofstream &finalPositionsFile,
-                        std::ofstream &energiesFile);
+  void timeIntegration(Fluid &data, std::ofstream &finalPositionsFile,
+                       std::ofstream &energiesFile);
 
   // Function to perform the particle iterations
-  void particle_iterations(fluid &data);
+  void particleIterations(Fluid &data);
 
   // Function to calculate the pressure force
-  double calc_pressure_force(fluid &data, int particle_index, int dir);
+  double calculatePressureForce(Fluid &data, int particleIndex, int dir);
 
   // Function to calculate the viscous force
-  double calc_viscous_force(fluid &data, int particle_index, int dir);
+  double calcViscousForce(Fluid &data, int particleIndex, int dir);
 
   // Function to calculate the gravity force
-  double calc_gravity_force(fluid &data, int particle_index);
+  double calcGravityForce(Fluid &data, int particleIndex);
 
   // Function to update the positions of the particles
-  void update_position(fluid &data, int particle_index);
+  void updatePosition(Fluid &data, int particleIndex);
 
   // Function for time integration - velocity
-  double velocity_integration(fluid &data, int particle_index,
-                              double &force_pressure, double &force_viscous,
-                              double &force_gravity);
+  double velocityIntegration(Fluid &data, int particleIndex,
+                             double &forcePressure, double &forceViscous,
+                             double &forceGravity);
 
   // Function to treat the boundaries
-  void boundaries(fluid &data, int particle_index);
+  void boundaries(Fluid &data, int particleIndex);
 };
 
 #endif

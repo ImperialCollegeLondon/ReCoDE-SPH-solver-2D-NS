@@ -3,13 +3,13 @@
 #include "fstream"
 #include "particles.h"
 
-class fluid : public particles {
+class Fluid : public particles {
  private:
   // Constants of the problem
-  double gas_constant;
-  double density_resting;
+  double gasConstant;
+  double densityResting;
   double viscosity;
-  double acceleration_gravity;
+  double accelerationGravity;
   double h;
 
   // Mass
@@ -22,65 +22,65 @@ class fluid : public particles {
   double *pressure;
 
  public:
-  fluid() = default;  // Default constructor
+  Fluid() = default;  // Default constructor
 
-  fluid(const unsigned n_new);
+  Fluid(const unsigned nNew);
 
-  fluid &operator=(const fluid &fluid);
+  Fluid &operator=(const Fluid &fluid);
 
   // Setter functions
 
-  // Assign value to gas_constant
-  void set_gas_constant(double gas_constant);
+  // Assign value to gasConstant
+  void setGasConstant(double gasConstant);
 
-  // Assign value to density_resting
-  void set_density_resting(double density_resting);
+  // Assign value to densityResting
+  void setDensityResting(double densityResting);
 
   // Assign value to the radius of influence
-  void set_rad_infl(double h);
+  void setRadInfl(double h);
 
   // Assign value to viscosity
-  void set_viscosity(double viscosity);
+  void setViscosity(double viscosity);
 
-  // Assign value to acceleration_gravity
-  void set_acceleration_gravity(double acceleration_gravity);
+  // Assign value to accelerationGravity
+  void setAccelerationGravity(double accelerationGravity);
 
   // Getter functions
 
   // Function to get the pressure felt by a single particle
-  double get_pressure(int index);
+  double getPressure(int index);
 
   // Function to get the density felt by a single particle
-  double get_density(int index);
+  double getDensity(int index);
 
   // Function to get the viscosity of the fluid
-  double get_viscosity();
+  double getViscosity();
 
   // Function to get the mass of the fluid
-  double get_mass();
+  double getMass();
 
   // Function to get the radius of influence
-  double get_rad_infl();
+  double getRadInfl();
 
   // Function to get the gravitational acceleration
-  double get_acceleration_gravity();
+  double getAccelerationGravity();
 
   // Function to calculate and get the kinetic energy
-  double get_kinetic_energy();
+  double getKineticEnergy();
 
   // Function to calculate and get the potential energy
-  double get_potential_energy();
+  double getPotentialEnergy();
 
   // Calculation functions
 
   // Function to calculate the mass of the particles before the simulation
   // starts
-  void calc_mass();
+  void calculateMass();
 
   // Function to calculate the density
-  void calc_density();
+  void calculateDensity();
 
   // Function to calculate the pressure
-  void calc_pressure();
+  void calculatePressure();
 };
 #endif

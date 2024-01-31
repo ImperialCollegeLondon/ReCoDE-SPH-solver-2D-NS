@@ -8,8 +8,8 @@ exec/build/*
 !exec/build/.gitkeep
 
 # Python virtual environment
-venv
-.venv
+venv/
+.venv/
 
 # Output
 output/
