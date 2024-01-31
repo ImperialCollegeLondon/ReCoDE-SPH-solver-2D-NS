@@ -10,7 +10,7 @@ class Fluid : public particles {
   double densityResting;
   double viscosity;
   double accelerationGravity;
-  double h;
+  double radiusOfInfluence;
 
   // Mass
   double mass = 1.0;
@@ -37,7 +37,7 @@ class Fluid : public particles {
   void setDensityResting(double densityResting);
 
   // Assign value to the radius of influence
-  void setRadInfl(double h);
+  void setRadInfl(double radiusOfInfluence);
 
   // Assign value to viscosity
   void setViscosity(double viscosity);

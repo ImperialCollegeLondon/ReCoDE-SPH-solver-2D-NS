@@ -67,7 +67,9 @@ void Fluid::setDensityResting(double densityResting) {
   this->densityResting = densityResting;
 }
 
-void Fluid::setRadInfl(double h) { this->h = h; }
+void Fluid::setRadInfl(double radiusOfInfluence) {
+  this->radiusOfInfluence = radiusOfInfluence;
+}
 
 void Fluid::setViscosity(double viscosity) { this->viscosity = viscosity; }
 
@@ -87,7 +89,7 @@ double Fluid::getMass() { return mass; }
 
 double Fluid::getAccelerationGravity() { return accelerationGravity; }
 
-double Fluid::getRadInfl() { return h; }
+double Fluid::getRadInfl() { return radiusOfInfluence; }
 
 double Fluid::getKineticEnergy() {
   double sum = 0;
@@ -105,7 +107,7 @@ double Fluid::getPotentialEnergy() {
   double sum = 0;
 
   for (int i = 0; i < nbParticles; i++) {
-    sum += positionY[i] - h;
+    sum += positionY[i] - radiusOfInfluence;
   }
 
   return mass * accelerationGravity * sum;
@@ -126,11 +128,12 @@ void Fluid::calculateMass() {
 
 void Fluid::calculateDensity() {
   double phi;
-  double fourPiH2 =
-      (4.0 / (M_PI * h * h));  // Precalculated value used to avoid multiple
-                               // divisions and multiplications
-  double hInverse =
-      1.0 / h;  // Precalculated value used to avoid multiple divisions
+  double fourPih2 =
+      (4.0 / (M_PI * radiusOfInfluence *
+              radiusOfInfluence));  // Precalculated value used to avoid
+                                    // multiple divisions and multiplications
+  double hInverse = 1.0 / radiusOfInfluence;  // Precalculated value used to
+                                              // avoid multiple divisions
 
   // find φ
   for (int i = 0; i < nbParticles; i++) {
@@ -141,7 +144,7 @@ void Fluid::calculateDensity() {
           std::abs(distance[i * nbParticles + j] * hInverse);
 
       if (distanceQ[i * nbParticles + j] < 1.0) {
-        phi = fourPiH2 *
+        phi = fourPih2 *
               (1.0 - distanceQ[i * nbParticles + j] *
                          distanceQ[i * nbParticles + j]) *
               (1.0 - distanceQ[i * nbParticles + j] *

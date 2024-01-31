@@ -12,8 +12,8 @@
 // Setter functions
 void SphSolver::setTimestep(double dt) { this->dt = dt; }
 
-void SphSolver::setTotalIterations(double totalIter) {
-  this->totalterations = totalIter;
+void SphSolver::setTotalIterations(double totalIterations) {
+  this->totalIterations = totalIterations;
 }
 
 void SphSolver::setOutputFrequency(double f) { this->outputFrequency = f; }
@@ -39,7 +39,7 @@ void SphSolver::timeIntegration(Fluid &data, std::ofstream &finalPositionsFile,
 
   numberOfParticles = data.getNumberOfParticles();
 
-  for (int time = 0; time < totalterations; time++) {
+  for (int time = 0; time < totalIterations; time++) {
     t = time;
     // In each iteration the distances between the particles are recalculated,
     // as well as their density and pressure
@@ -53,7 +53,7 @@ void SphSolver::timeIntegration(Fluid &data, std::ofstream &finalPositionsFile,
     }
   }
   // Store particles' positions after integration is completed
-  storeToFile(data, "position", finalPositionsFile, dt, totalterations);
+  storeToFile(data, "position", finalPositionsFile, dt, totalIterations);
 
   std ::cout << "Time integration finished -- OK"
              << "\n";
@@ -85,10 +85,11 @@ void SphSolver::particleIterations(Fluid &data) {
 double SphSolver::calculatePressureForce(Fluid &data, int particleIndex,
                                          int dir) {
   double sum = 0.0;  // Initializing the summation
-  double h = data.getRadInfl();
-  double thirtyPiH3 =
-      (-30.0 / (M_PI * h * h * h));  // Precalculated value used to avoid
-                                     // multiple divisions and multiplications
+  double radiusOfInfluence = data.getRadInfl();
+  double thirtyPih3 =
+      (-30.0 / (M_PI * radiusOfInfluence * radiusOfInfluence *
+                radiusOfInfluence));  // Precalculated value used to avoid
+                                      // multiple divisions and multiplications
 
   for (int j = 0; j < numberOfParticles; j++) {
     if (particleIndex != j) {
@@ -96,7 +97,7 @@ double SphSolver::calculatePressureForce(Fluid &data, int particleIndex,
         sum +=
             (data.getMass() / data.getDensity(j)) *
             ((data.getPressure(particleIndex) + data.getPressure(j)) / 2.0) *
-            (thirtyPiH3 * (data(dir, particleIndex) - data(dir, j))) *
+            (thirtyPih3 * (data(dir, particleIndex) - data(dir, j))) *
             (((1.0 - data.getDistanceQ(particleIndex * numberOfParticles + j)) *
               (1.0 -
                data.getDistanceQ(particleIndex * numberOfParticles + j))) /
@@ -108,12 +109,14 @@ double SphSolver::calculatePressureForce(Fluid &data, int particleIndex,
 }
 
 double SphSolver::calcViscousForce(Fluid &data, int particleIndex, int dir) {
-  double h = data.getRadInfl();
+  double radiusOfInfluence = data.getRadInfl();
 
   double sum = 0.0;  // Initializing the summation
-  double fourtyPiH4 = (40.0 / (M_PI * h * h * h *
-                               h));  // Precalculated value used to avoid
-                                     // multiple divisions and multiplications
+  double fourtyPih4 =
+      (40.0 /
+       (M_PI * radiusOfInfluence * radiusOfInfluence * radiusOfInfluence *
+        radiusOfInfluence));  // Precalculated value used to avoid
+                              // multiple divisions and multiplications
 
   for (int j = 0; j < numberOfParticles; j++) {
     if (particleIndex == j) {
@@ -124,7 +127,7 @@ double SphSolver::calcViscousForce(Fluid &data, int particleIndex, int dir) {
         sum +=
             (data.getMass() / data.getDensity(j)) *
             (data(dir, particleIndex) - data(dir, j)) *
-            (fourtyPiH4 *
+            (fourtyPih4 *
              (1.0 - data.getDistanceQ(particleIndex * numberOfParticles + j)));
       }
     }

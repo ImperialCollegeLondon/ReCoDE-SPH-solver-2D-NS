@@ -9,7 +9,7 @@ class SphSolver {
 
   int t;  // Time at a specific iteration
 
-  int totalterations;
+  int totalIterations;
 
   int outputFrequency;
 
@@ -37,7 +37,7 @@ class SphSolver {
   void setTimestep(double dt);
 
   // Assign value to the total iterations
-  void setTotalIterations(double totalterations);
+  void setTotalIterations(double totalIterations);
 
   // Assign value to the frequency
   void setOutputFrequency(double outputFrequency);
