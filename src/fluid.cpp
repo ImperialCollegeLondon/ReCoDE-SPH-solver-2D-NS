@@ -7,147 +7,150 @@
 #include <iostream>
 
 // User defined constructor
-fluid::fluid(const unsigned n_new) : particles(n_new) {
-  pressure = new double[nb_particles];
-  density = new double[nb_particles];
+Fluid::Fluid(const unsigned nNew) : particles(nNew) {
+  pressure = new double[nbParticles];
+  density = new double[nbParticles];
 }
 // Copy constructor
-fluid &fluid::operator=(const fluid &fluid) {
+Fluid &Fluid::operator=(const Fluid &fluid) {
   if (this != &fluid) {
     delete[] distance;
-    delete[] distance_q;
-    delete[] particle_speed_sq;
-    delete[] position_x;
-    delete[] position_y;
-    delete[] velocity_x;
-    delete[] velocity_y;
+    delete[] distanceQ;
+    delete[] particleSpeedSq;
+    delete[] positionX;
+    delete[] positionY;
+    delete[] velocityX;
+    delete[] velocityY;
     delete[] pressure;
     delete[] density;
 
-    nb_particles = fluid.nb_particles;
+    nbParticles = fluid.nbParticles;
 
-    position_x = new double[nb_particles];
-    position_y = new double[nb_particles];
-    velocity_x = new double[nb_particles];
-    velocity_y = new double[nb_particles];
+    positionX = new double[nbParticles];
+    positionY = new double[nbParticles];
+    velocityX = new double[nbParticles];
+    velocityY = new double[nbParticles];
 
-    distance = new double[nb_particles * nb_particles];
-    distance_q = new double[nb_particles * nb_particles];
+    distance = new double[nbParticles * nbParticles];
+    distanceQ = new double[nbParticles * nbParticles];
 
-    particle_speed_sq = new double[nb_particles];
+    particleSpeedSq = new double[nbParticles];
 
-    pressure = new double[nb_particles];
-    density = new double[nb_particles];
+    pressure = new double[nbParticles];
+    density = new double[nbParticles];
 
-    std::memcpy(position_x, fluid.position_x, nb_particles * sizeof(double));
-    std::memcpy(position_y, fluid.position_y, nb_particles * sizeof(double));
-    std::memcpy(velocity_x, fluid.velocity_x, nb_particles * sizeof(double));
-    std::memcpy(velocity_y, fluid.velocity_y, nb_particles * sizeof(double));
+    std::memcpy(positionX, fluid.positionX, nbParticles * sizeof(double));
+    std::memcpy(positionY, fluid.positionY, nbParticles * sizeof(double));
+    std::memcpy(velocityX, fluid.velocityX, nbParticles * sizeof(double));
+    std::memcpy(velocityY, fluid.velocityY, nbParticles * sizeof(double));
 
     std::memcpy(distance, fluid.distance,
-                nb_particles * nb_particles * sizeof(double));
-    std::memcpy(distance_q, fluid.distance_q,
-                nb_particles * nb_particles * sizeof(double));
-    std::memcpy(particle_speed_sq, fluid.particle_speed_sq,
-                nb_particles * sizeof(double));
+                nbParticles * nbParticles * sizeof(double));
+    std::memcpy(distanceQ, fluid.distanceQ,
+                nbParticles * nbParticles * sizeof(double));
+    std::memcpy(particleSpeedSq, fluid.particleSpeedSq,
+                nbParticles * sizeof(double));
 
-    std::memcpy(pressure, fluid.pressure, nb_particles * sizeof(double));
-    std::memcpy(density, fluid.density, nb_particles * sizeof(double));
+    std::memcpy(pressure, fluid.pressure, nbParticles * sizeof(double));
+    std::memcpy(density, fluid.density, nbParticles * sizeof(double));
   }
   return *this;
 }
 
 // Setter functions
 
-void fluid::set_gas_constant(double gas_constant) {
-  this->gas_constant = gas_constant;
+void Fluid::setGasConstant(double gasConstant) {
+  this->gasConstant = gasConstant;
 }
 
-void fluid::set_density_resting(double density_resting) {
-  this->density_resting = density_resting;
+void Fluid::setDensityResting(double densityResting) {
+  this->densityResting = densityResting;
 }
 
-void fluid::set_rad_infl(double h) { this->h = h; }
+void Fluid::setRadInfl(double radiusOfInfluence) {
+  this->radiusOfInfluence = radiusOfInfluence;
+}
 
-void fluid::set_viscosity(double viscosity) { this->viscosity = viscosity; }
+void Fluid::setViscosity(double viscosity) { this->viscosity = viscosity; }
 
-void fluid::set_acceleration_gravity(double acceleration_gravity) {
-  this->acceleration_gravity = acceleration_gravity;
+void Fluid::setAccelerationGravity(double accelerationGravity) {
+  this->accelerationGravity = accelerationGravity;
 }
 
 // Getter functions
 
-double fluid::get_pressure(int index) { return pressure[index]; }
+double Fluid::getPressure(int index) { return pressure[index]; }
 
-double fluid::get_density(int index) { return density[index]; }
+double Fluid::getDensity(int index) { return density[index]; }
 
-double fluid::get_viscosity() { return viscosity; }
+double Fluid::getViscosity() { return viscosity; }
 
-double fluid::get_mass() { return mass; }
+double Fluid::getMass() { return mass; }
 
-double fluid::get_acceleration_gravity() { return acceleration_gravity; }
+double Fluid::getAccelerationGravity() { return accelerationGravity; }
 
-double fluid::get_rad_infl() { return h; }
+double Fluid::getRadInfl() { return radiusOfInfluence; }
 
-double fluid::get_kinetic_energy() {
+double Fluid::getKineticEnergy() {
   double sum = 0;
-  for (int i = 0; i < nb_particles; i++) {
-    particle_speed_sq[i] =
-        velocity_x[i] * velocity_x[i] + velocity_y[i] * velocity_y[i];
+  for (int i = 0; i < nbParticles; i++) {
+    particleSpeedSq[i] =
+        velocityX[i] * velocityX[i] + velocityY[i] * velocityY[i];
 
-    sum += particle_speed_sq[i];
+    sum += particleSpeedSq[i];
   }
 
   return 0.5 * mass * sum;
 }
 
-double fluid::get_potential_energy() {
+double Fluid::getPotentialEnergy() {
   double sum = 0;
 
-  for (int i = 0; i < nb_particles; i++) {
-    sum += position_y[i] - h;
+  for (int i = 0; i < nbParticles; i++) {
+    sum += positionY[i] - radiusOfInfluence;
   }
 
-  return mass * acceleration_gravity * sum;
+  return mass * accelerationGravity * sum;
 }
 
 // Calculation functions
 
-void fluid::calc_mass() {
-  calc_particle_distance();
-  calc_density();
-  double sumden = 0.0;
-  for (int i = 0; i < nb_particles; i++) {
-    sumden += density[i];
+void Fluid::calculateMass() {
+  calculateParticleDistance();
+  calculateDensity();
+  double sumDensity = 0.0;
+  for (int i = 0; i < nbParticles; i++) {
+    sumDensity += density[i];
   }
 
-  mass = nb_particles * density_resting / sumden;
+  mass = nbParticles * densityResting / sumDensity;
 }
 
-void fluid::calc_density() {
+void Fluid::calculateDensity() {
   double phi;
-  double four_pi_h_2 =
-      (4.0 / (M_PI * h * h));  // Precalculated value used to avoid multiple
-                               // divisions and multiplications
-  double h_inverse =
-      1.0 / h;  // Precalculated value used to avoid multiple divisions
+  double fourPih2 =
+      (4.0 / (M_PI * radiusOfInfluence *
+              radiusOfInfluence));  // Precalculated value used to avoid
+                                    // multiple divisions and multiplications
+  double hInverse = 1.0 / radiusOfInfluence;  // Precalculated value used to
+                                              // avoid multiple divisions
 
   // find φ
-  for (int i = 0; i < nb_particles; i++) {
+  for (int i = 0; i < nbParticles; i++) {
     density[i] = 0;
 
-    for (int j = 0; j < nb_particles; j++) {
-      distance_q[i * nb_particles + j] =
-          std::abs(distance[i * nb_particles + j] * h_inverse);
+    for (int j = 0; j < nbParticles; j++) {
+      distanceQ[i * nbParticles + j] =
+          std::abs(distance[i * nbParticles + j] * hInverse);
 
-      if (distance_q[i * nb_particles + j] < 1.0) {
-        phi = four_pi_h_2 *
-              (1.0 - distance_q[i * nb_particles + j] *
-                         distance_q[i * nb_particles + j]) *
-              (1.0 - distance_q[i * nb_particles + j] *
-                         distance_q[i * nb_particles + j]) *
-              (1.0 - distance_q[i * nb_particles + j] *
-                         distance_q[i * nb_particles + j]);
+      if (distanceQ[i * nbParticles + j] < 1.0) {
+        phi = fourPih2 *
+              (1.0 - distanceQ[i * nbParticles + j] *
+                         distanceQ[i * nbParticles + j]) *
+              (1.0 - distanceQ[i * nbParticles + j] *
+                         distanceQ[i * nbParticles + j]) *
+              (1.0 -
+               distanceQ[i * nbParticles + j] * distanceQ[i * nbParticles + j]);
 
       }
 
@@ -160,8 +163,8 @@ void fluid::calc_density() {
   }
 }
 
-void fluid::calc_pressure() {
-  for (int i = 0; i < nb_particles; i++) {
-    pressure[i] = gas_constant * (density[i] - density_resting);
+void Fluid::calculatePressure() {
+  for (int i = 0; i < nbParticles; i++) {
+    pressure[i] = gasConstant * (density[i] - densityResting);
   }
 }

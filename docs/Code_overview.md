@@ -1,6 +1,6 @@
 # Code overview
 
-The code herein contains a serial C++ implementation of the SPH methodology described in `SPH.md`. The variables associated with the particles' positions, velocities and forces, are stored as members of an object called `fluid`, while the methods of another class called `sph_solver` manifest the steps of the algorithm.
+The code herein contains a serial C++ implementation of the SPH methodology described in `SPH.md`. The variables associated with the particles' positions, velocities and forces, are stored as members of an object called `fluid`, while the methods of another class called `SphSolver` manifest the steps of the algorithm.
 
 ## Files
 
@@ -22,7 +22,7 @@ The program expects the parameters which are specified in the `exec/input` direc
 ```cpp
 /* **************************** SPH_main.cpp **************************** */
 
-// void initialise(fluid** fluid_ptr, sph_solver& sph_solver) { ...
+// void initialise(fluid** fluidPtr, SphSolver& sphSolver) { ...
 
 
 // Process to obtain the inputs provided by the user
@@ -55,7 +55,7 @@ desc.add_options()("init_condition", po::value<std::string>(),
     "init_y_3", po::value<double>(), "take y_3")(
     "init_x_4", po::value<double>(), "take x_4")(
     "init_y_4", po::value<double>(), "take y_4")(
-    "output_frequency", po::value<int>(),
+    "outputFrequency", po::value<int>(),
     "take frequency that output will be written to file");
 
 
@@ -63,28 +63,28 @@ desc.add_options()("init_condition", po::value<std::string>(),
 
 
 // Map the inputs read from the initial condition file to expected inputs
-std::string ic_case = case_vm["init_condition"].as<std::string>();
-po::variables_map ic_vm;
+std::string icCase = caseVm["init_condition"].as<std::string>();
+po::variables_map icVm;
 std::ifstream icFile;
 // Open the file of the initial condition the user has chosen
 try {
-icFile.open("../input/" + ic_case + ".txt");
+icFile.open("../input/" + icCase + ".txt");
 // Throw an exception if the file cannot be opened
 if (!icFile.is_open()) {
     throw std::runtime_error(
-        "Error opening file: " + ic_case +
+        "Error opening file: " + icCase +
         ".txt Make sure that the value of the init_condition in the case.txt "
         "file is one of the following: ic-one-particle, ic-two-particles, "
         "ic-three-particles, ic-four-particles, ic-droplet, ic-block-drop.");
 }
-po::store(po::parse_config_file(icFile, desc), ic_vm);
+po::store(po::parse_config_file(icFile, desc), icVm);
 } catch (std::runtime_error& e) {
 // Handle the exception by printing the error message and exiting the
 // program
 std::cerr << e.what() << std::endl;
 exit(1);
 }
-po::notify(ic_vm);
+po::notify(icVm);
 ```
 
 Additionally, error handling is integrated into the input file reading process to guarantee that the provided values conform to the constraints imposed by the underlying mathematical models and the physical meaning of each variable. For example, if the user attempts to set a negative value for the timestep, or a value that is greater than the integration time, the program will throw an error and instruct the user to choose a more suitable value.
@@ -92,12 +92,12 @@ Additionally, error handling is integrated into the input file reading process t
 ```cpp
 /* **************************** SPH_main.cpp **************************** */
 
-// void initialise(fluid** fluid_ptr, sph_solver& sph_solver) { ...
+// void initialise(fluid** fluidPtr, SphSolver& sphSolver) { ...
 
-simulationParameters.dt = case_vm["dt"].as<double>();  // Time step dt
+simulationParameters.dt = caseVm["dt"].as<double>();  // Time step dt
 // Error handling for the time step
 try {
-if (simulationParameters.dt <= 0 or simulationParameters.dt > total_time) {
+if (simulationParameters.dt <= 0 or simulationParameters.dt > totalTime) {
     throw std::runtime_error(
         "Error: Time step must be positive and lower than the total "
         "integration time!");
@@ -114,25 +114,25 @@ exit(1);
 
 The code makes use of three different classes which are purposed to represent the fluid and the SPH algorithm deployed in this project. More details regarding the classes and the design choices can be found in the `docs/OOP_concepts.md` and the reader is advised to study it before proceeding with this chapter.
 
-Firstly, one sph_solver object and one fluid pointer to an object are being declared in the main program. The pointer declaration is used for the `fluid`, because to initialise the object properly the number of particles is required in the user defined constructor and this information is not yet available since the input files have not been read. These objects are passed as a reference to the `initialise()` function. 
+Firstly, one SphSolver object and one fluid pointer to an object are being declared in the main program. The pointer declaration is used for the `fluid`, because to initialise the object properly the number of particles is required in the user defined constructor and this information is not yet available since the input files have not been read. These objects are passed as a reference to the `initialise()` function. 
 
-Once the input values are read and stored, the provided IC is used to determine the number of particles. This means that although the user has already provided a number of particles, this is just an indication, since the IC (droplet and block drop) require specific formation and the particles to be distributed uniformly. These two conditions cannot be satisfied simultaneously by any number of particles and therefore several adjustments need to be made. The functions `closest_integer_sqrt()` and `rectangle_n()` from `initial_conditions.h` are functions suitable for this purpose. 
+Once the input values are read and stored, the provided IC is used to determine the number of particles. This means that although the user has already provided a number of particles, this is just an indication, since the IC (droplet and block drop) require specific formation and the particles to be distributed uniformly. These two conditions cannot be satisfied simultaneously by any number of particles and therefore several adjustments need to be made. The functions `closestIntegerSqrt()` and `rectangleN()` from `initial_conditions.h` are functions suitable for this purpose. 
 
 The IC functions are being called within the `initialise()` function and a reference to the pointer of the fluid object is passed as an argument, as well as the updated number of particles. Inside these functions the user defined constructor of the `fluid` is being called and the memory allocation process for the object's containers is invoked. In this, the containers are declared as `new` raw pointers to arrays, dynamically allocating memory proportional to the number of particles. The function used to initialise the `fluid` class for the simple cases of 1,2,3 and 4 particles is demonstrated below.
 
 ```cpp
 /* **************************** initial_conditions.cpp **************************** */
 
-void ic_basic(fluid **fluid_ptr, int nb_particles, double *position_x,
-              double *position_y) {
+void icBasic(fluid **fluidPtr, int nbParticles, double *positionX,
+              double *positionY) {
   // Allocate memory for the fluid object and call the constructor
-  *fluid_ptr = new fluid(nb_particles);
+  *fluidPtr = new fluid(nbParticles);
 
-  fluid &fluid = **fluid_ptr;  // Use a reference to the object
+  fluid &fluid = **fluidPtr;  // Use a reference to the object
 
-  for (int i = 0; i < nb_particles; i++) {
-    fluid(0, i) = position_x[i];
-    fluid(1, i) = position_y[i];
+  for (int i = 0; i < nbParticles; i++) {
+    fluid(0, i) = positionX[i];
+    fluid(1, i) = positionY[i];
     fluid(2, i) = 0.0;
     fluid(3, i) = 0.0;
   }
@@ -147,14 +147,14 @@ To avoid the use of multiple `if` statements, two `std::map` objects are used to
 
   /* **************************** SPH_main.cpp **************************** */
 
-  // void initialise(fluid** fluid_ptr, sph_solver& sph_solver) { ...
+  // void initialise(fluid** fluidPtr, SphSolver& sphSolver) { ...
 
   // Get the number of particles based on the ic case
-  if (ic_case == "ic-droplet" || ic_case == "ic-block-drop") {
-    nb_particles = ic_vm["n"].as<int>();
+  if (icCase == "ic-droplet" || icCase == "ic-block-drop") {
+    nbParticles = icVm["n"].as<int>();
     // Error handling for the number of particles
     try {
-      if (nb_particles <= 0) {
+      if (nbParticles <= 0) {
         throw std::runtime_error(
             "Error: Number of particles must be positive!");
       }
@@ -165,15 +165,15 @@ To avoid the use of multiple `if` statements, two `std::map` objects are used to
       exit(1);
     }
   } else {
-    nb_particles = initConditionToParticlesMap[case_vm["init_condition"]
+    nbParticles = initConditionToParticlesMap[caseVm["init_condition"]
                                                    .as<std::string>()];
   }
 
   // Block of code ...
 
-  } else if (ic_case == "ic-droplet") {
+  } else if (icCase == "ic-droplet") {
     // Get the droplet radius and center coordinates from the ic file
-    double radius = ic_vm["radius"].as<double>();
+    double radius = icVm["radius"].as<double>();
     // Error handling for the droplet radius
     try {
       if (radius <= 0) {
@@ -185,14 +185,14 @@ To avoid the use of multiple `if` statements, two `std::map` objects are used to
       std::cerr << e.what() << std::endl;
       exit(1);
     }
-    double center_x = ic_vm["center_x"].as<double>();
-    double center_y = ic_vm["center_y"].as<double>();
-    // Error handling for the droplet initial position (center_x, center_y)
+    double centerX = icVm["center_x"].as<double>();
+    double centerY = icVm["center_y"].as<double>();
+    // Error handling for the droplet initial position (centerX, centerY)
     try {
-      if (center_x - radius < domain_vm["left_wall"].as<double>() ||
-          center_x + radius > domain_vm["right_wall"].as<double>() ||
-          center_y - radius < domain_vm["bottom_wall"].as<double>() ||
-          center_y + radius > domain_vm["top_wall"].as<double>()) {
+      if (centerX - radius < domainVm["left_wall"].as<double>() ||
+          centerX + radius > domainVm["right_wall"].as<double>() ||
+          centerY - radius < domainVm["bottom_wall"].as<double>() ||
+          centerY + radius > domainVm["top_wall"].as<double>()) {
         throw std::runtime_error(
             "Error: The droplet must be within the domain boundaries! Please "
             "adjust the center coordinates.");
@@ -203,7 +203,7 @@ To avoid the use of multiple `if` statements, two `std::map` objects are used to
       std::cerr << e.what() << std::endl;
       exit(1);
     }
-    ic_droplet(fluid_ptr, nb_particles, radius, center_x, center_y);
+    icDroplet(fluidPtr, nbParticles, radius, centerX, centerY);
   } else {
     std::cerr << "Error: Initial condition function not found! Make sure "
               << "that the value of the init_condition in the case.txt file is "
@@ -216,42 +216,42 @@ To avoid the use of multiple `if` statements, two `std::map` objects are used to
 
 ```
 
-Finally, after the object initialisation, the rest of the parameters which are required by the `sph_solver` and the `fluid` objects are being set with the use of setter functions.
+Finally, after the object initialisation, the rest of the parameters which are required by the `SphSolver` and the `Fluid` objects are being set with the use of setter functions.
 
 ```cpp
 
   /* **************************** SPH_main.cpp **************************** */
 
-  // void initialise(fluid** fluid_ptr, sph_solver& sph_solver) { ...
+  // void initialise(fluid** fluidPtr, SphSolver& sphSolver) { ...
 
-  sph_solver.set_timestep(case_vm["dt"].as<double>());
-  sph_solver.set_total_iter(ceil(
-      total_time /
-      case_vm["dt"].as<double>()));
-  sph_solver.set_output_frequency(case_vm["output_frequency"].as<int>());
-  sph_solver.set_coeff_restitution(
-      constants_vm["coeff_restitution"].as<double>());
-  sph_solver.set_left_wall(domain_vm["left_wall"].as<double>());
-  sph_solver.set_right_wall(domain_vm["right_wall"].as<double>());
-  sph_solver.set_top_wall(domain_vm["top_wall"].as<double>());
-  sph_solver.set_bottom_wall(domain_vm["bottom_wall"].as<double>());
+  sphSolver.setTimestep(caseVm["dt"].as<double>());
+  sphSolver.setTotalIterations(ceil(
+      totalTime /
+      caseVm["dt"].as<double>()));
+  sphSolver.setOutputFrequency(caseVm["outputFrequency"].as<int>());
+  sphSolver.setCoeffRestitution(
+      constantsVm["coeff_restitution"].as<double>());
+  sphSolver.setLeftWall(domainVm["left_wall"].as<double>());
+  sphSolver.setRightWall(domainVm["right_wall"].as<double>());
+  sphSolver.setTopWall(domainVm["top_wall"].as<double>());
+  sphSolver.setBottomWall(domainVm["bottom_wall"].as<double>());
 
-  fluid* objPtr = *fluid_ptr;
+  fluid* objPtr = *fluidPtr;
 
-  objPtr->set_rad_infl(constants_vm["h"].as<double>());
-  objPtr->set_gas_constant(constants_vm["gas_constant"].as<double>());
-  objPtr->set_density_resting(constants_vm["density_resting"].as<double>());
-  objPtr->set_viscosity(constants_vm["viscosity"].as<double>());
-  objPtr->set_acceleration_gravity(
-      constants_vm["acceleration_gravity"].as<double>());
+  objPtr->setRadInfl(constantsVm["h"].as<double>());
+  objPtr->setGasConstant(constantsVm["gas_constant"].as<double>());
+  objPtr->setDensityResting(constantsVm["density_resting"].as<double>());
+  objPtr->setViscosity(constantsVm["viscosity"].as<double>());
+  objPtr->setAccelerationGravity(
+      constantsVm["acceleration_gravity"].as<double>());
 
   // Calculate the mass of the particles
-  objPtr->calc_mass();
+  objPtr->calculateMass();
 ```
 
 ## Output files
 
-The output files are being initialised with the use of the `init_output_files()`. The outputs are exported in `.csv` format which displays good readability and facilitates data manipulation compared to `.txt` files. They are stored in a centralised location, specifically within the `/exec/output/` directory. This centralisation simplifies data organisation and retrieval, making it easier for users to access and analyse output data.
+The output files are being initialised with the use of the `initOutputFiles()`. The outputs are exported in `.csv` format which displays good readability and facilitates data manipulation compared to `.txt` files. They are stored in a centralised location, specifically within the `/exec/output/` directory. This centralisation simplifies data organisation and retrieval, making it easier for users to access and analyse output data.
 
 Upon successful execution, the program generates two types of files:
 
@@ -262,17 +262,17 @@ Upon successful execution, the program generates two types of files:
 ```cpp
 /* **************************** SPH_main.cpp **************************** */
 
-void storeToFile(fluid& fluid, int nb_particles, std::string type,
+void storeToFile(fluid& fluid, int nbParticles, std::string type,
                  std::ofstream& targetFile, double dt, int currentIteration) {
   if (type == "energy") {
     // Write energies on the Energy-File
-    targetFile << currentIteration * dt << "," << fluid.get_kinetic_energy()
-               << "," << fluid.get_potential_energy() << ","
-               << fluid.get_potential_energy() + fluid.get_kinetic_energy()
+    targetFile << currentIteration * dt << "," << fluid.getKineticEnergy()
+               << "," << fluid.getPotentialEnergy() << ","
+               << fluid.getPotentialEnergy() + fluid.getKineticEnergy()
                << "\n";
   } else if (type == "position") {
-    for (int k = 0; k < nb_particles; k++) {
-      targetFile << fluid.get_position_x(k) << "," << fluid.get_position_y(k)
+    for (int k = 0; k < nbParticles; k++) {
+      targetFile << fluid.getPositionX(k) << "," << fluid.getPositionY(k)
                  << "\n";
     }
   }
@@ -288,40 +288,40 @@ void storeToFile(fluid& fluid, int nb_particles, std::string type,
 
 ## Time integration
 
-Following the initialisation of the class and the output files, the function `sph_solver::time_integration()` is invoked. Within this function, the steps of the SPH algorithm are executed, and the outputs are exported.
+Following the initialisation of the class and the output files, the function `SphSolver::timeIntegration()` is invoked. Within this function, the steps of the SPH algorithm are executed, and the outputs are exported.
 
 ```cpp
 
   /* ***************************** SPH-main.cpp ****************************** */
 
   // Time integration loop
-  sph_solver.time_integration(*sph_fluid, finalPositionsFile, energiesFile);
+  SphSolver.timeIntegration(*sphFluid, finalPositionsFile, energiesFile);
 
   /* **************************** sph_solver.cpp **************************** */
 
-  void sph_solver::time_integration(fluid &data,
+  void SphSolver::timeIntegration(fluid &data,
                                   std::ofstream &finalPositionsFile,
                                   std::ofstream &energiesFile) {
   std ::cout << "Time integration started -- OK"
              << "\n";
 
-  number_of_particles = data.get_number_of_particles();
+  numberOfParticles = data.getNumberOfParticles();
 
-  for (int time = 0; time < total_iterations; time++) {
+  for (int time = 0; time < totalIterations; time++) {
     t = time;
     // In each iteration the distances between the particles are recalculated,
     // as well as their density and pressure
-    data.calc_particle_distance();
-    data.calc_density();
-    data.calc_pressure();
-    particle_iterations(data);
+    data.calculateParticleDistance();
+    data.calculateDensity();
+    data.calculatePressure();
+    particleIterations(data);
 
-    if (time % output_frequency == 0) {
+    if (time % outputFrequency == 0) {
       storeToFile(data, "energy", energiesFile, dt, t);
     }
   }
   // Store particles' positions after integration is completed
-  storeToFile(data, "position", finalPositionsFile, dt, total_iterations);
+  storeToFile(data, "position", finalPositionsFile, dt, totalIterations);
 
   std ::cout << "Time integration finished -- OK"
              << "\n";

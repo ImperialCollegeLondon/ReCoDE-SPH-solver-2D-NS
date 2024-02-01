@@ -2,22 +2,22 @@
 #define PARTICLES_H
 class particles {
  protected:
-  unsigned int nb_particles;  // number of particles and characteristic size of
-                              // the class arrays
+  unsigned int nbParticles;  // number of particles and characteristic size of
+                             // the class arrays
 
   // Positions
-  double *position_x;
-  double *position_y;
+  double *positionX;
+  double *positionY;
 
   // Velocities
-  double *velocity_x;
-  double *velocity_y;
+  double *velocityX;
+  double *velocityY;
 
-  double *particle_speed_sq;  // u(i)^2+v(i)^2
+  double *particleSpeedSq;  // u(i)^2+v(i)^2
 
   // Distances
-  double *distance;    // Array to store the distances between the particles
-  double *distance_q;  // Array to store the values of the normalised distance q
+  double *distance;   // Array to store the distances between the particles
+  double *distanceQ;  // Array to store the values of the normalised distance q
 
  public:
   /******** CONSTRUCTORS/DESTRUCTOR********/
@@ -25,8 +25,8 @@ class particles {
   particles() = default;  // Default constructor
   ~particles();           // Destructor
 
-  particles(const unsigned n_new);  // User defined constructor for allocating
-                                    // the dimensions of the Matrix
+  particles(const unsigned nNew);  // User defined constructor for allocating
+                                   // the dimensions of the Matrix
 
   /**********OVERLOADINGS**********/
 
@@ -37,21 +37,21 @@ class particles {
   // Getter functions
 
   // Function to get the number of particles
-  int get_number_of_particles();
+  int getNumberOfParticles();
 
   // Function to get the position x
-  double get_position_x(int k);
+  double getPositionX(int k);
 
   // Function to get the position y
-  double get_position_y(int k);
+  double getPositionY(int k);
 
   // Function to get the normalised distance between the particles
-  double get_distance_q(int k);
+  double getDistanceQ(int k);
 
   // Calculation functions
 
   // Function to calculate the matrix with rij
-  void calc_particle_distance();
+  void calculateParticleDistance();
 };
 
 #endif

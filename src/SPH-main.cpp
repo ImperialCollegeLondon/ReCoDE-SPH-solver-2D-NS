@@ -19,45 +19,45 @@ int main(int argc, char* argv[]) {
   // Define the output folder
   std::string OUTPUT_FOLDER = "../output";
 
-  // Initialise a sph_solver object
-  sph_solver sph_solver;
+  // Initialise an SphSolver object
+  SphSolver sphSolver;
 
   // Declaring a fluid pointer (This is a nullptr at this stage)
-  fluid* sph_fluid = nullptr;
+  Fluid* sphFluid = nullptr;
 
   // Call the initialise function to initialise the objects based on the inputs
-  initialise(sph_fluid, sph_solver);
+  initialise(sphFluid, sphSolver);
 
   std ::cout << "Initialisation finished -- OK"
              << "\n";
 
   // Initialise output files
   auto [initialPositions, finalPositionsFile, energiesFile] =
-      init_output_files(OUTPUT_FOLDER);
+      initOutputFiles(OUTPUT_FOLDER);
 
   std ::cout << "Output files created -- OK"
              << "\n";
 
   // Store particles' positions before integration has started
-  storeToFile(*sph_fluid, "position", initialPositions);
+  storeToFile(*sphFluid, "position", initialPositions);
 
   // Time integration loop
-  sph_solver.time_integration(*sph_fluid, finalPositionsFile, energiesFile);
+  sphSolver.timeIntegration(*sphFluid, finalPositionsFile, energiesFile);
 
   std ::cout << "SPH-SOLVER executed successfully -- OK"
              << "\n";
 
   // delete the fluid object from the memory, if it was allocated
   // properly
-  if (sph_fluid) {
-    delete sph_fluid;
+  if (sphFluid) {
+    delete sphFluid;
   }
 
   return 0;
 }
 
-void initialise(fluid*& fluid_ptr, sph_solver& sph_solver) {
-  int nb_particles;  //  Number of particles
+void initialise(Fluid*& fluidPtr, SphSolver& sphSolver) {
+  int nbParticles;  //  Number of particles
 
   // Process to obtain the inputs provided by the user
   po::options_description desc("Allowed options");
@@ -93,7 +93,7 @@ void initialise(fluid*& fluid_ptr, sph_solver& sph_solver) {
       "take frequency that output will be written to file");
 
   // Map the inputs read from the case file to expected inputs
-  po::variables_map case_vm;
+  po::variables_map caseVm;
   std::ifstream caseFile;
 
   // Try to open the case.txt file
@@ -103,22 +103,22 @@ void initialise(fluid*& fluid_ptr, sph_solver& sph_solver) {
     if (!caseFile.is_open()) {
       throw std::runtime_error("Error opening file: case.txt");
     }
-    po::store(po::parse_config_file(caseFile, desc), case_vm);
+    po::store(po::parse_config_file(caseFile, desc), caseVm);
   } catch (std::runtime_error& e) {
     // Handle the exception by printing the error message and exiting the
     // program
     std::cerr << e.what() << std::endl;
-    if (fluid_ptr) {
-      delete fluid_ptr;
+    if (fluidPtr) {
+      delete fluidPtr;
     }
     exit(1);
   }
-  po::notify(case_vm);
+  po::notify(caseVm);
 
-  double total_time = case_vm["T"].as<double>();  // Total integration time
+  double totalTime = caseVm["T"].as<double>();  // Total integration time
   // Error handling for the total integration time
   try {
-    if (total_time <= 0) {
+    if (totalTime <= 0) {
       throw std::runtime_error(
           "Error: Total integration time must be positive!");
     }
@@ -126,8 +126,8 @@ void initialise(fluid*& fluid_ptr, sph_solver& sph_solver) {
     // Handle the exception by printing the error message and exiting the
     // program
     std::cerr << e.what() << std::endl;
-    if (fluid_ptr) {
-      delete fluid_ptr;
+    if (fluidPtr) {
+      delete fluidPtr;
     }
     exit(1);
   }
@@ -135,8 +135,8 @@ void initialise(fluid*& fluid_ptr, sph_solver& sph_solver) {
   // Time step dt
   // Error handling for the time step
   try {
-    if (case_vm["dt"].as<double>() <= 0 or
-        case_vm["dt"].as<double>() > total_time) {
+    if (caseVm["dt"].as<double>() <= 0 or
+        caseVm["dt"].as<double>() > totalTime) {
       throw std::runtime_error(
           "Error: Time step must be positive and lower than the total "
           "integration time!");
@@ -145,17 +145,17 @@ void initialise(fluid*& fluid_ptr, sph_solver& sph_solver) {
     // Handle the exception by printing the error message and exiting the
     // program
     std::cerr << e.what() << std::endl;
-    if (fluid_ptr) {
-      delete fluid_ptr;
+    if (fluidPtr) {
+      delete fluidPtr;
     }
     exit(1);
   }
 
   // Error handling for the output frequency
   try {
-    if (case_vm["output_frequency"].as<int>() <= 0 or
-        case_vm["output_frequency"].as<int>() >
-            ceil(total_time / case_vm["dt"].as<double>())) {
+    if (caseVm["output_frequency"].as<int>() <= 0 or
+        caseVm["output_frequency"].as<int>() >
+            ceil(totalTime / caseVm["dt"].as<double>())) {
       throw std::runtime_error(
           "Error: Output frequency must be positive and lower than the total "
           "number of iterations!");
@@ -164,14 +164,14 @@ void initialise(fluid*& fluid_ptr, sph_solver& sph_solver) {
     // Handle the exception by printing the error message and exiting the
     // program
     std::cerr << e.what() << std::endl;
-    if (fluid_ptr) {
-      delete fluid_ptr;
+    if (fluidPtr) {
+      delete fluidPtr;
     }
     exit(1);
   }
 
   // Map the inputs read from the domain file to expected inputs
-  po::variables_map domain_vm;
+  po::variables_map domainVm;
   std::ifstream domainFile;
   try {
     domainFile.open("../input/domain.txt");
@@ -179,24 +179,24 @@ void initialise(fluid*& fluid_ptr, sph_solver& sph_solver) {
     if (!domainFile.is_open()) {
       throw std::runtime_error("Error opening file: domain.txt");
     }
-    po::store(po::parse_config_file(domainFile, desc), domain_vm);
+    po::store(po::parse_config_file(domainFile, desc), domainVm);
   } catch (std::runtime_error& e) {
     // Handle the exception by printing the error message and exiting the
     // program
     std::cerr << e.what() << std::endl;
-    if (fluid_ptr) {
-      delete fluid_ptr;
+    if (fluidPtr) {
+      delete fluidPtr;
     }
     exit(1);
   }
-  po::notify(domain_vm);
+  po::notify(domainVm);
 
   // Error handling for the domain boundaries input
   try {
-    if (domain_vm["left_wall"].as<double>() >=
-            domain_vm["right_wall"].as<double>() ||
-        domain_vm["bottom_wall"].as<double>() >=
-            domain_vm["top_wall"].as<double>()) {
+    if (domainVm["left_wall"].as<double>() >=
+            domainVm["right_wall"].as<double>() ||
+        domainVm["bottom_wall"].as<double>() >=
+            domainVm["top_wall"].as<double>()) {
       throw std::runtime_error(
           "Error: Please adjust your domain boundaries so that left_wall < "
           "right wall and bottom_wall < top_wall.");
@@ -205,40 +205,40 @@ void initialise(fluid*& fluid_ptr, sph_solver& sph_solver) {
     // Handle the exception by printing the error message and exiting the
     // program
     std::cerr << e.what() << std::endl;
-    if (fluid_ptr) {
-      delete fluid_ptr;
+    if (fluidPtr) {
+      delete fluidPtr;
     }
     exit(1);
   }
 
   // Map the inputs read from the initial condition file to expected inputs
-  std::string ic_case = case_vm["init_condition"].as<std::string>();
-  po::variables_map ic_vm;
+  std::string icCase = caseVm["init_condition"].as<std::string>();
+  po::variables_map icVm;
   std::ifstream icFile;
   // Open the file of the initial condition the user has chosen
   try {
-    icFile.open("../input/" + ic_case + ".txt");
+    icFile.open("../input/" + icCase + ".txt");
     // Throw an exception if the file cannot be opened
     if (!icFile.is_open()) {
       throw std::runtime_error(
-          "Error opening file: " + ic_case +
+          "Error opening file: " + icCase +
           ".txt Make sure that the value of the init_condition in the case.txt "
           "file is one of the following: ic-one-particle, ic-two-particles, "
           "ic-three-particles, ic-four-particles, ic-droplet, ic-block-drop.");
     }
-    po::store(po::parse_config_file(icFile, desc), ic_vm);
+    po::store(po::parse_config_file(icFile, desc), icVm);
   } catch (std::runtime_error& e) {
     // Handle the exception by printing the error message and exiting the
     // program
     std::cerr << e.what() << std::endl;
-    if (fluid_ptr) {
-      delete fluid_ptr;
+    if (fluidPtr) {
+      delete fluidPtr;
     }
     exit(1);
   }
-  po::notify(ic_vm);
+  po::notify(icVm);
 
-  // Fixed nb_particles ic cases
+  // Fixed nbParticles ic cases
   std::map<std::string, int> initConditionToParticlesMap = {
       {"ic-one-particle", 1},
       {"ic-two-particles", 2},
@@ -246,11 +246,11 @@ void initialise(fluid*& fluid_ptr, sph_solver& sph_solver) {
       {"ic-four-particles", 4}};
 
   // Get the number of particles based on the ic case (for the more complex ic)
-  if (ic_case == "ic-droplet" || ic_case == "ic-block-drop") {
-    nb_particles = ic_vm["n"].as<int>();
+  if (icCase == "ic-droplet" || icCase == "ic-block-drop") {
+    nbParticles = icVm["n"].as<int>();
     // Error handling for the number of particles
     try {
-      if (nb_particles <= 0) {
+      if (nbParticles <= 0) {
         throw std::runtime_error(
             "Error: Number of particles must be positive!");
       }
@@ -258,31 +258,31 @@ void initialise(fluid*& fluid_ptr, sph_solver& sph_solver) {
       // Handle the exception by printing the error message and exiting the
       // program
       std::cerr << e.what() << std::endl;
-      if (fluid_ptr) {
-        delete fluid_ptr;
+      if (fluidPtr) {
+        delete fluidPtr;
       }
       exit(1);
     }
   } else {
-    nb_particles = initConditionToParticlesMap[case_vm["init_condition"]
-                                                   .as<std::string>()];
+    nbParticles =
+        initConditionToParticlesMap[caseVm["init_condition"].as<std::string>()];
   }
 
   // Fixed particles ic cases
-  if (ic_case == "ic-one-particle" || ic_case == "ic-two-particles" ||
-      ic_case == "ic-three-particles" || ic_case == "ic-four-particles") {
+  if (icCase == "ic-one-particle" || icCase == "ic-two-particles" ||
+      icCase == "ic-three-particles" || icCase == "ic-four-particles") {
     // Get particles' initial poistions from the ic file
-    double* init_x = new double[nb_particles];
-    double* init_y = new double[nb_particles];
-    for (int i = 0; i < nb_particles; i++) {
-      init_x[i] = ic_vm["init_x_" + std::to_string(i + 1)].as<double>();
-      init_y[i] = ic_vm["init_y_" + std::to_string(i + 1)].as<double>();
+    double* initX = new double[nbParticles];
+    double* initY = new double[nbParticles];
+    for (int i = 0; i < nbParticles; i++) {
+      initX[i] = icVm["init_x_" + std::to_string(i + 1)].as<double>();
+      initY[i] = icVm["init_y_" + std::to_string(i + 1)].as<double>();
       // Error handling for the initial positions
       try {
-        if (init_x[i] < domain_vm["left_wall"].as<double>() ||
-            init_x[i] > domain_vm["right_wall"].as<double>() ||
-            init_y[i] < domain_vm["bottom_wall"].as<double>() ||
-            init_y[i] > domain_vm["top_wall"].as<double>()) {
+        if (initX[i] < domainVm["left_wall"].as<double>() ||
+            initX[i] > domainVm["right_wall"].as<double>() ||
+            initY[i] < domainVm["bottom_wall"].as<double>() ||
+            initY[i] > domainVm["top_wall"].as<double>()) {
           throw std::runtime_error(
               "Error: Particles must be within the domain boundaries! Please "
               "adjust the initial position coordinates.");
@@ -291,22 +291,22 @@ void initialise(fluid*& fluid_ptr, sph_solver& sph_solver) {
         // Handle the exception by printing the error message and exiting the
         // program
         std::cerr << e.what() << std::endl;
-        if (fluid_ptr) {
-          delete fluid_ptr;
+        if (fluidPtr) {
+          delete fluidPtr;
         }
-        delete[] init_x;
-        delete[] init_y;
+        delete[] initX;
+        delete[] initY;
         exit(1);
       }
     }
-    ic_basic(fluid_ptr, nb_particles, init_x, init_y);
-    delete[] init_x;
-    delete[] init_y;
+    icBasic(fluidPtr, nbParticles, initX, initY);
+    delete[] initX;
+    delete[] initY;
     // Block drop case
-  } else if (ic_case == "ic-block-drop") {
+  } else if (icCase == "ic-block-drop") {
     // Get the block dimensions and center coordinates from the ic file
-    double length = ic_vm["length"].as<double>();
-    double width = ic_vm["width"].as<double>();
+    double length = icVm["length"].as<double>();
+    double width = icVm["width"].as<double>();
     // Error handling for the block size (length, width)
     try {
       if (length <= 0 || width <= 0) {
@@ -316,19 +316,19 @@ void initialise(fluid*& fluid_ptr, sph_solver& sph_solver) {
       // Handle the exception by printing the error message and exiting the
       // program
       std::cerr << e.what() << std::endl;
-      if (fluid_ptr) {
-        delete fluid_ptr;
+      if (fluidPtr) {
+        delete fluidPtr;
       }
       exit(1);
     }
-    double center_x = ic_vm["center_x"].as<double>();
-    double center_y = ic_vm["center_y"].as<double>();
-    // Error handling for the block initial position (center_x, center_y)
+    double centerX = icVm["center_x"].as<double>();
+    double centerY = icVm["center_y"].as<double>();
+    // Error handling for the block initial position (centerX, centerY)
     try {
-      if (center_x - length / 2.0 < domain_vm["left_wall"].as<double>() ||
-          center_x + length / 2.0 > domain_vm["right_wall"].as<double>() ||
-          center_y - width / 2.0 < domain_vm["bottom_wall"].as<double>() ||
-          center_y + width / 2.0 > domain_vm["top_wall"].as<double>()) {
+      if (centerX - length / 2.0 < domainVm["left_wall"].as<double>() ||
+          centerX + length / 2.0 > domainVm["right_wall"].as<double>() ||
+          centerY - width / 2.0 < domainVm["bottom_wall"].as<double>() ||
+          centerY + width / 2.0 > domainVm["top_wall"].as<double>()) {
         throw std::runtime_error(
             "Error: The block must be within the domain boundaries! Please "
             "adjust the center coordinates.");
@@ -337,16 +337,16 @@ void initialise(fluid*& fluid_ptr, sph_solver& sph_solver) {
       // Handle the exception by printing the error message and exiting the
       // program
       std::cerr << e.what() << std::endl;
-      if (fluid_ptr) {
-        delete fluid_ptr;
+      if (fluidPtr) {
+        delete fluidPtr;
       }
       exit(1);
     }
-    ic_block_drop(fluid_ptr, nb_particles, length, width, center_x, center_y);
+    icBlockDrop(fluidPtr, nbParticles, length, width, centerX, centerY);
     // Droplet case
-  } else if (ic_case == "ic-droplet") {
+  } else if (icCase == "ic-droplet") {
     // Get the droplet radius and center coordinates from the ic file
-    double radius = ic_vm["radius"].as<double>();
+    double radius = icVm["radius"].as<double>();
     // Error handling for the droplet radius
     try {
       if (radius <= 0) {
@@ -356,19 +356,19 @@ void initialise(fluid*& fluid_ptr, sph_solver& sph_solver) {
       // Handle the exception by printing the error message and exiting the
       // program
       std::cerr << e.what() << std::endl;
-      if (fluid_ptr) {
-        delete fluid_ptr;
+      if (fluidPtr) {
+        delete fluidPtr;
       }
       exit(1);
     }
-    double center_x = ic_vm["center_x"].as<double>();
-    double center_y = ic_vm["center_y"].as<double>();
-    // Error handling for the droplet initial position (center_x, center_y)
+    double centerX = icVm["center_x"].as<double>();
+    double centerY = icVm["center_y"].as<double>();
+    // Error handling for the droplet initial position (centerX, centerY)
     try {
-      if (center_x - radius < domain_vm["left_wall"].as<double>() ||
-          center_x + radius > domain_vm["right_wall"].as<double>() ||
-          center_y - radius < domain_vm["bottom_wall"].as<double>() ||
-          center_y + radius > domain_vm["top_wall"].as<double>()) {
+      if (centerX - radius < domainVm["left_wall"].as<double>() ||
+          centerX + radius > domainVm["right_wall"].as<double>() ||
+          centerY - radius < domainVm["bottom_wall"].as<double>() ||
+          centerY + radius > domainVm["top_wall"].as<double>()) {
         throw std::runtime_error(
             "Error: The droplet must be within the domain boundaries! Please "
             "adjust the center coordinates.");
@@ -377,12 +377,12 @@ void initialise(fluid*& fluid_ptr, sph_solver& sph_solver) {
       // Handle the exception by printing the error message and exiting the
       // program
       std::cerr << e.what() << std::endl;
-      if (fluid_ptr) {
-        delete fluid_ptr;
+      if (fluidPtr) {
+        delete fluidPtr;
       }
       exit(1);
     }
-    ic_droplet(fluid_ptr, nb_particles, radius, center_x, center_y);
+    icDroplet(fluidPtr, nbParticles, radius, centerX, centerY);
   } else {
     std::cerr << "Error: Initial condition function not found! Make sure "
               << "that the value of the init_condition in the case.txt file is "
@@ -393,7 +393,7 @@ void initialise(fluid*& fluid_ptr, sph_solver& sph_solver) {
   }
 
   // Map the inputs read from the constants file to expected inputs
-  po::variables_map constants_vm;
+  po::variables_map constantsVm;
   std::ifstream constantsFile;
   try {
     constantsFile.open("../input/constants.txt");
@@ -401,36 +401,35 @@ void initialise(fluid*& fluid_ptr, sph_solver& sph_solver) {
     if (!constantsFile.is_open()) {
       throw std::runtime_error("Error opening file: constants.txt");
     }
-    po::store(po::parse_config_file(constantsFile, desc), constants_vm);
+    po::store(po::parse_config_file(constantsFile, desc), constantsVm);
   } catch (std::runtime_error& e) {
     // Handle the exception by printing the error message and exiting the
     // program
     std::cerr << e.what() << std::endl;
     exit(1);
   }
-  po::notify(constants_vm);
+  po::notify(constantsVm);
 
   // Set the parameters of the solver for the specific simulation
-  sph_solver.set_timestep(case_vm["dt"].as<double>());
-  sph_solver.set_total_iter(ceil(total_time / case_vm["dt"].as<double>()));
-  sph_solver.set_output_frequency(case_vm["output_frequency"].as<int>());
-  sph_solver.set_coeff_restitution(
-      constants_vm["coeff_restitution"].as<double>());
-  sph_solver.set_left_wall(domain_vm["left_wall"].as<double>());
-  sph_solver.set_right_wall(domain_vm["right_wall"].as<double>());
-  sph_solver.set_top_wall(domain_vm["top_wall"].as<double>());
-  sph_solver.set_bottom_wall(domain_vm["bottom_wall"].as<double>());
+  sphSolver.setTimestep(caseVm["dt"].as<double>());
+  sphSolver.setTotalIterations(ceil(totalTime / caseVm["dt"].as<double>()));
+  sphSolver.setOutputFrequency(caseVm["output_frequency"].as<int>());
+  sphSolver.setCoeffRestitution(constantsVm["coeff_restitution"].as<double>());
+  sphSolver.setLeftWall(domainVm["left_wall"].as<double>());
+  sphSolver.setRightWall(domainVm["right_wall"].as<double>());
+  sphSolver.setTopWall(domainVm["top_wall"].as<double>());
+  sphSolver.setBottomWall(domainVm["bottom_wall"].as<double>());
 
   // Define the fluid based on the inputs
-  fluid_ptr->set_rad_infl(constants_vm["h"].as<double>());
-  fluid_ptr->set_gas_constant(constants_vm["gas_constant"].as<double>());
-  fluid_ptr->set_density_resting(constants_vm["density_resting"].as<double>());
-  fluid_ptr->set_viscosity(constants_vm["viscosity"].as<double>());
-  fluid_ptr->set_acceleration_gravity(
-      constants_vm["acceleration_gravity"].as<double>());
+  fluidPtr->setRadInfl(constantsVm["h"].as<double>());
+  fluidPtr->setGasConstant(constantsVm["gas_constant"].as<double>());
+  fluidPtr->setDensityResting(constantsVm["density_resting"].as<double>());
+  fluidPtr->setViscosity(constantsVm["viscosity"].as<double>());
+  fluidPtr->setAccelerationGravity(
+      constantsVm["acceleration_gravity"].as<double>());
 
   // Calculate the mass of the particles
-  fluid_ptr->calc_mass();
+  fluidPtr->calculateMass();
 
   return;
 }
@@ -443,7 +442,7 @@ void createDirectory(std::string folderPath) {
   }
 }
 
-std::tuple<std::ofstream, std::ofstream, std::ofstream> init_output_files(
+std::tuple<std::ofstream, std::ofstream, std::ofstream> initOutputFiles(
     std::string outputFolder) {
   // Create the output folder if it doesn't exist
   createDirectory(outputFolder);
@@ -472,18 +471,17 @@ std::tuple<std::ofstream, std::ofstream, std::ofstream> init_output_files(
                          std::move(energies));
 }
 
-void storeToFile(fluid& fluid, std::string type, std::ofstream& targetFile,
+void storeToFile(Fluid& fluid, std::string type, std::ofstream& targetFile,
                  double dt, int currentIteration) {
   if (type == "energy") {
     // Write energies in the Energy-File
-    targetFile << currentIteration * dt << "," << fluid.get_kinetic_energy()
-               << "," << fluid.get_potential_energy() << ","
-               << fluid.get_potential_energy() + fluid.get_kinetic_energy()
-               << "\n";
+    targetFile << currentIteration * dt << "," << fluid.getKineticEnergy()
+               << "," << fluid.getPotentialEnergy() << ","
+               << fluid.getPotentialEnergy() + fluid.getKineticEnergy() << "\n";
   } else if (type == "position") {
     // Write positions in the position file
-    for (int k = 0; k < fluid.get_number_of_particles(); k++) {
-      targetFile << fluid.get_position_x(k) << "," << fluid.get_position_y(k)
+    for (int k = 0; k < fluid.getNumberOfParticles(); k++) {
+      targetFile << fluid.getPositionX(k) << "," << fluid.getPositionY(k)
                  << "\n";
     }
   }
