@@ -118,17 +118,19 @@ Firstly, one SphSolver object and one fluid pointer to an object are being decla
 
 Once the input values are read and stored, the provided IC is used to determine the number of particles. This means that although the user has already provided a number of particles, this is just an indication, since the IC (droplet and block drop) require specific formation and the particles to be distributed uniformly. These two conditions cannot be satisfied simultaneously by any number of particles and therefore several adjustments need to be made. The functions `closestIntegerSqrt()` and `rectangleN()` from `initial_conditions.h` are functions suitable for this purpose. 
 
-The IC functions are being called within the `initialise()` function and a reference to the pointer of the fluid object is passed as an argument, as well as the updated number of particles. Inside these functions the user defined constructor of the `fluid` is being called and the memory allocation process for the object's containers is invoked. In this, the containers are declared as `new` raw pointers to arrays, dynamically allocating memory proportional to the number of particles. The function used to initialise the `fluid` class for the simple cases of 1,2,3 and 4 particles is demonstrated below.
+The IC functions are being called within the `initialise()` function and a reference to the pointer of the fluid object is passed as an argument<b>*</b>, as well as the updated number of particles. Inside these functions the user defined constructor of the `fluid` is being called and the memory allocation process for the object's containers is invoked. In this, the containers are declared as `new` raw pointers to arrays, dynamically allocating memory proportional to the number of particles. The function used to initialise the `fluid` class for the simple cases of 1,2,3 and 4 particles is demonstrated below.
+
+<b>\*</b> The rational behind passing the pointer to the fluid object as a reference is identical to the reason an object is passed as a reference to a function. In these function we are allocating new memory that the pointer should point to. If the pointer was passed by value (`Fluid *fluidPtr`) then a **copy** of the pointer would be pointing to the new memory and our original fluid pointer will still be a `nullptr`. Of course, since the allocation is happening inside the function, the caller is responsible to `delete` the object manually.
 
 ```cpp
 /* **************************** initial_conditions.cpp **************************** */
 
-void icBasic(fluid **fluidPtr, int nbParticles, double *positionX,
-              double *positionY) {
+void icBasic(Fluid *&fluidPtr, int nbParticles, double *positionX, double *positionY) {
   // Allocate memory for the fluid object and call the constructor
-  *fluidPtr = new fluid(nbParticles);
+  // This needs to be deleted by the caller.
+  fluidPtr = new Fluid(nbParticles);
 
-  fluid &fluid = **fluidPtr;  // Use a reference to the object
+  Fluid &fluid = *fluidPtr;  // Use a reference to the object
 
   for (int i = 0; i < nbParticles; i++) {
     fluid(0, i) = positionX[i];
