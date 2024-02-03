@@ -1,0 +1,21 @@
+# DS_Store
+.DS_Store
+
+# .o files
+*.o
+
+exec/build/*
+!exec/build/.gitkeep
+
+# Python virtual environment
+venv/
+.venv/
+
+# Output
+output/
+
+# VSCode
+.vscode/
+
+# Docker
+Dockerfile

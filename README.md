@@ -1,33 +1,42 @@
 <!-- Your Project title, make it sound catchy! -->
+<div align="center">
 
-# Project title
+# RECODE-SPH-SOLVER-2D-NS
+
+[![C++](https://img.shields.io/badge/C++-00599C?logo=c%2B%2B&logoColor=white)](https://cplusplus.com/)
+[![MPI](https://img.shields.io/badge/MPI-003366?logo=mpi&logoColor=white)](https://www.mpi-forum.org/)
+[![Boost](https://img.shields.io/badge/Boost-00599C?logo=boost&logoColor=white)](https://www.boost.org/)
+[![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+
 
 <!-- Provide a short description to your project -->
+</div>
 
 ## Description
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam vitae pulvinar
-mauris. Praesent sollicitudin rutrum mauris sed congue. Donec vel orci elit.
-Phasellus luctus sodales elementum. Donec lacinia semper lorem, volutpat
-molestie arcu bibendum mollis. Nulla nec massa vitae sapien varius vulputate
-vel vitae ex. Curabitur convallis iaculis elit at faucibus. Sed eget facilisis
-orci, ut consequat neque.
+In this project we present a numerical code in `C++` which solves the two-dimensional Navier-Stokes equations using the SPH approach. The focus lies in the implementation (and documnetation) of good `C++` practices and the development of skills related to efficient, robust, extensible and readable scientific code. The learning process regarding this project can be twofold:
+
+1) The student can study the material provided in the `main` branch of the present repository. It is independent of all the other branches and can be used as a standalone educational resource. In this the implemented SPH methodology is explained as well as the structure of the source code and the post-processing scripts.
+
+2) The student can start by studying progressively the branches `v0 - v5` in order to experience the process which was followed in order to improve and optimize the herein code. Several comments have been added for each individual version in the corresponding branch, to highlight the improvements which were implemented compared to its ancestors.
 
 <!-- What should the students going through your exemplar learn -->
 
 ## Learning Outcomes
 
-- Skill 1
-- Skill 2
-- Skill 3
+- Advanced I/O (Inputs/Outputs)
+- OOP (Objector Oriented Programming)
+- C++ Containers
+- Performance and memory optimization tools and skills
+- Parallel programming using MPI
 
 <!-- How long should they spend reading and practising using your Code.
 Provide your best estimate -->
 
 | Task       | Time    |
 | ---------- | ------- |
-| Reading    | 3 hours |
-| Practising | 3 hours |
+| Reading    | 10 hours |
+| Practicing | 4 hours |
 
 ## Requirements
 
@@ -39,6 +48,11 @@ List any resources you would recommend to get the students started.
 
 If there is an existing exemplar in the ReCoDE repositories link to that.
 -->
+- Any experience with basic programming concepts (for loops, functions, reading and writing files etc.).
+
+- Some experience with `C++` (familiarity with pointers, C++ classes and the use of external libraries).
+
+- Basic understanding of numerical analysis concepts (time marching, temporal integration etc.)
 
 ### Academic
 

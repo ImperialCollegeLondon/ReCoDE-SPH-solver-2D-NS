@@ -1,0 +1,6 @@
+h = 1e-2        		           # Radius of influence
+gas_constant = 2000.0
+density_resting = 1000.0
+viscosity = 1.0
+acceleration_gravity = 9.81
+coeff_restitution = 0.5
