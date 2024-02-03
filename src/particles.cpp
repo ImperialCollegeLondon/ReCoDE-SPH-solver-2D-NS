@@ -8,26 +8,15 @@
 
 // User defined constructor
 particles::particles(const unsigned nNew) : nbParticles(nNew) {
-  positionX = new double[nbParticles];
-  positionY = new double[nbParticles];
-  velocityX = new double[nbParticles];
-  velocityY = new double[nbParticles];
+  positionX.reserve(nbParticles);
+  positionY.reserve(nbParticles);
+  velocityX.reserve(nbParticles);
+  velocityY.reserve(nbParticles);
 
-  distance = new double[nbParticles * nbParticles];
-  distanceQ = new double[nbParticles * nbParticles];
+  distance.reserve(nbParticles * nbParticles);
+  distanceQ.reserve(nbParticles * nbParticles);
 
-  particleSpeedSq = new double[nbParticles];
-}
-
-// Destructor
-particles::~particles() {
-  delete[] positionX;
-  delete[] particleSpeedSq;
-  delete[] positionY;
-  delete[] velocityX;
-  delete[] velocityY;
-  delete[] distance;
-  delete[] distanceQ;
+  particleSpeedSq.reserve(nbParticles);
 }
 
 // Overloading of ()
@@ -54,37 +43,27 @@ double &particles::operator()(unsigned row, unsigned col) {
 // Overloading of operator=
 particles &particles::operator=(const particles &particles) {
   if (this != &particles) {
-    delete[] distance;
-    delete[] distanceQ;
-    delete[] particleSpeedSq;
-    delete[] positionX;
-    delete[] positionY;
-    delete[] velocityX;
-    delete[] velocityY;
 
     nbParticles = particles.nbParticles;
 
-    positionX = new double[nbParticles];
-    positionY = new double[nbParticles];
-    velocityX = new double[nbParticles];
-    velocityY = new double[nbParticles];
+    positionX.reserve(nbParticles);
+    positionY.reserve(nbParticles);
+    velocityX.reserve(nbParticles);
+    velocityY.reserve(nbParticles);
 
-    distance = new double[nbParticles * nbParticles];
-    distanceQ = new double[nbParticles * nbParticles];
+    distance.reserve(nbParticles * nbParticles);
+    distanceQ.reserve(nbParticles * nbParticles);
 
-    particleSpeedSq = new double[nbParticles];
+    particleSpeedSq.reserve(nbParticles);
 
-    std::memcpy(positionX, particles.positionX, nbParticles * sizeof(double));
-    std::memcpy(positionY, particles.positionY, nbParticles * sizeof(double));
-    std::memcpy(velocityX, particles.velocityX, nbParticles * sizeof(double));
-    std::memcpy(velocityY, particles.velocityY, nbParticles * sizeof(double));
+    positionX = particles.positionX;
+    positionY = particles.positionY;
+    velocityX = particles.velocityX;
+    velocityY = particles.velocityY;
 
-    std::memcpy(distance, particles.distance,
-                nbParticles * nbParticles * sizeof(double));
-    std::memcpy(distanceQ, particles.distanceQ,
-                nbParticles * nbParticles * sizeof(double));
-    std::memcpy(particleSpeedSq, particles.particleSpeedSq,
-                nbParticles * sizeof(double));
+    distance = particles.distance;
+    distanceQ = particles.distanceQ;
+    particleSpeedSq = particles.particleSpeedSq;
   }
   return *this;
 }

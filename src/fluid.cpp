@@ -8,51 +8,40 @@
 
 // User defined constructor
 Fluid::Fluid(const unsigned nNew) : particles(nNew) {
-  pressure = new double[nbParticles];
-  density = new double[nbParticles];
+  pressure.reserve(nbParticles);
+  density.reserve(nbParticles);
 }
 // Copy constructor
 Fluid &Fluid::operator=(const Fluid &fluid) {
   if (this != &fluid) {
-    delete[] distance;
-    delete[] distanceQ;
-    delete[] particleSpeedSq;
-    delete[] positionX;
-    delete[] positionY;
-    delete[] velocityX;
-    delete[] velocityY;
-    delete[] pressure;
-    delete[] density;
 
     nbParticles = fluid.nbParticles;
 
-    positionX = new double[nbParticles];
-    positionY = new double[nbParticles];
-    velocityX = new double[nbParticles];
-    velocityY = new double[nbParticles];
+    positionX.reserve(nbParticles);
+    positionY.reserve(nbParticles);
+    velocityX.reserve(nbParticles);
+    velocityY.reserve(nbParticles);
 
-    distance = new double[nbParticles * nbParticles];
-    distanceQ = new double[nbParticles * nbParticles];
+    distance.reserve(nbParticles * nbParticles);
+    distanceQ.reserve(nbParticles * nbParticles);
 
-    particleSpeedSq = new double[nbParticles];
+    particleSpeedSq.reserve(nbParticles);
 
-    pressure = new double[nbParticles];
-    density = new double[nbParticles];
 
-    std::memcpy(positionX, fluid.positionX, nbParticles * sizeof(double));
-    std::memcpy(positionY, fluid.positionY, nbParticles * sizeof(double));
-    std::memcpy(velocityX, fluid.velocityX, nbParticles * sizeof(double));
-    std::memcpy(velocityY, fluid.velocityY, nbParticles * sizeof(double));
+    pressure.reserve(nbParticles);
+    density.reserve(nbParticles);
 
-    std::memcpy(distance, fluid.distance,
-                nbParticles * nbParticles * sizeof(double));
-    std::memcpy(distanceQ, fluid.distanceQ,
-                nbParticles * nbParticles * sizeof(double));
-    std::memcpy(particleSpeedSq, fluid.particleSpeedSq,
-                nbParticles * sizeof(double));
+    positionX = fluid.positionX;
+    positionY = fluid.positionY;
+    velocityX = fluid.velocityX;
+    velocityY = fluid.velocityY;
 
-    std::memcpy(pressure, fluid.pressure, nbParticles * sizeof(double));
-    std::memcpy(density, fluid.density, nbParticles * sizeof(double));
+    distance = fluid.distance;
+    distanceQ = fluid.distanceQ;
+    particleSpeedSq = fluid.particleSpeedSq;
+
+    pressure = fluid.pressure;
+    density = fluid.density;
   }
   return *this;
 }

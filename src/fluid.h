@@ -1,5 +1,6 @@
 #ifndef FLUID_H
 #define FLUID_H
+
 #include "fstream"
 #include "particles.h"
 
@@ -16,10 +17,10 @@ class Fluid : public particles {
   double mass = 1.0;
 
   // Density
-  double *density;
+  std::vector<double> density;
 
   // Pressure
-  double *pressure;
+  std::vector<double> pressure;
 
  public:
   Fluid() = default;  // Default constructor
