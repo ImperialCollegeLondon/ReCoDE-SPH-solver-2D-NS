@@ -170,3 +170,5 @@ std::tuple<std::ofstream, std::ofstream, std::ofstream> initOutputFiles(
 
 ...
 ```
+
+This application exports data to CSV files based on a user-defined frequency, specified within the `/exec/input/case.txt` input file. This approach allows the program to minimise memory usage by writing data in intervals, preventing unnecessary resource consumption and ensuring smooth operation even with large datasets. Additionally, less frequent exporting reduces interruptions for write operations, enhancing program responsiveness and user experience. Ultimately, this user-controlled export frequency strikes a balance between data granularity and resource efficiency, adapting to diverse project needs and system constraints.
