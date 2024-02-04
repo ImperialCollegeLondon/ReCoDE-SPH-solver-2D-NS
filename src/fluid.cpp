@@ -1,10 +1,6 @@
 #include "fluid.h"
 
 #include <cmath>
-#include <cstring>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
 
 // User defined constructor
 Fluid::Fluid(const unsigned nNew) : particles(nNew) {
@@ -14,7 +10,6 @@ Fluid::Fluid(const unsigned nNew) : particles(nNew) {
 // Copy constructor
 Fluid &Fluid::operator=(const Fluid &fluid) {
   if (this != &fluid) {
-
     nbParticles = fluid.nbParticles;
 
     positionX.reserve(nbParticles);
@@ -26,7 +21,6 @@ Fluid &Fluid::operator=(const Fluid &fluid) {
     distanceQ.reserve(nbParticles * nbParticles);
 
     particleSpeedSq.reserve(nbParticles);
-
 
     pressure.reserve(nbParticles);
     density.reserve(nbParticles);

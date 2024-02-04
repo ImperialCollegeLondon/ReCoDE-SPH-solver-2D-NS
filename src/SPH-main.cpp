@@ -1,18 +1,12 @@
 // This is a main program to run the SPH simulation
 #include <boost/program_options.hpp>
-#include <cmath>
-#include <cstddef>
 #include <filesystem>
-#include <fstream>
-#include <iomanip>
 #include <iostream>
-#include <iterator>
-#include <stdexcept>
-#include <string>
-#include <tuple>
 
 #include "initial_conditions.h"
 #include "main_prog_funcs.h"
+
+namespace po = boost::program_options;
 
 // Start of the main programme
 int main(int argc, char* argv[]) {
@@ -23,7 +17,7 @@ int main(int argc, char* argv[]) {
   SphSolver sphSolver;
 
   // Declaring a fluid pointer (This is a nullptr at this stage)
-  Fluid* sphFluid = nullptr;
+  std::unique_ptr<Fluid> sphFluid;
 
   // Call the initialise function to initialise the objects based on the inputs
   initialise(sphFluid, sphSolver);
@@ -47,16 +41,10 @@ int main(int argc, char* argv[]) {
   std ::cout << "SPH-SOLVER executed successfully -- OK"
              << "\n";
 
-  // delete the fluid object from the memory, if it was allocated
-  // properly
-  if (sphFluid) {
-    delete sphFluid;
-  }
-
   return 0;
 }
 
-void initialise(Fluid*& fluidPtr, SphSolver& sphSolver) {
+void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
   int nbParticles;  //  Number of particles
 
   // Process to obtain the inputs provided by the user
@@ -108,9 +96,6 @@ void initialise(Fluid*& fluidPtr, SphSolver& sphSolver) {
     // Handle the exception by printing the error message and exiting the
     // program
     std::cerr << e.what() << std::endl;
-    if (fluidPtr) {
-      delete fluidPtr;
-    }
     exit(1);
   }
   po::notify(caseVm);
@@ -126,9 +111,6 @@ void initialise(Fluid*& fluidPtr, SphSolver& sphSolver) {
     // Handle the exception by printing the error message and exiting the
     // program
     std::cerr << e.what() << std::endl;
-    if (fluidPtr) {
-      delete fluidPtr;
-    }
     exit(1);
   }
 
@@ -145,9 +127,6 @@ void initialise(Fluid*& fluidPtr, SphSolver& sphSolver) {
     // Handle the exception by printing the error message and exiting the
     // program
     std::cerr << e.what() << std::endl;
-    if (fluidPtr) {
-      delete fluidPtr;
-    }
     exit(1);
   }
 
@@ -164,9 +143,6 @@ void initialise(Fluid*& fluidPtr, SphSolver& sphSolver) {
     // Handle the exception by printing the error message and exiting the
     // program
     std::cerr << e.what() << std::endl;
-    if (fluidPtr) {
-      delete fluidPtr;
-    }
     exit(1);
   }
 
@@ -184,9 +160,6 @@ void initialise(Fluid*& fluidPtr, SphSolver& sphSolver) {
     // Handle the exception by printing the error message and exiting the
     // program
     std::cerr << e.what() << std::endl;
-    if (fluidPtr) {
-      delete fluidPtr;
-    }
     exit(1);
   }
   po::notify(domainVm);
@@ -205,9 +178,6 @@ void initialise(Fluid*& fluidPtr, SphSolver& sphSolver) {
     // Handle the exception by printing the error message and exiting the
     // program
     std::cerr << e.what() << std::endl;
-    if (fluidPtr) {
-      delete fluidPtr;
-    }
     exit(1);
   }
 
@@ -231,9 +201,6 @@ void initialise(Fluid*& fluidPtr, SphSolver& sphSolver) {
     // Handle the exception by printing the error message and exiting the
     // program
     std::cerr << e.what() << std::endl;
-    if (fluidPtr) {
-      delete fluidPtr;
-    }
     exit(1);
   }
   po::notify(icVm);
@@ -258,9 +225,6 @@ void initialise(Fluid*& fluidPtr, SphSolver& sphSolver) {
       // Handle the exception by printing the error message and exiting the
       // program
       std::cerr << e.what() << std::endl;
-      if (fluidPtr) {
-        delete fluidPtr;
-      }
       exit(1);
     }
   } else {
@@ -271,9 +235,11 @@ void initialise(Fluid*& fluidPtr, SphSolver& sphSolver) {
   // Fixed particles ic cases
   if (icCase == "ic-one-particle" || icCase == "ic-two-particles" ||
       icCase == "ic-three-particles" || icCase == "ic-four-particles") {
-    // Get particles' initial poistions from the ic file
-    double* initX = new double[nbParticles];
-    double* initY = new double[nbParticles];
+    std::vector<double> initX;
+    initX.reserve(nbParticles);
+    std::vector<double> initY;
+    initY.reserve(nbParticles);
+
     for (int i = 0; i < nbParticles; i++) {
       initX[i] = icVm["init_x_" + std::to_string(i + 1)].as<double>();
       initY[i] = icVm["init_y_" + std::to_string(i + 1)].as<double>();
@@ -291,17 +257,11 @@ void initialise(Fluid*& fluidPtr, SphSolver& sphSolver) {
         // Handle the exception by printing the error message and exiting the
         // program
         std::cerr << e.what() << std::endl;
-        if (fluidPtr) {
-          delete fluidPtr;
-        }
-        delete[] initX;
-        delete[] initY;
         exit(1);
       }
     }
     icBasic(fluidPtr, nbParticles, initX, initY);
-    delete[] initX;
-    delete[] initY;
+
     // Block drop case
   } else if (icCase == "ic-block-drop") {
     // Get the block dimensions and center coordinates from the ic file
@@ -316,9 +276,6 @@ void initialise(Fluid*& fluidPtr, SphSolver& sphSolver) {
       // Handle the exception by printing the error message and exiting the
       // program
       std::cerr << e.what() << std::endl;
-      if (fluidPtr) {
-        delete fluidPtr;
-      }
       exit(1);
     }
     double centerX = icVm["center_x"].as<double>();
@@ -337,9 +294,6 @@ void initialise(Fluid*& fluidPtr, SphSolver& sphSolver) {
       // Handle the exception by printing the error message and exiting the
       // program
       std::cerr << e.what() << std::endl;
-      if (fluidPtr) {
-        delete fluidPtr;
-      }
       exit(1);
     }
     icBlockDrop(fluidPtr, nbParticles, length, width, centerX, centerY);
@@ -356,9 +310,6 @@ void initialise(Fluid*& fluidPtr, SphSolver& sphSolver) {
       // Handle the exception by printing the error message and exiting the
       // program
       std::cerr << e.what() << std::endl;
-      if (fluidPtr) {
-        delete fluidPtr;
-      }
       exit(1);
     }
     double centerX = icVm["center_x"].as<double>();
@@ -377,9 +328,6 @@ void initialise(Fluid*& fluidPtr, SphSolver& sphSolver) {
       // Handle the exception by printing the error message and exiting the
       // program
       std::cerr << e.what() << std::endl;
-      if (fluidPtr) {
-        delete fluidPtr;
-      }
       exit(1);
     }
     icDroplet(fluidPtr, nbParticles, radius, centerX, centerY);

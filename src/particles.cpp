@@ -1,9 +1,6 @@
 #include "particles.h"
 
 #include <cmath>
-#include <cstring>
-#include <fstream>
-#include <iomanip>
 #include <iostream>
 
 // User defined constructor
@@ -43,7 +40,6 @@ double &particles::operator()(unsigned row, unsigned col) {
 // Overloading of operator=
 particles &particles::operator=(const particles &particles) {
   if (this != &particles) {
-
     nbParticles = particles.nbParticles;
 
     positionX.reserve(nbParticles);

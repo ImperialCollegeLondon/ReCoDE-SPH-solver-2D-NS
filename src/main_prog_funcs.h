@@ -2,19 +2,10 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include <boost/program_options.hpp>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <string>
-#include <tuple>
-
 #include "fluid.h"
 #include "sph_solver.h"
 
-namespace po = boost::program_options;
-
-void initialise(Fluid *&fluidPtr, SphSolver &solver);
+void initialise(std::unique_ptr<Fluid> &fluidPtr, SphSolver &solver);
 std::tuple<std::ofstream, std::ofstream, std::ofstream> initOutputFiles(
     std::string folderPath);
 

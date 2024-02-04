@@ -1,7 +1,8 @@
 #ifndef FLUID_H
 #define FLUID_H
 
-#include "fstream"
+#include <fstream>
+
 #include "particles.h"
 
 class Fluid : public particles {
