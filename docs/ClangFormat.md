@@ -6,11 +6,11 @@ In this project, we have implemented two ways to format C++ code. One way is a m
 
 ## Format using a bash script
 
-This approach involves a "manual" formatting. We've developed a bash script designed to automatically format each .cpp and .h file located in the root directory of the repository. Since `clang-format` lacks inherent recursive capabilities, it becomes necessary to identify each file and apply formatting individually.
+This approach involves a "manual" formatting step. The root directory of this project contains a bash script `clang-format.sh` which contains commands designed to automatically format each `.cpp` and `.h` file located in the root directory of the repository. Since `clang-format` lacks inherent recursive capabilities, it becomes necessary to identify each file and apply formatting individually.
 
-### 1. Find the root directory
+### 1. Finding the root directory
 
-To find the root directory and navigate (i.e. `cd`) to it, we use the following command:
+The first command in `clang-format.sh` finds the root directory and navigates to it using the following command:
 
 ```bash
 cd -- "$(find ~/ -type d -name ReCoDE-SPH-solver-2D-NS | head -1)"
