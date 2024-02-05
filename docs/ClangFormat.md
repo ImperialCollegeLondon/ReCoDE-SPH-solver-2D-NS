@@ -1,6 +1,6 @@
 # Clang Format
 
-`clang-format` is a set of tools to format your codebase based on given styles(or styles created by the user in a config file). It can be used for the following languages: C/C++/Java/JavaScript/JSON/Objective-C/Protobuf/C#. It is a project of LLVM. More in depth information about the actual documentation can be found [here](https://clang.llvm.org/docs/ClangFormat.html).
+`clang-format` is a set of tools to format your codebase based on given styles (or styles created by the user in a config file). It can be used for the following languages: C/C++/Java/JavaScript/JSON/Objective-C/Protobuf/C#. It is a project of [LLVM](https://llvm.org/). More in depth information about the actual documentation can be found [here](https://clang.llvm.org/docs/ClangFormat.html).
 
 In this project, we have implemented two ways to format C++ code - one manual and one using git hooks.
 
