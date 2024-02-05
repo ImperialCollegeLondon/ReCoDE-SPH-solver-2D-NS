@@ -60,7 +60,7 @@ After selecting the desired IC, the user has to specify its parameters (number a
   - resting density (`density_resting`)
   - viscosity (`viscosity`)
   - acceleration due to gravity (`acceleration_gravity`)
-  - coefficient of restituion (`coeff_restitution`)
+  - coefficient of restitution (`coeff_restitution`)
 - `domain.txt`: defines the dimensions of the domain utilised in the simulation
 - `ic-one-particle.txt`: sets the initial positions when the selected initial condition is "ic-one-particle"
 - `ic-{two, three, four}-particles.txt`: sets the initial positions for the corresponding cases

@@ -38,11 +38,11 @@ set(INCLUDES
 add_executable(<project_name> <main_cpp> ${SOURCES} ${INCLUDES})
 ```
 
-For this project, this is not nesseccary, as there are only five files.
+For this project, this is not necessary, as there are only five files.
 
 ## External Dependencies (Boost)
 
-CMake is great in fetching and linking any external dependency that a C++ project might require. It's especially helpful with _[Boost](https://www.boost.org/)_, which is utilsed by this project, as it can use `find_package` and fetch the existing installation. When finding packages, it is best practice to include only the headers that the user requires (in our case `program_options`).
+CMake is great in fetching and linking any external dependency that a C++ project might require. It's especially helpful with _[Boost](https://www.boost.org/)_, which is utilised by this project, as it can use `find_package` and fetch the existing installation. When finding packages, it is best practice to include only the headers that the user requires (in our case `program_options`).
 
 In the case the _Boost_ package is found, we can add the output executable (`SPH_SOLVER`) and link it to the `SOURCE` files we have declared earlier (CMake will go and fetch them automatically).
 

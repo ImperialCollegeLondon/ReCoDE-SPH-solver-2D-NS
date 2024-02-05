@@ -66,6 +66,6 @@ More information on the `pre-commit package` can be found [here](https://pre-com
 
 ## Format Checking Pipeline
 
-Furthermore, we have implemented a final, holistic check of our code's format. Using a Github Actions workflow (defined in `format.yml`), we have developed a pipeline that is trigerred every time a git push happens or a Pull Request (PR) is opened.
+Furthermore, we have implemented a final, holistic check of our code's format. Using a Github Actions workflow (defined in `format.yml`), we have developed a pipeline that is triggered every time a git push happens or a Pull Request (PR) is opened.
 
-The pipeline checks all the `.cpp` and `.h` files in the repository, using the clang-format Github Action defined [here](https://github.com/jidicula/clang-format-action). If all the files are formatted based on the clang-format configuration that has been specified, the pipeline succeeds, else it fails. This pipeline, combined with the appopriate branch rules, guarantees that our Github repository is always well-formated.
+The pipeline checks all the `.cpp` and `.h` files in the repository, using the clang-format Github Action defined [here](https://github.com/jidicula/clang-format-action). If all the files are formatted based on the clang-format configuration that has been specified, the pipeline succeeds, else it fails. This pipeline, combined with the appropriate branch rules, guarantees that our Github repository is always well-formatted.
