@@ -94,5 +94,10 @@
         "list": "cpp",
         "cfenv": "cpp",
         "__functional_03": "cpp"
-    }
+    },
+    "cSpell.words": [
+        "initialising",
+        "prioritising",
+        "standardised"
+    ]
 }

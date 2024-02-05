@@ -14,7 +14,7 @@
 
 ## Description
 
-In this project we present a numerical code in `C++` which solves the two-dimensional Navier-Stokes equations using the SPH approach. The focus lies in the implementation (and documnetation) of good `C++` practices and the development of skills related to efficient, robust, extensible and readable scientific code. The learning process regarding this project can be twofold:
+In this project we present a numerical code in `C++` which solves the two-dimensional Navier-Stokes equations using the SPH approach. The focus lies in the implementation (and documentation) of good `C++` practices and the development of skills related to efficient, robust, extensible and readable scientific code. The learning process regarding this project can be twofold:
 
 1) The student can study the material provided in the `main` branch of the present repository. It is independent of all the other branches and can be used as a standalone educational resource. In this the implemented SPH methodology is explained as well as the structure of the source code and the post-processing scripts.
 
@@ -57,7 +57,7 @@ If there is an existing exemplar in the ReCoDE repositories link to that.
 ### Academic
 
 <!-- List the system requirements and how to obtain them, that can be as simple
-as adding a hyperlink to as detailed as writting step-by-step instructions.
+as adding a hyperlink to as detailed as writing step-by-step instructions.
 How detailed the instructions should be will vary on a case-by-case basis.
 
 Here are some examples:
