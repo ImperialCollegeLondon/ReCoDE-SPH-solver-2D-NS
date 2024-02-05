@@ -12,7 +12,7 @@ This approach involves a "manual" formatting. We've developed a bash script desi
 
 To find the root directory and navigate (i.e. `cd`) to it, we use the following command:
 
-```
+```bash
 cd -- "$(find ~/ -type d -name ReCoDE-SPH-solver-2D-NS | head -1)"
 ```
 
@@ -22,7 +22,7 @@ This command looks for a directory (`-type d`) with a name matching that of the 
 
 `clang-format` works either in default mode (with `llvm` as the style guide), with a given style (like the one we use, i.e. `google`) or with a user defined style config.
 
-```
+```bash
 if ! [ -f "$config_file" ]; then
     clang-format --style=google --dump-config > "$config_file"
 fi
@@ -34,7 +34,7 @@ This command searches the current directory for the specified config file and, i
 
 The final command performs the code formatting for every CPP and header file.
 
-```
+```bash
 find . \( -name '*.cpp' -o -name '*.h' \) -exec clang-format -i {} +
 ```
 
@@ -44,7 +44,7 @@ This command finds every `.cpp` and `.h` file inside the current directory and p
 
 In order to use the formatter, you need to run the following command in the terminal:
 
-```
+```bash
 ./clang-format.sh
 ```
 
@@ -56,7 +56,7 @@ Apart from performing "manual" formatting using the "clang-format.sh" script, we
 
 There is a configuration file for `pre-commit` (`.pre-commit-config.yaml`), in which a pre-commit git hook is specified. To install this hook to a local git repository the following command is required:
 
-```
+```bash
 pre-commit install
 ```
 
