@@ -1,0 +1,4 @@
+init_x_1 = 0.5 
+init_x_2 = 0.5
+init_y_1 = 0.5
+init_y_2 = 0.01

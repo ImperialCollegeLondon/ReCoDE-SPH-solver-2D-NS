@@ -1,0 +1,8 @@
+init_x_1 = 0.505 
+init_x_2 = 0.515
+init_x_3 = 0.51 
+init_x_4 = 0.5
+init_y_1 = 0.5 
+init_y_2 = 0.5 
+init_y_3 = 0.45
+init_y_4 = 0.45
