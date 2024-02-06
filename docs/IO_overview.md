@@ -10,7 +10,7 @@ Initially, we outline the two primary concepts or solutions employed to guarante
 
 ---
 
-There are two sides when it comes to reading input by a program. One the one hand, there is a set of parameter values that the programs expects so that it can run with no errors, and on the other hand, there are the parameters that the user actually provides to the program, as well as their corresponding values. Therefore, in order for the program to work properly, these two sides must match each other.
+Programs which perform simulation must be able to have the scenario they are simulating specified by the user. However, the user may sometimes provide invalid values as part of this specification. It's desirable to have a system in place that can handle these invalid values and provide the user with a clear message about which values are invalid. 
 
 In the current program, the Boost Program Options library (`<boost/program_options.hpp>`) is utilised. Boost Program Options is a powerful C++ library that simplifies the handling of program input. It provides a straightforward and intuitive way to manage command-line arguments, read files, and define options for your C++ programs. This way, it allows focusing on the logic of the program rather than dealing with the complexities of input parsing. This library facilitates the mapping of the two aforementioned sides by allowing us to provide enhanced definitions of the expected input parameters, accompanied by their types, using the `options_description` object and its `add_options()` function.
 
