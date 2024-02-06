@@ -18,9 +18,9 @@ cd -- "$(find ~/ -type d -name ReCoDE-SPH-solver-2D-NS | head -1)"
 
 This command looks for a directory (`-type d`) with a name matching that of the repository (`-name ReCoDE-SPH-solver-2D-NS`). It is important to note that, should the repository have a different name, the value of this flag should be adjusted accordingly. Subsequently, we capture the output of the `find` command and pipe(`|`) it to `head`, which extracts the first(`-1`) line (a precaution in case the specified name appears multiple times on the host machine). The outcome of this combined effort is then passed to `cd` to navigate to the correct location.
 
-### 2. Create the style config
+### 2. Choosing the Style Guide
 
-`clang-format` works either in default mode (with `llvm` as the style guide), with a given style (like the one we use, i.e. `google`) or with a user defined style config.
+Teh style guide defines the rules `clang-format` will use to format your code.The default style guide is  `llvm` or we can choose another pre-defined style guide, or we could define out own. Here we choose the pre-defined `google`style.
 
 ```bash
 if ! [ -f "$config_file" ]; then
