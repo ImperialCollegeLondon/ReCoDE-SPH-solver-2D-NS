@@ -20,7 +20,7 @@ The `src` directory comprises five `*.cpp` files and their corresponding header 
 The program expects the parameters which are specified in the `exec/input` directory. When the function `initialise()` (in `SPH-main.cpp`) is invoked by the main program to read the `.txt` files, the `<boost/program_options.hpp>` library is utilised. This library facilitates the mapping of these parameters to their corresponding values, which are then stored in their respective variables. This approach enhances the flexibility and robustness of the input reading process. Users can specify input parameters in the `.txt` files in any order, provided they are presented as `key = value` pairs.
 
 ```cpp
-/* **************************** SPH_main.cpp **************************** */
+/* **************************** SPH-main.cpp **************************** */
 
 // void initialise(fluid** fluidPtr, SphSolver& sphSolver) { ...
 
@@ -90,7 +90,7 @@ po::notify(icVm);
 Additionally, error handling is integrated into the input file reading process to guarantee that the provided values conform to the constraints imposed by the underlying mathematical models and the physical meaning of each variable. For example, if the user attempts to set a negative value for the timestep, or a value that is greater than the integration time, the program will throw an error and instruct the user to choose a more suitable value.
 
 ```cpp
-/* **************************** SPH_main.cpp **************************** */
+/* **************************** SPH-main.cpp **************************** */
 
 // void initialise(fluid** fluidPtr, SphSolver& sphSolver) { ...
 
@@ -147,7 +147,7 @@ To avoid the use of multiple `if` statements, two `std::map` objects are used to
 
 ```cpp
 
-  /* **************************** SPH_main.cpp **************************** */
+  /* **************************** SPH-main.cpp **************************** */
 
   // void initialise(fluid** fluidPtr, SphSolver& sphSolver) { ...
 
@@ -222,7 +222,7 @@ Finally, after the object initialisation, the rest of the parameters which are r
 
 ```cpp
 
-  /* **************************** SPH_main.cpp **************************** */
+  /* **************************** SPH-main.cpp **************************** */
 
   // void initialise(fluid** fluidPtr, SphSolver& sphSolver) { ...
 
@@ -262,7 +262,7 @@ Upon successful execution, the program generates two types of files:
 - _Particle Positions File_: This file captures the positions of the particles at a given timestep, and it can be visualized using the script `post/visualize_particles.py`.
 
 ```cpp
-/* **************************** SPH_main.cpp **************************** */
+/* **************************** SPH-main.cpp **************************** */
 
 void storeToFile(fluid& fluid, int nbParticles, std::string type,
                  std::ofstream& targetFile, double dt, int currentIteration) {

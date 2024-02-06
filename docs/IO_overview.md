@@ -17,7 +17,7 @@ In the current program, the Boost Program Options library (`<boost/program_optio
 A snippet from the program's code, related to the management of input parameters, is shown below:
 
 ```cpp
-/* **************************** SPH_main.cpp **************************** */
+/* **************************** SPH-main.cpp **************************** */
 
 // Process to obtain the inputs provided by the user
 po::options_description desc("Allowed options");
@@ -56,6 +56,8 @@ desc.add_options()("init_condition", po::value<std::string>(),
 Then, as shown in the code snippet below, the code line `po::store(po::parse_config_file(icFile, desc), icVm);` uses these definitions (`desc`) to search for matches between the input parsed from the `*.txt` files in the `exec/input/` directory (`icFile` in this case), and the expected parameters. These mapped pairs are finally stored in another object provided by the library, called a `variables_map` (`icVm` in this case). This approach enhances the flexibility and robustness of the input reading process. Users can specify input parameters in the `txt` files in any order, provided they are given as `key = value` pairs.
 
 ```cpp
+/* **************************** SPH-main.cpp **************************** */
+
 // Map the inputs read from the initial condition file to expected inputs
 std::string icCase = case_vm["init_condition"].as<std::string>();
 po::variables_map icVm;
@@ -87,12 +89,12 @@ po::notify(icVm);
 
 Another crucial part of reading input by a program is error handling. In order for the program to run without errors, the provided input must conform to the program's specific rules, e.g., in the current case, the constraints imposed by the underlying mathematical models and the physical meaning of each variable. However, in the case of reading input from `*.txt` files, there is no way to guarantee that the user will adhere to these rules. For example, if the user attempts to set a negative value for the timestep, or a value that is greater than the integration time, the program will crash.
 
-Even though we cannot control the user's actions, we can - and we should always - control our program's behavior to these actions. A program that simply crashes on unexpected input is not user-friendly, since it does not provide any guidance to the user regarding their wrong input. Error handling is the process of properly handling this "bad" input, so that the program provides information to the user regarding the reason of the error or the correct usage of the program, before it normally exits.
+Even though we cannot control the user's actions, we can - and we should always - control our program's response to these actions. A program that simply crashes on unexpected input is not user-friendly, since it does not provide any guidance to the user regarding their wrong input. Error handling is the process of properly handling this "bad" input, so that the program provides information to the user regarding the reason of the error or the correct usage of the program, before it normally exits.
 
 In C++, exceptions provide suitable functionality for input error handling. With exceptions, we can add `try`/`catch` blocks to our program. The `try` part should include the error-prone code, which in the case of handling input could be either the proper opening of the file (e.g., `icFile.is_open()`) or a condition that checks that the input value adheres to the program's rules (e.g., `simulationParameters.dt <= 0`). In case of non-expected behavior, a `throw` statement is used, which throws an exception. There are numerous types of exceptions, such as the `runtime_error` exception thrown in the code snipped below, accompanied by an intuitive error message. Finally, the exception thrown in the `try` block, is caught in the `catch` block. In other words, the `catch` block performs the "handling" of the error, and this is where our code for the desired behavior in case of an error should be included. For instance, in the following code snipped, when the `runtime_error` exception is caught, the program prints the corresponding error message, in order to guide the user regarding the correct usage, and then exits in a controlled manner.
 
 ```cpp
-/* **************************** SPH_main.cpp **************************** */
+/* **************************** SPH-main.cpp **************************** */
 
 simulationParameters.dt = case_vm["dt"].as<double>();  // Time step dt
 // Error handling for the time step
@@ -135,7 +137,7 @@ Ensuring that the correct paths exist before attempting to store program output 
 In this program, we begin the output generation operations by ensuring that the target output location exists. The `createDirectory()` function, provided below, first checks whether the target folder path exists, and if not, it creates it.
 
 ```cpp
-/* **************************** SPH_main.cpp **************************** */
+/* **************************** SPH-main.cpp **************************** */
 
 void createDirectory(std::string folderPath) {
   // Check if the target folder already exists
@@ -149,7 +151,7 @@ void createDirectory(std::string folderPath) {
 This sets the foundation for the creation of the output files themselves. These files are initialised using the `std::ofstream` variable type. Such type offers a straightforward and intuitive interface for file operations in C++. For example, it allows for writing data to files using the familiar stream insertion operator (<<) just like you would write to std::cout. Moreover, it comes with a `destructor`, that takes care of the release of the used resources when appropriate, eliminating the need for manual handling of such operations.
 
 ```cpp
-/* **************************** SPH_main.cpp **************************** */
+/* **************************** SPH-main.cpp **************************** */
 
 std::tuple<std::ofstream, std::ofstream, std::ofstream> initOutputFiles(
     std::string outputFolder) {
