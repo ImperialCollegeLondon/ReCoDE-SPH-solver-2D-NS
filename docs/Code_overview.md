@@ -112,7 +112,7 @@ exit(1);
 
 ## Class initialisation
 
-The code makes use of three different classes which represent the fluid and the SPH algorithm deployed in this project. More details regarding the classes and the design choices can be found in the `docs/OOP_concepts.md` and the reader is advised to study it before proceeding with this chapter.
+The code makes use of three different classes which represent the fluid and the SPH algorithm deployed in this project.
 
 Firstly, one SphSolver object and one fluid pointer to an object are being declared in the main program. The pointer declaration is used for the `fluid`, because to initialise the object properly the number of particles is required in the user defined constructor and this information is not yet available since the input files have not been read. These objects are passed as a reference to the `initialise()` function. 
 
