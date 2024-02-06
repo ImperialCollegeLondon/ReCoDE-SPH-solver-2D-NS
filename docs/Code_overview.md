@@ -17,7 +17,7 @@ The `src` directory comprises five `*.cpp` files and their corresponding header 
 
 ## Reading Inputs
 
-The program expects the parameters which are specified in the `exec/input` directory. When the function `initialize()` is invoked by the main program to read the `.txt` files, the `<boost/program_options.hpp>` library is utilised. This library facilitates the mapping of these parameters to their corresponding values, which are then stored in their respective variables. This approach enhances the flexibility and robustness of the input reading process. Users can specify input parameters in the `.txt` files in any order, provided they are presented as `key = value` pairs.
+The program expects the parameters which are specified in the `exec/input` directory. When the function `initialise()` (in `SPH-main.cpp`) is invoked by the main program to read the `.txt` files, the `<boost/program_options.hpp>` library is utilised. This library facilitates the mapping of these parameters to their corresponding values, which are then stored in their respective variables. This approach enhances the flexibility and robustness of the input reading process. Users can specify input parameters in the `.txt` files in any order, provided they are presented as `key = value` pairs.
 
 ```cpp
 /* **************************** SPH_main.cpp **************************** */
@@ -112,7 +112,7 @@ exit(1);
 
 ## Class initialisation
 
-The code makes use of three different classes which are purposed to represent the fluid and the SPH algorithm deployed in this project. More details regarding the classes and the design choices can be found in the `docs/OOP_concepts.md` and the reader is advised to study it before proceeding with this chapter.
+The code makes use of three different classes which represent the fluid and the SPH algorithm deployed in this project. More details regarding the classes and the design choices can be found in the `docs/OOP_concepts.md` and the reader is advised to study it before proceeding with this chapter.
 
 Firstly, one SphSolver object and one fluid pointer to an object are being declared in the main program. The pointer declaration is used for the `fluid`, because to initialise the object properly the number of particles is required in the user defined constructor and this information is not yet available since the input files have not been read. These objects are passed as a reference to the `initialise()` function. 
 
