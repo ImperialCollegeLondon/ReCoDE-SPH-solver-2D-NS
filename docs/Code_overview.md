@@ -118,7 +118,7 @@ Firstly, one SphSolver object and one fluid pointer to an object are being decla
 
 Once the input values are read and stored, the provided IC is used to determine the number of particles. In this calculation, some ICs (droplet and block drop) require specific formations of particles, which can only be achieved with some numbers of particles. As a result, the number of particles used will be close to, but may not be exactly equal to, the number of particles specified by the user in the input files. The functions `closestIntegerSqrt()` and `rectangleN()` from `initial_conditions.h` are used to find a number of particles to use which is close to the user's input, but also satisfies the requirements of the IC. 
 
-The IC functions are being called within the `initialise()` function and a reference to the pointer of the fluid object is passed as an argument<b>*</b>, as well as the updated number of particles. Inside these functions the user defined constructor of the `fluid` is being called and the memory allocation process for the object's containers is invoked. In this, the containers are declared as `new` raw pointers to arrays, dynamically allocating memory proportional to the number of particles. The function used to initialise the `fluid` class for the simple cases of 1,2,3 and 4 particles is demonstrated below.
+The IC functions are being called within the `initialise()` function and a reference to the pointer of the fluid object is passed as an argument<b>*</b>, as well as the updated number of particles. Inside these functions the user defined constructor of the `fluid` is called and the memory allocation process for the object's containers is invoked. In this, the containers are declared as `new` raw pointers to arrays, dynamically allocating memory proportional to the number of particles. The function used to initialise the `fluid` class for the simple cases of 1,2,3 and 4 particles is demonstrated below.
 
 <b>\*</b> The rationale behind passing the pointer to the fluid object as a reference is identical to the reason an object is passed as a reference to a function. In these functions we are allocating new memory that the pointer should point to. If the pointer was passed by value (`Fluid *fluidPtr`) then a **copy** of the pointer would be pointing to the new memory and our original fluid pointer will still be a `nullptr`. Of course, since the allocation is happening inside the function, the caller is responsible to `delete` the object manually.
 
@@ -218,7 +218,7 @@ To avoid the use of multiple `if` statements, two `std::map` objects are used to
 
 ```
 
-Finally, after the object initialisation, the rest of the parameters which are required by the `SphSolver` and the `Fluid` objects are being set with the use of setter functions.
+Finally, after the object initialisation, the rest of the parameters which are required by the `SphSolver` and the `Fluid` objects are set with the use of setter functions.
 
 ```cpp
 
@@ -253,7 +253,7 @@ Finally, after the object initialisation, the rest of the parameters which are r
 
 ## Output files
 
-The output files are being initialised with the use of the `initOutputFiles()`. The outputs are exported in `.csv` format which displays good readability and facilitates data manipulation compared to `.txt` files. They are stored in a centralised location, specifically within the `/exec/output/` directory. This centralisation simplifies data organisation and retrieval, making it easier for users to access and analyse output data.
+The output files are initialised with the use of the `initOutputFiles()`. The outputs are exported in `.csv` format which displays good readability and facilitates data manipulation compared to `.txt` files. They are stored in a centralised location, specifically within the `/exec/output/` directory. This centralisation simplifies data organisation and retrieval, making it easier for users to access and analyse output data.
 
 Upon successful execution, the program generates two types of files:
 
