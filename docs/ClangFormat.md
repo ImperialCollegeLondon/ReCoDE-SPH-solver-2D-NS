@@ -42,17 +42,17 @@ This command finds every `.cpp` and `.h` file inside the current directory and p
 
 ### Usage
 
-In order to use the formatter, you need to run the following command in the terminal:
+In order to use the formatter, you need to run the following command in the terminal in the root directory of the project:
 
 ```bash
 ./clang-format.sh
 ```
 
-The formatter then proceeds to format all the detected files using the style rules provided in the clang configuration file. If the user wants to change the style of the formatting applied, they need to edit `clang-format.sh` to change the `--style` flag's value to the desired style guide for clang follow. Some suggestions can be found [here](https://clang.llvm.org/docs/ClangFormatStyleOptions.html).
+This runs the script. The formatter then proceeds to format all the detected files using the style rules provided in the clang configuration file. If the user wants to change the style of the formatting applied, they need to edit `clang-format.sh` to change the `--style` flag's value to the desired style guide for clang follow. Some suggestions can be found [here](https://clang.llvm.org/docs/ClangFormatStyleOptions.html).
 
 ## Format on commit
 
-Apart from performing "manual" formatting using the "clang-format.sh" script, we utilised the `pre-commit` Python package to automate the process of formatting our staged files on every `git commit`. This way of code formatting is independent of the manual way and you don't need to use both to format your code or for them to work properly.
+Another approach we could take is to automate the running of `clang`. We do this by using the `pre-commit` Python package to automate the process of formatting our staged files on every `git commit`. This way of code formatting is independent of the manual way and you don't need to use both to format your code or for them to work properly.
 
 There is a configuration file for `pre-commit` (`.pre-commit-config.yaml`), in which a pre-commit git hook is specified. To install this hook to a local git repository the following command is required:
 
@@ -60,7 +60,7 @@ There is a configuration file for `pre-commit` (`.pre-commit-config.yaml`), in w
 pre-commit install
 ```
 
-Then, every time the `git commit` command is executed, any "bad formatted" **staged** files are detected and formatted by `pre-commit`, based on the clang-format configuration that has been specified. Moreover, the commit fails with a message that prompts the user to stage the files that were formatted by the package and make a new commit. In the case that all the staged files are formatted according to the specified style rules, the commit will succeed with an appropriate message.
+Following this, every time the `git commit` command is executed, any "bad formatted" **staged** files are detected and formatted by `pre-commit`, based on the clang-format configuration that has been specified. Moreover, the commit fails with a message that prompts the user to stage the files that were formatted by the package and make a new commit. In the case that all the staged files are formatted according to the specified style rules, the commit will succeed with an appropriate message.
 
 More information on the `pre-commit package` can be found [here](https://pre-commit.com/).
 
