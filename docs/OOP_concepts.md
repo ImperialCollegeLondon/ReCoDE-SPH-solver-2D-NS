@@ -14,9 +14,9 @@ In this project we chose object orientation which is widely supported by C++ in 
 
 ## Class-particles
 
-The first class is used to represent the building blocks of the SPH approach which are the particles. A particle however is not only relevant in the context of SPH, but it can also be used in other applications such as in the representation of multiphase flows where the particles can be droplets whose motion is two-way coupled with a carrier gas phase. Therefore, the "particles" class was decided to be kept as simple (and generic) as possible and to encapsulate only the information which can be applicable to every application that incorporates the use of cluster of particles. Therefore, the members of the "particles" class are only related to the particles' positions and velocities.
+The first class is used to represent the building blocks of the SPH approach which are the particles. A particle however is not only relevant in the context of SPH, but it can also be used in other applications such as in the representation of multiphase flows where the particles can be droplets whose motion is two-way coupled with a carrier gas phase. Therefore, the ```particles``` class was decided to be kept as simple (and generic) as possible and to encapsulate only the information which can be applicable to every application that incorporates the use of cluster of particles. Therefore, the members of the "particles" class are only related to the particles' positions and velocities.
 
-It is important to emphasize that an instance of the "particles" class contains data pertaining to all the particles involved in the simulation (therefore represents the entirety of the cluster), rather than information exclusive to a single particle.
+It is important to emphasize that an instance of the ```particles``` class contains data pertaining to all the particles involved in the simulation (therefore represents the entirety of the cluster), rather than information exclusive to a single particle.
 
 ```cpp
 class particles {
