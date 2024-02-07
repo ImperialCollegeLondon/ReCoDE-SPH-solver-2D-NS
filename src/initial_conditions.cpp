@@ -27,6 +27,12 @@ void icBlockDrop(std::unique_ptr<Fluid> &fluidPtr, int &nbParticles,
   int n1, n2;
   nbParticles = rectangleN(nbParticles, length, width, n1, n2);
 
+  // Instead of using `new` operator, we're creating a
+  // std::unique_ptr that can manage its resources (which
+  // means that we don't need to care about
+  // deleting the memory.). std::make_unique is using the
+  // constructor of Fluid to create an std::unique_ptr.
+  // See also RAII for an explanation on smart pointers.
   fluidPtr = std::make_unique<Fluid>(nbParticles);
 
   Fluid &fluid = *fluidPtr;  // Use a reference to the object

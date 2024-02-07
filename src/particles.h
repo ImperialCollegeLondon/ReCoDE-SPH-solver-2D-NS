@@ -26,17 +26,17 @@ class particles {
  public:
   /******** CONSTRUCTORS/DESTRUCTOR********/
 
-  particles() = default;   // Default constructor
-  ~particles() = default;  // Default Destructor
-
-  particles(const unsigned nNew);  // User defined constructor for allocating
-                                   // the dimensions of the Matrix
+  explicit particles(
+      const unsigned
+          nNew);  // User defined constructor for allocating
+                  // the dimensions of the Matrix. One parameter
+                  // constructors should declared `explicit` to avoid
+                  // implicit conversions. Check
+                  // https://google.github.io/styleguide/cppguide.html#Implicit_Conversions
 
   /**********OVERLOADINGS**********/
 
   double &operator()(unsigned row, unsigned col);
-
-  particles &operator=(const particles &particles);
 
   // Getter functions
 

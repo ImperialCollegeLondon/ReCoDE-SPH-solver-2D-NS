@@ -37,33 +37,6 @@ double &particles::operator()(unsigned row, unsigned col) {
   }
 }
 
-// Overloading of operator=
-particles &particles::operator=(const particles &particles) {
-  if (this != &particles) {
-    nbParticles = particles.nbParticles;
-
-    positionX.reserve(nbParticles);
-    positionY.reserve(nbParticles);
-    velocityX.reserve(nbParticles);
-    velocityY.reserve(nbParticles);
-
-    distance.reserve(nbParticles * nbParticles);
-    distanceQ.reserve(nbParticles * nbParticles);
-
-    particleSpeedSq.reserve(nbParticles);
-
-    positionX = particles.positionX;
-    positionY = particles.positionY;
-    velocityX = particles.velocityX;
-    velocityY = particles.velocityY;
-
-    distance = particles.distance;
-    distanceQ = particles.distanceQ;
-    particleSpeedSq = particles.particleSpeedSq;
-  }
-  return *this;
-}
-
 // Getter functions
 
 int particles::getNumberOfParticles() { return nbParticles; }
