@@ -109,18 +109,45 @@ in a tree node.
 
 ```log
 .
-├── examples
-│   ├── ex1
-│   └── ex2
-├── src
-|   ├── file1.py
-|   ├── file2.cpp
-|   ├── ...
-│   └── data
-├── app
 ├── docs
-├── main
-└── test
+│   ├── ClangFormat.md
+│   ├── CMake.md
+│   ├── Code_execution.md
+│   ├── Code_overview.md
+│   ├── index.md
+│   ├── IO_overview.md
+│   ├── OOP_concepts.md
+│   └── SPH.md
+├── exec
+│   ├── build
+│   └── input
+│       ├── case.txt
+│       ├── constants.txt
+│       ├── domain.txt
+│       ├── ic-block-drop.txt
+│       ├── ic-droplet.txt
+│       ├── ic-four-particles.txt
+│       ├── ic-one-particles.txt
+│       ├── ic-three-particles.txt
+│       └── ic-two-particles.txt
+├── notebooks
+├── post
+│   ├── plot_energies.ipynb
+│   ├── plot_energies.py
+│   ├── visualise_particles.ipynb
+│   └── visualise_particles.py
+└── src
+    ├── CMakeLists.txt
+    ├── fluid.cpp
+    ├── fluid.h
+    ├── initial_conditions.cpp
+    ├── initial_conditions.h
+    ├── main_prog_funcs.h
+    ├── particles.cpp
+    ├── particles.h
+    ├── SPH-main.cpp
+    ├── sph_solver.cpp
+    └── sph_solver.h
 ```
 
 <!-- Change this to your License. Make sure you have added the file on GitHub -->
