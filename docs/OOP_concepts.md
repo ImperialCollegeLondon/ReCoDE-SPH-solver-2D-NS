@@ -1,6 +1,6 @@
 # Object Oriented Programming
 
-Object Oriented Programming (OOP) is a style of programming adopted by many programming languages (e.g. C++,Java, Python) and allows the developers to define a user defined data type known as a class. A user may create instances of these classes, known as objects, and use them to store and manipulate data. The contents of the class will define the data that is stored in instances of the class in member variables, and functions known as methods which can access, manipulate, and perform calculations on the data.
+Object Oriented Programming (OOP) is a style of programming adopted by many programming languages (e.g. C++,Java, Python). It allows developers to define a user defined data type known as a class. A user may create instances of these classes, known as objects, and use them to store and manipulate data. The contents of the class will define the data that is stored in instances of the class in member variables, and functions known as methods which can access, manipulate, and perform calculations on the data.
 
 The complexity of a class can be very simple, such as a variable type (i.e. integer, double, array etc.) or very complicated, such as a solver for complex non-linear problems. Every class comprises several components which are the members, the methods, the constructors and the destructor.
 
