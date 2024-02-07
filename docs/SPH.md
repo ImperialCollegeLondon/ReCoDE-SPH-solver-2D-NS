@@ -2,15 +2,15 @@
 
 Smooth particle hydrodynamics (SPH) is a branch of computational fluid dynamics, which belongs in the category of particle-based and mesh-free methods. It was first developed for astrophysical flows related problems and has gained an increasing popularity over the last few years due to its very good applicability and easy extensibility in problems describing free surface and multiphase flows in both simple and complex geometries.
 
-In the SPH formulation, the fluid is being discretised by fictitious particles whose interpolated properties can approximate any function $f(x)$ that is of interest over a domain $\Omega$:
+In the SPH formulation, the fluid is approximated as being comprised of identical fictitious particles whose interpolated properties can approximate any function $f(x)$ that is of interest over a domain $\Omega$:
 
 $$ f(\mathbf{x}) \sim \int_{\Omega} f(\mathbf{x}')W(\mathbf{x}-\mathbf{x}',h) \mathrm{d}\mathbf{x}' $$
 
-In this equation, $W$ is a kernel function and $h$ is defined as the smoothing length that characterizes the size of the support domain of the kernel. The discrete equivalent of the above expression for the $`i^{th}`$ particle can be written as
+In this equation, $W$ is a kernel function and $h$ is defined as the smoothing length that characterizes the size of the support domain of the kernel. The discrete equivalent of the above expression for the $i$th particle can be written as
 
 $$f_ {i} = \sum_ {j}^{N} \frac{m_ {j}}{\rho_ {j}} f_ {j} W_ {ij} $$
 
-The kernel function provides the weight which is assigned to each particle based on their distance from the point of interest (i.e. the point where the function $`f(\mathbf{x})`$ is to be evaluated). The movement of the particles obeys Newton's second law of motion and the forces applied on the particles are being calculated as explained above.
+The kernel function provides the weight which is assigned to each particle based on their distance from the point of interest (i.e. the point where the function $f(\mathbf{x})$ is to be evaluated). The movement of the particles obeys Newton's second law of motion and the forces applied on the particles are being calculated as explained above.
 
 More information on SPH and its applications can be found in the following resources
 
@@ -65,15 +65,13 @@ $$\nabla(\phi_ {p})(\mathbf{r}_ {ij} ,h) = \begin{cases}
 0 & \text{otherwise}
 \end{cases} $$
 
-while otherwise it is set to 0.
-
 ## Viscous force
 
 The force acting on each particle due to viscous effects is calculated as
 
 $$\mathbf{F}_ {vi} = −\mu \sum_ {j} m\rho_ {j} \mathbf{v}_ {ij} \nabla^{2} \phi v(r_ {i},h)$$
 
-where $\mathbf{v}_ {ij} = \mathbf{v}_ {i} − \mathbf{v}_ {j}$, $\mathbf{v}_ {i}$ is the velocity of particle i and $\mu$ is the dynamic viscosity and $\nabla^{2} \phi v(r_ {i},h)$ is given by:
+where $\mathbf{v}_ {ij} = \mathbf{v}_ {i} − \mathbf{v}_ {j}$, $\mathbf{v}_ {i}$ is the velocity of particle $i$, $\mu$ is the dynamic viscosity, and $\nabla^{2} \phi v(r_ {i},h)$ is given by:
 
 $$\nabla^{2} \phi v(r_ {i},h) = \begin{cases}
 40 \pi h^4 (1 −q) & \text{for } q < 1 \text{ and } i \neq j\\
@@ -82,7 +80,7 @@ $$\nabla^{2} \phi v(r_ {i},h) = \begin{cases}
 
 ## Gravity force:
 
-Finally, the force due to gravity is calculated as
+Finally, the force due to gravity is given by:
 
 $$\mathbf{F}_ {gi} = (0, −\rho_ {i}g)$$
 
@@ -90,7 +88,7 @@ where $g$ is the acceleration due to gravity.
 
 ## Acceleration
 
-The acceleration of each particle is calculated as:
+The acceleration of particle $i$ is given by:
 
 $$ \mathbf{a} _i = \frac{\mathbf{F} _{pi} + \mathbf{F} _{vi} + \mathbf{F} _{gi}}{\rho_i} $$
 
