@@ -14,19 +14,19 @@
 
 ## Description
 
-In this project we present a numerical code in `C++` which solves the two-dimensional Navier-Stokes equations using the SPH approach. The focus lies in the implementation (and documentation) of good `C++` practices and the development of skills related to efficient, robust, extensible and readable scientific code. The learning process regarding this project can be twofold:
+In this project we present a numerical code in C++ which solves the two-dimensional Navier-Stokes equations using the smoothed-particle hydrodynamics (SPH) approach. The focus lies in the implementation (and documentation) of good C++ practices and the development of skills related to efficient, robust, extensible and readable scientific code. The learning process regarding this project can be twofold:
 
 1) The student can study the material provided in the `main` branch of the present repository. It is independent of all the other branches and can be used as a standalone educational resource. In this the implemented SPH methodology is explained as well as the structure of the source code and the post-processing scripts.
 
-2) The student can start by studying progressively the branches `v0 - v5` in order to experience the process which was followed in order to improve and optimize the herein code. Several comments have been added for each individual version in the corresponding branch, to highlight the improvements which were implemented compared to its ancestors.
+2) The student can start by studying progressively the branches `v0` - `v5` in order to experience the process which was followed in order to improve and optimize the herein code. Several comments have been added for each individual version in the corresponding branch to highlight the improvements which were implemented compared to its ancestors.
 
 <!-- What should the students going through your exemplar learn -->
 
 ## Learning Outcomes
 
-- Advanced I/O (Inputs/Outputs)
-- OOP (Objector Oriented Programming)
-- C++ Containers
+- Advanced I/O (input/output)
+- OOP (object-oriented programming)
+- C++ containers
 - Performance and memory optimization tools and skills
 - Parallel programming using MPI
 
@@ -50,7 +50,7 @@ If there is an existing exemplar in the ReCoDE repositories link to that.
 -->
 - Any experience with basic programming concepts (for loops, functions, reading and writing files etc.).
 
-- Some experience with `C++` (familiarity with pointers, C++ classes and the use of external libraries).
+- Some experience with C++ (familiarity with pointers, C++ classes and the use of external libraries).
 
 - Basic understanding of numerical analysis concepts (time marching, temporal integration etc.)
 
