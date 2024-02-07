@@ -83,6 +83,8 @@ exit(1);
 po::notify(icVm);
 ```
 
+Note that the ```exit(1)``` means the program as a whole returns an exit code of ```1```. An exit code of 0 conventionally means a program has exited successfully, with other values indicating an error.  As a result, returning ```1``` in the case of an error is useful for scripts or other programs that may call this program, as they can check the exit code and take appropriate action if the program has failed. 
+
 ### Error Handling
 
 ---
