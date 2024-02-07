@@ -2,7 +2,7 @@
 
 ## Overview
 
-The code in `v0` contains a serial C++ implementation of the algorithm described in `SPH.md`. The variables associated with the particles' positions, velocities and forces, are stored as members of an object called `SPH`. The methods of the SPH class manifest the functions that embody the steps of the algorithm. While the current version of the code produces accurate results, subsequent chapters will enhance its capabilities and improve its structure. The functionality and rationale behind each improvement will be analysed in detail.
+The code in branch `v0` contains a serial C++ implementation of the algorithm described in `SPH.md`. The variables associated with the particles' positions, velocities and forces, are stored as data members of an object called `SPH`. The member functions of the `SPH` class manifest the functions that embody the steps of the algorithm. While the current version of the code produces accurate results, subsequent chapters will enhance its capabilities and improve its structure. The functionality and rationale behind each improvement will be analysed in detail.
 
 ## Compiling and executing the code
 
@@ -50,23 +50,23 @@ This version of the code displays a serial implementation of the SPH algorithm i
 
 ## Main program
 
-The main program of the code (i.e.`SPH-main.cpp`) is used to read the input files, export the output files, initialise the SPH class and perform the time integration by calling the SPH object's methods.
+The main program of the code (i.e.`SPH-main.cpp`) is used to read the input files, export the output files, initialise the `SPH` class and perform the time integration by calling `SPH`'s member functions.
 
 ## Structure of the class
 
-The SPH class is initialised by using the number of particles (`N`) which is required to determine the size of the arrays in the constructor. The operator `()` has been overloaded to place the particles in their initial conditions and to set their initial velocities to the corresponding arrays. The class has three main functions for the temporal integration:
+The `SPH` class is initialised by using the number of particles (`N`) which is required to determine the size of the arrays in the constructor. The operator `()` has been overloaded to place the particles in their initial conditions and to set their initial velocities to the corresponding arrays. The class has three main functions for the temporal integration:
 
-- `SPH::calc_particle_distance()`: Calculates the distances between the particles.
+- `SPH::calculateParticleDistance()`: Calculates the distances between the particles.
 
-- `SPH::calc_density()`: Updates the density.
+- `SPH::calculateDensity()`: Updates the density.
 
-- `SPH::particle_iterations()`: Calculates all the forces acting on the particles and updates their positions based on the leapfrog scheme.
+- `SPH::particleIterations()`: Calculates all the forces acting on the particles and updates their positions based on the leapfrog scheme.
 
 ## Input Parameters
 
 ### Initial conditions
 
-As stated earlier, the SPH class is initialised in the SPH-main.cpp file, where one of the following initial conditions can be specified by the user from the `exec/inputs/case.txt` file:
+As stated earlier, the `SPH` class is initialised in the `SPH-main.cpp` file, where one of the following initial conditions can be specified by the user from the `exec/inputs/case.txt` file:
 
 - A single particle (`ic-one-particle`) at : (0.5, 0.5) to test the correctness of time integration and gravity forcing, as well as the bottom boundary condition.
 
@@ -92,7 +92,7 @@ The time-step `dt` can be set in units of seconds with the input key `dt`. For i
 
 ### Radius of Influence
 
-The last input parameter that the user can specify in the `exec/inputs/case.txt` file is the radius of influence `h` in units of m. This parameter dictates the maximum distance in which an entity (particle or domain boundary) has an influence in the behavior of another entity.
+The last input parameter that the user can specify in the `exec/inputs/case.txt` file is the radius of influence `h` in units of metres. This parameter dictates the maximum distance in which an entity (particle or domain boundary) has an influence in the behaviour of another entity.
 
 ### Reading Inputs
 
@@ -124,7 +124,7 @@ po::notify(vm);
 
 ## Class initialisation
 
-Once the input values are stored, the provided initial condition is used to determine the number of particles. It is also utilized to declare containers within the sph object, responsible for storing information related to particle properties, and to allocate memory. This process takes place in the constructor of the class. There, the containers are declared as `new` raw pointers, dynamically allocating memory proportional on the number of particles.
+Once the input values are stored, the provided initial condition is used to determine the number of particles. It is also utilized to declare containers within the `SPH` object, responsible for storing information related to particle properties, and to allocate memory. This process takes place in the constructor of the class. There, the containers are declared as `new` raw pointers, dynamically allocating memory proportional on the number of particles.
 
 ```cpp
 // User defined constructor
@@ -203,9 +203,9 @@ Following the initialisation of the class and the output files, the function `ti
 ```cpp
 for (int t = 0; t < total_iter; t++) {
 
-    sph.calc_particle_distance();
-    sph.calc_density();
-    sph.particle_iterations();
+    sph.calculateParticleDistance();
+    sph.calculateDensity();
+    sph.particleIterations();
 }
 ```
 
@@ -226,9 +226,9 @@ Upon successful execution, the program generates two files:
 
 ```cpp
 // Write energies on the Energy-File
-vOut2 << t * dt << "  " << sph.return_kinetic_energy() << "  "
-        << sph.return_potential_energy() << "  "
-        << sph.return_potential_energy() + sph.return_kinetic_energy()
+vOut2 << t * dt << "  " << sph.getKineticEnergy() << "  "
+        << sph.getPotentialEnergy() << "  "
+        << sph.getPotentialEnergy() + sph.getKineticEnergy()
         << "\n";
 
 // Get the positions after integration is completed
@@ -236,7 +236,7 @@ if (t == total_iter - 1) {
 
     for (int k = 0; k < nb_particles; k++) {
 
-    vOut << sph.return_position_x(k) << " " << sph.return_position_y(k)
+    vOut << sph.updatePosition_x(k) << " " << sph.updatePosition_y(k)
             << "\n";
     }
 }
