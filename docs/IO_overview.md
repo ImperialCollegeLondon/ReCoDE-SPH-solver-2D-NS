@@ -112,7 +112,11 @@ exit(1);
 }
 ```
 
-In a different case, we could also decide that we do not want our program to exit at all, but replace the wrong input with the closest appropriate value instead. For instance, in the `ic-droplet` and `ic-block-drop` initial condition cases, there are constraints related to the number of particles, so that the corresponding shapes can be formed appropriately. Therefore, the functions `closest_integer_sqrt()` and `rectangleN()`, declared in `initial_conditions.h`, are used to transform `nbParticles` to a value that can be used in each case. In the case of the droplet, since a square is initially formed, we need a `nbParticles` value with an integer square root (the square's side length). As for the block drop, in `rectangleN()` we make sure that the input value is transformed to the closest value that can be used to create a rectangle of the user-provided dimensions. This could be also seen as a type of error handling, since, if left unhandled, the program would either result in an error or wrong output. In all cases, it is crucial that we provide error handling for the values of all the different input parameters expected by the program, and that we take all the different ways the user's wrong behavior could affect the program's operation.
+In a different case, we could also decide that we do not want our program to exit at all, but replace the wrong input with the closest appropriate value instead. For instance, in the `ic-droplet` required a square grid of particles. The functions `closest_integer_sqrt()` (declared in `initial_conditions.h`)  is used to transform `nbParticles` to a value with an integer square root. For instance, if a user requested 50 particles, 49 particles would be used instead as this could be formed by a 7x7 grid of particles.
+
+ Similarly for the `ic-block-drop` initial condition case a rectangular grid of particles is required. `rectangleN()` (also declared in `initial_conditions.h`) we make sure that the input value is transformed to the closest value that can be used to create a rectangle of the user-provided dimensions. This could be also seen as a type of error handling, since, if left unhandled, the program would either result in an error or wrong output. 
+ 
+ In all cases, it is crucial that we provide error handling for the values of all the different input parameters expected by the program. This allows errors in the input to be corrected, or highlight the error to the user before the program ends in an error.
 
 ## Output Generation
 
