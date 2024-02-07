@@ -1,38 +1,42 @@
 #ifndef PARTICLES_H
 #define PARTICLES_H
+
+#include <vector>
 class particles {
  protected:
   unsigned int nbParticles;  // number of particles and characteristic size of
                              // the class arrays
 
   // Positions
-  double *positionX;
-  double *positionY;
+  std::vector<double> positionX;
+  std::vector<double> positionY;
 
   // Velocities
-  double *velocityX;
-  double *velocityY;
+  std::vector<double> velocityX;
+  std::vector<double> velocityY;
 
-  double *particleSpeedSq;  // u(i)^2+v(i)^2
+  std::vector<double> particleSpeedSq;  // u(i)^2+v(i)^2
 
   // Distances
-  double *distance;   // Array to store the distances between the particles
-  double *distanceQ;  // Array to store the values of the normalised distance q
+  std::vector<double>
+      distance;  // Array to store the distances between the particles
+  std::vector<double>
+      distanceQ;  // Array to store the values of the normalised distance q
 
  public:
   /******** CONSTRUCTORS/DESTRUCTOR********/
 
-  particles() = default;  // Default constructor
-  ~particles();           // Destructor
-
-  particles(const unsigned nNew);  // User defined constructor for allocating
-                                   // the dimensions of the Matrix
+  explicit particles(
+      const unsigned
+          nNew);  // User defined constructor for allocating
+                  // the dimensions of the Matrix. One parameter
+                  // constructors should declared `explicit` to avoid
+                  // implicit conversions. Check
+                  // https://google.github.io/styleguide/cppguide.html#Implicit_Conversions
 
   /**********OVERLOADINGS**********/
 
   double &operator()(unsigned row, unsigned col);
-
-  particles &operator=(const particles &particles);
 
   // Getter functions
 

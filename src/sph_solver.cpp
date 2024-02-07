@@ -1,8 +1,6 @@
 #include "sph_solver.h"
 
 #include <cmath>
-#include <cstring>
-#include <fstream>
 #include <iomanip>
 #include <iostream>
 

@@ -7,11 +7,9 @@
 
 // ========== Initial Conditions ==========
 
-void icBasic(Fluid *&fluidPtr, int nbParticles, double *positionX,
-             double *positionY) {
-  // Allocate memory for the fluid object and call the constructor
-  // This needs to be deleted by the caller.
-  fluidPtr = new Fluid(nbParticles);
+void icBasic(std::unique_ptr<Fluid> &fluidPtr, int nbParticles,
+             std::vector<double> &positionX, std::vector<double> &positionY) {
+  fluidPtr = std::make_unique<Fluid>(nbParticles);
 
   Fluid &fluid = *fluidPtr;  // Use a reference to the object
 
@@ -21,19 +19,21 @@ void icBasic(Fluid *&fluidPtr, int nbParticles, double *positionX,
     fluid(2, i) = 0.0;
     fluid(3, i) = 0.0;
   }
-
-  return;
 }
 
 // Block drop
-void icBlockDrop(Fluid *&fluidPtr, int &nbParticles, double length,
-                 double width, double centerX, double centerY) {
+void icBlockDrop(std::unique_ptr<Fluid> &fluidPtr, int &nbParticles,
+                 double length, double width, double centerX, double centerY) {
   int n1, n2;
   nbParticles = rectangleN(nbParticles, length, width, n1, n2);
 
-  // Allocate memory for the fluid object and call the constructor
-  // This needs to be deleted by the caller.
-  fluidPtr = new Fluid(nbParticles);
+  // Instead of using `new` operator, we're creating a
+  // std::unique_ptr that can manage its resources (which
+  // means that we don't need to care about
+  // deleting the memory.). std::make_unique is using the
+  // constructor of Fluid to create an std::unique_ptr.
+  // See also RAII for an explanation on smart pointers.
+  fluidPtr = std::make_unique<Fluid>(nbParticles);
 
   Fluid &fluid = *fluidPtr;  // Use a reference to the object
 
@@ -66,17 +66,18 @@ void icBlockDrop(Fluid *&fluidPtr, int &nbParticles, double length,
       positionY += dy;
     }
   }
-
-  return;
 }
 
 // Droplet
-void icDroplet(Fluid *&fluidPtr, int &nbParticles, double radius,
-               double centerX, double centerY) {
+void icDroplet(std::unique_ptr<Fluid> &fluidPtr, int &nbParticles,
+               double radius, double centerX, double centerY) {
   nbParticles = closestIntegerSqrt(nbParticles);
 
-  double *positionXStore = new double[nbParticles];
-  double *positionYStore = new double[nbParticles];
+  std::vector<double> positionXStore;
+  positionXStore.reserve(nbParticles);
+  std::vector<double> positionYStore;
+  positionYStore.reserve(nbParticles);
+
   int el = std::sqrt(nbParticles);
 
   int kx;
@@ -109,9 +110,8 @@ void icDroplet(Fluid *&fluidPtr, int &nbParticles, double radius,
   }
 
   nbParticles = count;
-  // Allocate memory for the fluid object and call the constructor
-  // This needs to be deleted by the caller.
-  fluidPtr = new Fluid(nbParticles);
+
+  fluidPtr = std::make_unique<Fluid>(nbParticles);
 
   Fluid &fluid = *fluidPtr;  // Use a reference to the object
 
@@ -130,11 +130,6 @@ void icDroplet(Fluid *&fluidPtr, int &nbParticles, double radius,
       }
     }
   }
-
-  delete[] positionXStore;
-  delete[] positionYStore;
-
-  return;
 }
 
 int rectangleN(int nbParticles, double length, double width, int &n1, int &n2) {
