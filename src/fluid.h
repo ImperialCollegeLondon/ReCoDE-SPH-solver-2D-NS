@@ -24,8 +24,6 @@ class Fluid : public particles {
   std::vector<double> pressure;
 
  public:
-  Fluid() = default;  // Default constructor
-
   Fluid(const unsigned nNew);
 
   Fluid &operator=(const Fluid &fluid);

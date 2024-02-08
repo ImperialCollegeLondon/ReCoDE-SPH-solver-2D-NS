@@ -67,10 +67,12 @@ class SphSolver {
   void particleIterations(Fluid &data);
 
   // Function to calculate the pressure force
-  double calculatePressureForce(Fluid &data, int particleIndex, int dir);
+  double calculatePressureForce(Fluid *data, MemberFunctionPointer getPosition,
+                                int particleIndex);
 
   // Function to calculate the viscous force
-  double calcViscousForce(Fluid &data, int particleIndex, int dir);
+  double calcViscousForce(Fluid *data, MemberFunctionPointer getVelocity,
+                          int particleIndex);
 
   // Function to calculate the gravity force
   double calcGravityForce(Fluid &data, int particleIndex);

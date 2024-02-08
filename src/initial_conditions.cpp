@@ -14,10 +14,10 @@ void icBasic(std::unique_ptr<Fluid> &fluidPtr, int nbParticles,
   Fluid &fluid = *fluidPtr;  // Use a reference to the object
 
   for (int i = 0; i < nbParticles; i++) {
-    fluid(0, i) = positionX[i];
-    fluid(1, i) = positionY[i];
-    fluid(2, i) = 0.0;
-    fluid(3, i) = 0.0;
+    fluid.setPositionX(i, positionX[i]);
+    fluid.setPositionY(i, positionY[i]);
+    fluid.setVelocityX(i, 0.0);
+    fluid.setVelocityY(i, 0.0);
   }
 }
 
@@ -50,8 +50,9 @@ void icBlockDrop(std::unique_ptr<Fluid> &fluidPtr, int &nbParticles,
   for (int i = 0; i < n1; i++) {
     for (int j = 0; j < n2; j++) {
       kx = i * n2 + j;
-      fluid(0, kx) = positionX + double(rand()) / RAND_MAX / 100000;
-      fluid(2, kx) = 0.0;
+
+      fluid.setPositionX(kx, positionX + double(rand()) / RAND_MAX / 100000);
+      fluid.setVelocityX(kx, 0.0);
     }
     positionX += dx;
   }
@@ -61,8 +62,8 @@ void icBlockDrop(std::unique_ptr<Fluid> &fluidPtr, int &nbParticles,
     positionY = centerY - width / 2.0;
     for (int j = 0; j < n2; j++) {
       ky = i * n2 + j;
-      fluid(1, ky) = positionY + double(rand()) / RAND_MAX / 100000;
-      fluid(3, ky) = 0.0;
+      fluid.setPositionY(kx, positionY + double(rand()) / RAND_MAX / 100000);
+      fluid.setVelocityY(kx, 0.0);
       positionY += dy;
     }
   }
@@ -120,12 +121,12 @@ void icDroplet(std::unique_ptr<Fluid> &fluidPtr, int &nbParticles,
     for (int j = 0; j < el; j++) {
       if (std::hypot(positionYStore[i * el + j] - centerY,
                      positionXStore[i * el + j] - centerX) <= radius) {
-        fluid(0, kx) =
-            positionXStore[i * el + j] + double(rand()) / RAND_MAX / 100000;
-        fluid(1, kx) =
-            positionYStore[i * el + j] + double(rand()) / RAND_MAX / 100000;
-        fluid(2, kx) = 0.0;
-        fluid(3, kx) = 0.0;
+        fluid.setPositionX(kx, positionXStore[i * el + j] +
+                                   double(rand()) / RAND_MAX / 100000);
+        fluid.setPositionY(kx, positionYStore[i * el + j] +
+                                   double(rand()) / RAND_MAX / 100000);
+        fluid.setVelocityX(kx, 0.0);
+        fluid.setVelocityY(kx, 0.0);
         kx++;
       }
     }

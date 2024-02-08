@@ -16,27 +16,6 @@ particles::particles(const unsigned nNew) : nbParticles(nNew) {
   particleSpeedSq.reserve(nbParticles);
 }
 
-// Overloading of ()
-double &particles::operator()(unsigned row, unsigned col) {
-  switch (row) {
-    case 0:
-      return this->positionX[col];
-      break;
-    case 1:
-      return this->positionY[col];
-      break;
-    case 2:
-      return this->velocityX[col];
-      break;
-    case 3:
-      return this->velocityY[col];
-      break;
-    default:
-      std::cerr << "ERROR: Out of bounds on row selection" << std::endl;
-      abort();
-  }
-}
-
 // Getter functions
 
 int particles::getNumberOfParticles() { return nbParticles; }
@@ -44,6 +23,10 @@ int particles::getNumberOfParticles() { return nbParticles; }
 double particles::getPositionX(int k) { return positionX[k]; }
 
 double particles::getPositionY(int k) { return positionY[k]; }
+
+double particles::getVelocityX(int k) { return velocityX[k]; }
+
+double particles::getVelocityY(int k) { return velocityY[k]; }
 
 double particles::getDistanceQ(int k) { return distanceQ[k]; }
 
@@ -61,4 +44,22 @@ void particles::calculateParticleDistance() {
       distance[i * nbParticles + j] = sqrt(dx * dx + dy * dy);
     }
   }
+}
+
+// Setter functions
+
+void particles::setPositionX(int k, double newPositionX) {
+  positionX[k] = newPositionX;
+}
+
+void particles::setPositionY(int k, double newPositionY) {
+  positionY[k] = newPositionY;
+}
+
+void particles::setVelocityX(int k, double newVelocityX) {
+  velocityX[k] = newVelocityX;
+}
+
+void particles::setVelocityY(int k, double newVelocityY) {
+  velocityY[k] = newVelocityY;
 }
