@@ -76,6 +76,19 @@ class SphSolver {
 
   void neighbourParticlesSearch(Fluid &data);
 
+  // Getter Functions
+  std::vector<std::vector<std::pair<int, double>>> getNeighbourParticles();
+
+  // Neighbour search functions
+
+  void createGrid(Fluid &data);
+
+  void assignNeighbourCells(int rows, int cols);
+
+  void placeParticlesInCells(Fluid &data);
+
+  void neighbourParticlesSearch(Fluid &data);
+
   // Calculation functions
 
   // Function to perform the time integration
