@@ -10,9 +10,6 @@ particles::particles(const unsigned nNew) : nbParticles(nNew) {
   velocityX.reserve(nbParticles);
   velocityY.reserve(nbParticles);
 
-  distance.reserve(nbParticles * nbParticles);
-  distanceQ.reserve(nbParticles * nbParticles);
-
   particleSpeedSq.reserve(nbParticles);
 }
 
