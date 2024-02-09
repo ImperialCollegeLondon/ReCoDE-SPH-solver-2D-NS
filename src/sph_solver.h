@@ -6,6 +6,11 @@
 class SphSolver {
  private:
   int numberOfParticles;
+  std::vector<std::vector<std::pair<int, double>>> neighbourParticles;
+
+  int numberOfCells;
+  std::vector<std::vector<int>> cells;
+  std::vector<std::vector<int>> neighbourCells;
 
   int t;  // Time at a specific iteration
 
@@ -63,6 +68,19 @@ class SphSolver {
 
   // Assign values to pre-calculated values
   void setPrecalculatedValues(double radiusOfInfluence);
+
+  // Getter Functions
+  std::vector<std::vector<std::pair<int, double>>> getNeighbourParticles();
+
+  // Neighbour search functions
+
+  void createGrid(Fluid &data);
+
+  void assignNeighbourCells(int rows, int cols);
+
+  void placeParticlesInCells(Fluid &data);
+
+  void neighbourParticlesSearch(Fluid &data);
 
   // Calculation functions
 

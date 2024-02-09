@@ -19,12 +19,6 @@ class particles {
 
   std::vector<double> particleSpeedSq;  // u(i)^2+v(i)^2
 
-  // Distances
-  std::vector<double>
-      distance;  // Array to store the distances between the particles
-  std::vector<double>
-      distanceQ;  // Array to store the values of the normalised distance q
-
  public:
   /******** CONSTRUCTORS/DESTRUCTOR********/
 
