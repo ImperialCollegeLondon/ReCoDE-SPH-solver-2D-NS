@@ -10,9 +10,7 @@ particles::particles(const unsigned nNew)
       positionY(nNew, 0.0),
       velocityX(nNew, 0.0),
       velocityY(nNew, 0.0),
-      particleSpeedSq(nNew, 0.0),
-      distance(nNew * nNew, 0.0),
-      distanceQ(nNew * nNew, 0.0) {}
+      particleSpeedSq(nNew, 0.0) {}
 
 // Calculation functions
 

@@ -8,34 +8,25 @@ Fluid::Fluid(const unsigned nNew)
 
 // Calculation functions
 
-void Fluid::calculateMass() {
-  calculateParticleDistance();
-  calculateDensity();
+void Fluid::calculateMass(
+    std::vector<std::vector<std::pair<int, double>>> neighbours) {
+  calculateDensity(neighbours);
   double sumDensity = std::accumulate(density.begin(), density.end(), 0.0);
 
   mass = nbParticles * densityResting / sumDensity;
 }
 
-void Fluid::calculateDensity() {
+void Fluid::calculateDensity(
+    std::vector<std::vector<std::pair<int, double>>> neighbours) {
   double phi, normalisedDistance, normalisedDistanceSqr;
-
   // find φ
   for (size_t i = 0; i < nbParticles; i++) {
     density[i] = 0.0;
-
-    for (size_t j = 0; j < nbParticles; j++) {
-      normalisedDistance = distanceQ[i * nbParticles + j] =
-          std::abs(distance[i * nbParticles + j] * hInverse);
-
+    for (size_t j = 0; j < neighbours[i].size(); j++) {
+      normalisedDistance = neighbours[i][j].second * hInverse;
       normalisedDistanceSqr = (1.0 - normalisedDistance * normalisedDistance);
-      if (normalisedDistance < 1.0) {
-        phi = fourPih2 * normalisedDistanceSqr * normalisedDistanceSqr *
+      phi = fourPih2 * normalisedDistanceSqr * normalisedDistanceSqr *
               normalisedDistanceSqr;
-
-      } else {
-        phi = 0.0;
-      }
-
       density[i] += mass * phi;
     }
   }

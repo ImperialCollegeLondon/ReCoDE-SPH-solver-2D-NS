@@ -48,6 +48,19 @@ class SphSolver {
     fourtyPih4 = 40.0 / (M_PI * std::pow(radiusOfInfluence, 4.0));
   }
 
+  // Getter Functions
+  std::vector<std::vector<std::pair<int, double>>> getNeighbourParticles();
+
+  // Neighbour search functions
+
+  void createGrid(Fluid &data);
+
+  void assignNeighbourCells(int rows, int cols);
+
+  void placeParticlesInCells(Fluid &data);
+
+  void neighbourParticlesSearch(Fluid &data);
+
   // Calculation functions
 
   // Function to perform the time integration
