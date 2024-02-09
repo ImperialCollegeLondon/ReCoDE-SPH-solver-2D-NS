@@ -384,6 +384,7 @@ void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
       sphSolver.getNeighbourParticles();
   fluidPtr->calculateMass(neighboursPerParticle);
 
+
   return;
 }
 
