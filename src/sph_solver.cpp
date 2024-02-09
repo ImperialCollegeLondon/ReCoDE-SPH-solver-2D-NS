@@ -247,11 +247,13 @@ double SphSolver::calculatePressureForce(Fluid &data,
   double mass = data.getMass();
   double radiusOfInfluence = data.getRadInfl();
 
+
   for (int j = 0; j < neighbourParticles[particleIndex].size(); j++) {
     if (particleIndex != neighbourParticles[particleIndex][j].first) {
       normalisedDistance =
           neighbourParticles[particleIndex][j].second / radiusOfInfluence;
-      sum +=
+
+       sum +=
           (mass / data.getDensity(neighbourParticles[particleIndex][j].first)) *
           ((pressure +
             data.getPressure(neighbourParticles[particleIndex][j].first)) /
@@ -261,6 +263,7 @@ double SphSolver::calculatePressureForce(Fluid &data,
             getPosition(neighbourParticles[particleIndex][j].first))) *
           (((1.0 - normalisedDistance) * (1.0 - normalisedDistance)) /
            normalisedDistance);
+
     }
   }
   return -sum;
@@ -281,6 +284,7 @@ double SphSolver::calcViscousForce(Fluid &data,
           (velocity - getVelocity(neighbourParticles[particleIndex][j].first)) *
           (fourtyPih4 * (1.0 - neighbourParticles[particleIndex][j].second /
                                    radiusOfInfluence));
+
     }
   }
 
