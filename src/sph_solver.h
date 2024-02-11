@@ -23,6 +23,10 @@ class SphSolver {
   double bottomWall;
   double topWall;
 
+  // Pre calculated values
+  double thirtyPih3;
+  double fourtyPih4;
+
   // Forces
   double forcePressure, forceViscous, forceGravity;
   double forcePressureX, forcePressureY;
@@ -56,6 +60,9 @@ class SphSolver {
 
   // Assign value to topWall
   void setTopWall(double topWall);
+
+  // Assign values to pre-calculated values
+  void setPrecalculatedValues(double radiusOfInfluence);
 
   // Calculation functions
 

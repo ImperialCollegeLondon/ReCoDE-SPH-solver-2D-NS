@@ -367,6 +367,7 @@ void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
   sphSolver.setRightWall(domainVm["right_wall"].as<double>());
   sphSolver.setTopWall(domainVm["top_wall"].as<double>());
   sphSolver.setBottomWall(domainVm["bottom_wall"].as<double>());
+  sphSolver.setPrecalculatedValues(constantsVm["h"].as<double>());
 
   // Define the fluid based on the inputs
   fluidPtr->setRadInfl(constantsVm["h"].as<double>());
