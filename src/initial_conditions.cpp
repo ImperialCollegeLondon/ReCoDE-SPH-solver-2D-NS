@@ -62,8 +62,8 @@ void icBlockDrop(std::unique_ptr<Fluid> &fluidPtr, int &nbParticles,
     positionY = centerY - width / 2.0;
     for (int j = 0; j < n2; j++) {
       ky = i * n2 + j;
-      fluid.setPositionY(kx, positionY + double(rand()) / RAND_MAX / 100000);
-      fluid.setVelocityY(kx, 0.0);
+      fluid.setPositionY(ky, positionY + double(rand()) / RAND_MAX / 100000);
+      fluid.setVelocityY(ky, 0.0);
       positionY += dy;
     }
   }

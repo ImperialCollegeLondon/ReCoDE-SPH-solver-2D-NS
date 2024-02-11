@@ -24,52 +24,78 @@ class Fluid : public particles {
   std::vector<double> pressure;
 
  public:
-  Fluid(const unsigned nNew);
+  explicit Fluid(const unsigned nNew);
 
   Fluid &operator=(const Fluid &fluid);
 
   // Setter functions
 
   // Assign value to gasConstant
-  void setGasConstant(double gasConstant);
+  inline void setGasConstant(double gasConstant) {
+    this->gasConstant = gasConstant;
+  }
 
   // Assign value to densityResting
-  void setDensityResting(double densityResting);
+  inline void setDensityResting(double densityResting) {
+    this->densityResting = densityResting;
+  }
 
   // Assign value to the radius of influence
-  void setRadInfl(double radiusOfInfluence);
+  inline void setRadInfl(double radiusOfInfluence) {
+    this->radiusOfInfluence = radiusOfInfluence;
+  }
 
   // Assign value to viscosity
-  void setViscosity(double viscosity);
+  inline void setViscosity(double viscosity) { this->viscosity = viscosity; }
 
   // Assign value to accelerationGravity
-  void setAccelerationGravity(double accelerationGravity);
+  inline void setAccelerationGravity(double accelerationGravity) {
+    this->accelerationGravity = accelerationGravity;
+  }
 
   // Getter functions
 
   // Function to get the pressure felt by a single particle
-  double getPressure(int index);
+  inline double getPressure(int index) { return pressure[index]; }
 
   // Function to get the density felt by a single particle
-  double getDensity(int index);
+  inline double getDensity(int index) { return density[index]; }
 
   // Function to get the viscosity of the fluid
-  double getViscosity();
+  inline double getViscosity() { return viscosity; }
 
   // Function to get the mass of the fluid
-  double getMass();
-
-  // Function to get the radius of influence
-  double getRadInfl();
+  inline double getMass() { return mass; }
 
   // Function to get the gravitational acceleration
-  double getAccelerationGravity();
+  inline double getAccelerationGravity() { return accelerationGravity; }
+
+  // Function to get the radius of influence
+  inline double getRadInfl() { return radiusOfInfluence; }
 
   // Function to calculate and get the kinetic energy
-  double getKineticEnergy();
+  inline double getKineticEnergy() {
+    double sum = 0;
+    for (int i = 0; i < nbParticles; i++) {
+      particleSpeedSq[i] =
+          velocityX[i] * velocityX[i] + velocityY[i] * velocityY[i];
+
+      sum += particleSpeedSq[i];
+    }
+
+    return 0.5 * mass * sum;
+  }
 
   // Function to calculate and get the potential energy
-  double getPotentialEnergy();
+  inline double getPotentialEnergy() {
+    double sum = 0;
+
+    for (int i = 0; i < nbParticles; i++) {
+      sum += positionY[i] - radiusOfInfluence;
+    }
+
+    return mass * accelerationGravity * sum;
+  }
 
   // Calculation functions
 

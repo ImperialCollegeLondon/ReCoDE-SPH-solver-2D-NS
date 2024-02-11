@@ -60,21 +60,25 @@ void SphSolver::timeIntegration(Fluid &data, std::ofstream &finalPositionsFile,
 void SphSolver::particleIterations(Fluid &data) {
   int i;
 
-  // Create pointers to functions in order to be passed as arguments
-  MemberFunctionPointer ptrGetPositionX = &particles::getPositionX;
-  MemberFunctionPointer ptrGetPositionY = &particles::getPositionY;
-  MemberFunctionPointer ptrGetVelocityX = &particles::getVelocityX;
-  MemberFunctionPointer ptrGetVelocityY = &particles::getVelocityY;
+  // Use std::function to store the member functions
+  std::function<double(int)> ptrGetPositionX =
+      std::bind(&Fluid::getPositionX, &data, std::placeholders::_1);
+  std::function<double(int)> ptrGetPositionY =
+      std::bind(&Fluid::getPositionY, &data, std::placeholders::_1);
+  std::function<double(int)> ptrGetVelocityX =
+      std::bind(&Fluid::getVelocityX, &data, std::placeholders::_1);
+  std::function<double(int)> ptrGetVelocityY =
+      std::bind(&Fluid::getVelocityY, &data, std::placeholders::_1);
 
   for (i = 0; i < numberOfParticles; i++) {
     // Gathering the forces calculated by the processors
-    forcePressureX = calculatePressureForce(&data, ptrGetPositionX, i);
+    forcePressureX = calculatePressureForce(data, ptrGetPositionX, i);
 
-    forcePressureY = calculatePressureForce(&data, ptrGetPositionY, i);
+    forcePressureY = calculatePressureForce(data, ptrGetPositionY, i);
 
-    forceViscousX = calcViscousForce(&data, ptrGetVelocityX, i);
+    forceViscousX = calcViscousForce(data, ptrGetVelocityX, i);
 
-    forceViscousY = calcViscousForce(&data, ptrGetVelocityY, i);
+    forceViscousY = calcViscousForce(data, ptrGetVelocityY, i);
 
     forceGravityY = calcGravityForce(data, i);
 
@@ -86,11 +90,11 @@ void SphSolver::particleIterations(Fluid &data) {
   }
 }
 
-double SphSolver::calculatePressureForce(Fluid *data,
-                                         MemberFunctionPointer getPosition,
+double SphSolver::calculatePressureForce(Fluid &data,
+                                         std::function<double(int)> getPosition,
                                          int particleIndex) {
   double sum = 0.0;  // Initializing the summation
-  double radiusOfInfluence = data->getRadInfl();
+  double radiusOfInfluence = data.getRadInfl();
   double thirtyPih3 =
       (-30.0 / (M_PI * radiusOfInfluence * radiusOfInfluence *
                 radiusOfInfluence));  // Precalculated value used to avoid
@@ -98,27 +102,25 @@ double SphSolver::calculatePressureForce(Fluid *data,
 
   for (int j = 0; j < numberOfParticles; j++) {
     if (particleIndex != j) {
-      if (data->getDistanceQ(particleIndex * numberOfParticles + j) < 1.0) {
+      if (data.getDistanceQ(particleIndex * numberOfParticles + j) < 1.0) {
         sum +=
-            (data->getMass() / data->getDensity(j)) *
-            ((data->getPressure(particleIndex) + data->getPressure(j)) / 2.0) *
-            (thirtyPih3 *
-             ((data->*getPosition)(particleIndex) - (data->*getPosition)(j))) *
-            (((1.0 -
-               data->getDistanceQ(particleIndex * numberOfParticles + j)) *
+            (data.getMass() / data.getDensity(j)) *
+            ((data.getPressure(particleIndex) + data.getPressure(j)) / 2.0) *
+            (thirtyPih3 * (getPosition(particleIndex) - getPosition(j))) *
+            (((1.0 - data.getDistanceQ(particleIndex * numberOfParticles + j)) *
               (1.0 -
-               data->getDistanceQ(particleIndex * numberOfParticles + j))) /
-             data->getDistanceQ(particleIndex * numberOfParticles + j));
+               data.getDistanceQ(particleIndex * numberOfParticles + j))) /
+             data.getDistanceQ(particleIndex * numberOfParticles + j));
       }
     }
   }
   return -sum;
 }
 
-double SphSolver::calcViscousForce(Fluid *data,
-                                   MemberFunctionPointer getVelocity,
+double SphSolver::calcViscousForce(Fluid &data,
+                                   std::function<double(int)> getVelocity,
                                    int particleIndex) {
-  double radiusOfInfluence = data->getRadInfl();
+  double radiusOfInfluence = data.getRadInfl();
 
   double sum = 0.0;  // Initializing the summation
   double fourtyPih4 =
@@ -132,17 +134,17 @@ double SphSolver::calcViscousForce(Fluid *data,
     }
 
     else {
-      if (data->getDistanceQ(particleIndex * numberOfParticles + j) < 1.0) {
+      if (data.getDistanceQ(particleIndex * numberOfParticles + j) < 1.0) {
         sum +=
-            (data->getMass() / data->getDensity(j)) *
-            ((data->*getVelocity)(particleIndex) - (data->*getVelocity)(j)) *
+            (data.getMass() / data.getDensity(j)) *
+            (getVelocity(particleIndex) - getVelocity(j)) *
             (fourtyPih4 *
-             (1.0 - data->getDistanceQ(particleIndex * numberOfParticles + j)));
+             (1.0 - data.getDistanceQ(particleIndex * numberOfParticles + j)));
       }
     }
   }
 
-  return -data->getViscosity() * sum;
+  return -data.getViscosity() * sum;
 }
 
 double SphSolver::calcGravityForce(Fluid &data, int particleIndex) {
