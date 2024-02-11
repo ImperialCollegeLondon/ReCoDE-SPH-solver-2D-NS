@@ -40,62 +40,6 @@ Fluid &Fluid::operator=(const Fluid &fluid) {
   return *this;
 }
 
-// Setter functions
-
-void Fluid::setGasConstant(double gasConstant) {
-  this->gasConstant = gasConstant;
-}
-
-void Fluid::setDensityResting(double densityResting) {
-  this->densityResting = densityResting;
-}
-
-void Fluid::setRadInfl(double radiusOfInfluence) {
-  this->radiusOfInfluence = radiusOfInfluence;
-}
-
-void Fluid::setViscosity(double viscosity) { this->viscosity = viscosity; }
-
-void Fluid::setAccelerationGravity(double accelerationGravity) {
-  this->accelerationGravity = accelerationGravity;
-}
-
-// Getter functions
-
-double Fluid::getPressure(int index) { return pressure[index]; }
-
-double Fluid::getDensity(int index) { return density[index]; }
-
-double Fluid::getViscosity() { return viscosity; }
-
-double Fluid::getMass() { return mass; }
-
-double Fluid::getAccelerationGravity() { return accelerationGravity; }
-
-double Fluid::getRadInfl() { return radiusOfInfluence; }
-
-double Fluid::getKineticEnergy() {
-  double sum = 0;
-  for (int i = 0; i < nbParticles; i++) {
-    particleSpeedSq[i] =
-        velocityX[i] * velocityX[i] + velocityY[i] * velocityY[i];
-
-    sum += particleSpeedSq[i];
-  }
-
-  return 0.5 * mass * sum;
-}
-
-double Fluid::getPotentialEnergy() {
-  double sum = 0;
-
-  for (int i = 0; i < nbParticles; i++) {
-    sum += positionY[i] - radiusOfInfluence;
-  }
-
-  return mass * accelerationGravity * sum;
-}
-
 // Calculation functions
 
 void Fluid::calculateMass() {

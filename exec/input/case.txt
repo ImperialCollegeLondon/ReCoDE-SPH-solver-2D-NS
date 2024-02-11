@@ -1,4 +1,4 @@
-init_condition = ic-droplet        # Name of initial condition
+init_condition = ic-block-drop        # Name of initial condition
 T = 3	          	               # Integration time (s)
 dt = 1e-4	      		           # Timestep (s)
 output_frequency = 1               # Output frequency in timesteps
