@@ -128,7 +128,6 @@ void SphSolver::placeParticlesInCells(Fluid &data) {
   double radiusOfInfluence = data.getRadInfl();
   int cellsCols =
       static_cast<int>(std::ceil((rightWall - leftWall) / radiusOfInfluence));
-
   for (int i = 0; i < numberOfParticles; i++) {
     double positionX = data.getPositionX(i);
     double positionY = data.getPositionY(i);
@@ -150,13 +149,14 @@ void SphSolver::neighbourParticlesSearch(Fluid &data) {
   for (int i = 0; i < numberOfCells; i++) {
     for (int j = 0; j < cells[i].size(); j++) {
       for (int k = 0; k < cells[i].size(); k++) {
-        if (j != k) {
-          double distance = sqrt(pow(data.getPositionX[cells[i][j]] -
-                                         data.getPositionX[cells[i][k]],
+        if (cells[i][j] != cells[i][k]) {
+          double distance = sqrt(pow(data.getPositionX(cells[i][j]) -
+                                         data.getPositionX(cells[i][k]),
                                      2) +
-                                 pow(data.getPositionY[cells[i][j]] -
-                                         data.getPositionY[cells[i][k]],
+                                 pow(data.getPositionY(cells[i][j]) -
+                                         data.getPositionY(cells[i][k]),
                                      2));
+
           if (distance <= data.getRadInfl())
             neighbourParticles[cells[i][j]].push_back({cells[i][k], distance});
         }
@@ -171,11 +171,11 @@ void SphSolver::neighbourParticlesSearch(Fluid &data) {
       for (int k = 0; k < neighbourCells[i].size(); k++) {
         for (int q = 0; q < cells[neighbourCells[i][k]].size(); q++) {
           double distance =
-              sqrt(pow(data.getPositionX[cells[i][j]] -
-                           data.getPositionX[cells[neighbourCells[i][k]][q]],
+              sqrt(pow(data.getPositionX(cells[i][j]) -
+                           data.getPositionX(cells[neighbourCells[i][k]][q]),
                        2) +
-                   pow(data.getPositionY[cells[i][j]] -
-                           data.getPositionY[cells[neighbourCells[i][k]][q]],
+                   pow(data.getPositionY(cells[i][j]) -
+                           data.getPositionY(cells[neighbourCells[i][k]][q]),
                        2));
           if (distance <= data.getRadInfl())
             neighbourParticles[cells[i][j]].push_back(
@@ -255,22 +255,20 @@ double SphSolver::calculatePressureForce(Fluid &data,
       (-30.0 / (M_PI * radiusOfInfluence * radiusOfInfluence *
                 radiusOfInfluence));  // Precalculated value used to avoid
                                       // multiple divisions and multiplications
-
+  // For each neighbour particle, calculate the pressure force
   for (int j = 0; j < neighbourParticles[particleIndex].size(); j++) {
-    if (particleIndex != neighbourParticles[particleIndex][j].first) {
-      normalisedDistance =
-          neighbourParticles[particleIndex][j].second / radiusOfInfluence;
-      sum += (data.getMass() /
-              data.getDensity(neighbourParticles[particleIndex][j].first)) *
-             ((data.getPressure(particleIndex) +
-               data.getPressure(neighbourParticles[particleIndex][j].first)) /
-              2.0) *
-             (thirtyPih3 *
-              (getPosition(particleIndex) -
-               getPosition(neighbourParticles[particleIndex][j].first))) *
-             (((1.0 - normalisedDistance) * (1.0 - normalisedDistance)) /
-              normalisedDistance);
-    }
+    normalisedDistance =
+        neighbourParticles[particleIndex][j].second / radiusOfInfluence;
+    sum += (data.getMass() /
+            data.getDensity(neighbourParticles[particleIndex][j].first)) *
+           ((data.getPressure(particleIndex) +
+             data.getPressure(neighbourParticles[particleIndex][j].first)) /
+            2.0) *
+           (thirtyPih3 *
+            (getPosition(particleIndex) -
+             getPosition(neighbourParticles[particleIndex][j].first))) *
+           (((1.0 - normalisedDistance) * (1.0 - normalisedDistance)) /
+            normalisedDistance);
   }
   return -sum;
 }
@@ -286,14 +284,14 @@ double SphSolver::calcViscousForce(Fluid &data,
        (M_PI * radiusOfInfluence * radiusOfInfluence * radiusOfInfluence *
         radiusOfInfluence));  // Precalculated value used to avoid
                               // multiple divisions and multiplications
-
+  // For each neighbour particle, calculate the viscous force
   for (int j = 0; j < neighbourParticles[particleIndex].size(); j++) {
-    if (particleIndex != neighbourParticles[particleIndex][j].first) {
-      sum += (data.getMass() / data.getDensity(neighbourParticles[particleIndex][j].first)) *
-             (getVelocity(particleIndex) - getVelocity(neighbourParticles[particleIndex][j].first)) *
-             (fourtyPih4 * (1.0 - neighbourParticles[particleIndex][j].second /
-                                      radiusOfInfluence));
-    }
+    sum += (data.getMass() /
+            data.getDensity(neighbourParticles[particleIndex][j].first)) *
+           (getVelocity(particleIndex) -
+            getVelocity(neighbourParticles[particleIndex][j].first)) *
+           (fourtyPih4 * (1.0 - neighbourParticles[particleIndex][j].second /
+                                    radiusOfInfluence));
   }
 
   return -data.getViscosity() * sum;
