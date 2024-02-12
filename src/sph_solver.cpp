@@ -277,6 +277,7 @@ double SphSolver::calculatePressureForce(Fluid &data,
              (((1.0 - normalisedDistance) * (1.0 - normalisedDistance)) /
               normalisedDistance);
     }
+
   }
   return -sum;
 }
@@ -301,6 +302,7 @@ double SphSolver::calcViscousForce(Fluid &data,
              (velocity - getVelocity(neighbourIndex)) *
              (fourtyPih4 * (1.0 - normalisedDistance));
     }
+
   }
 
   return -data.getViscosity() * sum;
