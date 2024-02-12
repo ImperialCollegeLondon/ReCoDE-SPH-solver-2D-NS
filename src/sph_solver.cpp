@@ -135,7 +135,6 @@ void SphSolver::placeParticlesInCells(Fluid &data) {
   double radiusOfInfluence = data.getRadInfl();
   int cellsCols =
       static_cast<int>(std::ceil((rightWall - leftWall) / radiusOfInfluence));
-
   for (int i = 0; i < numberOfParticles; i++) {
     double positionX = data.getPositionX(i);
     double positionY = data.getPositionY(i);
@@ -157,13 +156,14 @@ void SphSolver::neighbourParticlesSearch(Fluid &data) {
   for (int i = 0; i < numberOfCells; i++) {
     for (int j = 0; j < cells[i].size(); j++) {
       for (int k = 0; k < cells[i].size(); k++) {
-        if (j != k) {
-          double distance = sqrt(pow(data.getPositionX[cells[i][j]] -
-                                         data.getPositionX[cells[i][k]],
+        if (cells[i][j] != cells[i][k]) {
+          double distance = sqrt(pow(data.getPositionX(cells[i][j]) -
+                                         data.getPositionX(cells[i][k]),
                                      2) +
-                                 pow(data.getPositionY[cells[i][j]] -
-                                         data.getPositionY[cells[i][k]],
+                                 pow(data.getPositionY(cells[i][j]) -
+                                         data.getPositionY(cells[i][k]),
                                      2));
+
           if (distance <= data.getRadInfl())
             neighbourParticles[cells[i][j]].push_back({cells[i][k], distance});
         }
@@ -178,11 +178,11 @@ void SphSolver::neighbourParticlesSearch(Fluid &data) {
       for (int k = 0; k < neighbourCells[i].size(); k++) {
         for (int q = 0; q < cells[neighbourCells[i][k]].size(); q++) {
           double distance =
-              sqrt(pow(data.getPositionX[cells[i][j]] -
-                           data.getPositionX[cells[neighbourCells[i][k]][q]],
+              sqrt(pow(data.getPositionX(cells[i][j]) -
+                           data.getPositionX(cells[neighbourCells[i][k]][q]),
                        2) +
-                   pow(data.getPositionY[cells[i][j]] -
-                           data.getPositionY[cells[neighbourCells[i][k]][q]],
+                   pow(data.getPositionY(cells[i][j]) -
+                           data.getPositionY(cells[neighbourCells[i][k]][q]),
                        2));
           if (distance <= data.getRadInfl())
             neighbourParticles[cells[i][j]].push_back(
