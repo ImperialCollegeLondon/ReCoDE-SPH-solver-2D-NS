@@ -120,6 +120,7 @@ void SphSolver::timeIntegration(Fluid &data, std::ofstream &finalPositionsFile,
     if (time % outputFrequency == 0) {
       storeToFile(data, "energy", energiesFile, dt, t);
     }
+
   }
   // Store particles' positions after integration is completed
   storeToFile(data, "position", finalPositionsFile, dt, totalIterations);
@@ -127,6 +128,7 @@ void SphSolver::timeIntegration(Fluid &data, std::ofstream &finalPositionsFile,
   std ::cout << "Time integration finished -- OK"
              << "\n";
 }
+
 
 void SphSolver::neighbourParticlesSearch(Fluid &data) {
   int currentNumberOfNeighbours;
@@ -265,6 +267,7 @@ double SphSolver::calculatePressureForce(Fluid &data,
            normalisedDistance);
 
     }
+
   }
   return -sum;
 }
@@ -278,7 +281,7 @@ double SphSolver::calcViscousForce(Fluid &data,
   double radiusOfInfluence = data.getRadInfl();
 
   for (int j = 0; j < neighbourParticles[particleIndex].size(); j++) {
-    if (particleIndex != neighbourParticles[particleIndex][j].first) {
+     if (particleIndex != neighbourParticles[particleIndex][j].first) {
       sum +=
           (mass / data.getDensity(neighbourParticles[particleIndex][j].first)) *
           (velocity - getVelocity(neighbourParticles[particleIndex][j].first)) *
@@ -286,6 +289,7 @@ double SphSolver::calcViscousForce(Fluid &data,
                                    radiusOfInfluence));
 
     }
+
   }
 
   return -data.getViscosity() * sum;
