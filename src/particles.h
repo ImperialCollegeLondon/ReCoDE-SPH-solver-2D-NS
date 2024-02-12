@@ -55,11 +55,6 @@ class particles {
     velocityY[k] = newVelocityY;
   }
 
-  // Calculation functions
-
-  // Function to calculate the matrix with rij
-  void calculateParticleDistance();
-
  protected:
   unsigned int nbParticles;  // number of particles and characteristic size of
                              // the class arrays

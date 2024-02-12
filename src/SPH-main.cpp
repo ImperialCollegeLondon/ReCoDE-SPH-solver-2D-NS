@@ -379,12 +379,21 @@ void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
       constantsVm["acceleration_gravity"].as<double>());
 
   // Calculate the mass of the particles
+  // debug print
+  std::cout << "Split domain" << std::endl;
   sphSolver.createGrid(*fluidPtr);
-  sphSolver.placeParticlesInCells(*fluidPtr);
+  // debug print
+  std::cout << "Grid created" << std::endl;
   sphSolver.neighbourParticlesSearch(*fluidPtr);
-  std::vector<std::vector<std::pair<int, double>>> neighbours =
+  // debug print
+  std::cout << "Neighbour particles search" << std::endl;
+  std::vector<std::vector<std::pair<int, double>>> neighboursPerParticle =
       sphSolver.getNeighbourParticles();
-  fluidPtr->calculateMass(neighbours);
+  // debug print
+  std::cout << "Neighbours obtained" << std::endl;
+  fluidPtr->calculateMass(neighboursPerParticle);
+  // debug print
+  std::cout << "Mass calculated" << std::endl;
 
   return;
 }

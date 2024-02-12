@@ -1,6 +1,7 @@
 #include "fluid.h"
 
 #include <numeric>
+#include <iostream>
 
 // User defined constructor
 Fluid::Fluid(const unsigned nNew)
@@ -14,6 +15,7 @@ void Fluid::calculateMass(
   double sumDensity = std::accumulate(density.begin(), density.end(), 0.0);
 
   mass = nbParticles * densityResting / sumDensity;
+  std::cout << "Mass = " << mass << std::endl;
 }
 
 void Fluid::calculateDensity(
