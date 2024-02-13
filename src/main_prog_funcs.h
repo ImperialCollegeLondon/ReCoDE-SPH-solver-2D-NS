@@ -1,6 +1,7 @@
 // Definition of the functions called by the main program
 #ifndef MAIN_H
 #define MAIN_H
+#include <memory>
 
 #include "fluid.h"
 #include "sph_solver.h"
