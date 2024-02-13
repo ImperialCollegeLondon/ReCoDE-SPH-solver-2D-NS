@@ -1,5 +1,5 @@
 n = 100                     # Number of particles
-length = 0.02               # Length of the block
-width = 0.02                # Width of the block
+length = 0.21               # Length of the block
+width = 0.83                # Width of the block
 center_x = 0.2              # Initial x position of the block's center
 center_y = 0.45             # Initial y position of the block's center
