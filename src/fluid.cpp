@@ -15,7 +15,6 @@ void Fluid::calculateMass(
   double sumDensity = std::accumulate(density.begin(), density.end(), 0.0);
 
   mass = nbParticles * densityResting / sumDensity;
-  std::cout << "Mass = " << mass << std::endl;
 }
 
 void Fluid::calculateDensity(
@@ -23,7 +22,7 @@ void Fluid::calculateDensity(
   double phi, normalisedDistance, normalisedDistanceSqr;
   // find φ
   for (size_t i = 0; i < nbParticles; i++) {
-    density[i] = 0.0;
+    density[i] = mass * fourPih2;
     for (size_t j = 0; j < neighbours[i].size(); j++) {
       normalisedDistance = neighbours[i][j].second * hInverse;
       normalisedDistanceSqr = (1.0 - normalisedDistance * normalisedDistance);

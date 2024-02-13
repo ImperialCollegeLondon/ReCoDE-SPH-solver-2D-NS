@@ -134,8 +134,9 @@ void SphSolver::neighbourParticlesSearch(Fluid &data) {
                                          data.getPositionY(cells[i][k]),
                                      2));
 
-          if (distance <= data.getRadInfl())
+          if (distance <= data.getRadInfl()) {
             neighbourParticles[cells[i][j]].push_back({cells[i][k], distance});
+          }
         }
       }
     }
@@ -154,9 +155,10 @@ void SphSolver::neighbourParticlesSearch(Fluid &data) {
                    pow(data.getPositionY(cells[i][j]) -
                            data.getPositionY(cells[neighbourCells[i][k]][q]),
                        2));
-          if (distance <= data.getRadInfl())
+          if (distance <= data.getRadInfl()) {
             neighbourParticles[cells[i][j]].push_back(
                 {cells[neighbourCells[i][k]][q], distance});
+          }
         }
       }
     }
