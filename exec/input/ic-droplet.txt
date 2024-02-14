@@ -1,4 +1,4 @@
-n = 101                     # Number of particles
+n = 801                     # Number of particles
 center_x = 0.2              # Initial x position of the droplet's center
-center_y = 0.9              # Initial y position of the droplet's center
-radius = 0.03                # Radius of the droplet
+center_y = 0.5              # Initial y position of the droplet's center
+radius = 0.1                # Radius of the droplet

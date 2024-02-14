@@ -362,6 +362,7 @@ void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
   // Set the parameters of the solver for the specific simulation
   sphSolver.setTimestep(caseVm["dt"].as<double>());
   sphSolver.setTotalIterations(ceil(totalTime / caseVm["dt"].as<double>()));
+  sphSolver.setTotalTime(totalTime);
   sphSolver.setOutputFrequency(caseVm["output_frequency"].as<int>());
   sphSolver.setCoeffRestitution(constantsVm["coeff_restitution"].as<double>());
   sphSolver.setLeftWall(domainVm["left_wall"].as<double>());
@@ -428,11 +429,11 @@ std::tuple<std::ofstream, std::ofstream, std::ofstream> initOutputFiles(
 }
 
 void storeToFile(Fluid& fluid, std::string type, std::ofstream& targetFile,
-                 double dt, int currentIteration) {
+                 double dt, double currentTime) {
   if (type == "energy") {
     // Write energies in the Energy-File
-    targetFile << currentIteration * dt << "," << fluid.getKineticEnergy()
-               << "," << fluid.getPotentialEnergy() << ","
+    targetFile << currentTime << "," << fluid.getKineticEnergy() << ","
+               << fluid.getPotentialEnergy() << ","
                << fluid.getPotentialEnergy() + fluid.getKineticEnergy() << "\n";
   } else if (type == "position") {
     // Write positions in the position file
