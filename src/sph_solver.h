@@ -12,7 +12,9 @@ class SphSolver {
   std::vector<std::vector<int>> cells;
   std::vector<std::vector<int>> neighbourCells;
 
-  int t = 0;  // Time at a specific iteration
+  bool adaptiveTimestepBool = true;
+
+  int t = 0;
 
   int totalIterations;
 
@@ -53,6 +55,9 @@ class SphSolver {
 
  public:
   // Setter Functions
+
+  // Determine whether to use adaptive timestep or not
+  void setAdaptiveTimestep(bool adaptiveTimestepBool);
 
   // Assign value to dt
   void setTimestep(double dt);
