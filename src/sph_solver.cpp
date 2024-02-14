@@ -30,6 +30,12 @@ void SphSolver::setBottomWall(double bottomWall) {
 
 void SphSolver::setTopWall(double topWall) { this->topWall = topWall; }
 
+void SphSolver::setPrecalculatedValues(double radiusOfInfluence) {
+  thirtyPih3 = -30.0 / (M_PI * std::pow(radiusOfInfluence, 3.0));
+
+  fourtyPih4 = 40.0 / (M_PI * std::pow(radiusOfInfluence, 4.0));
+}
+
 void SphSolver::timeIntegration(Fluid &data, std::ofstream &finalPositionsFile,
                                 std::ofstream &energiesFile) {
   std ::cout << "Time integration started -- OK"
@@ -94,23 +100,23 @@ double SphSolver::calculatePressureForce(Fluid &data,
                                          std::function<double(int)> getPosition,
                                          int particleIndex) {
   double sum = 0.0;  // Initializing the summation
-  double radiusOfInfluence = data.getRadInfl();
-  double thirtyPih3 =
-      (-30.0 / (M_PI * radiusOfInfluence * radiusOfInfluence *
-                radiusOfInfluence));  // Precalculated value used to avoid
-                                      // multiple divisions and multiplications
+  double normalisedDistance;
+  double position = getPosition(particleIndex);
+  double pressure = data.getPressure(particleIndex);
+  double mass = data.getMass();
+  int index = particleIndex * numberOfParticles;
 
   for (int j = 0; j < numberOfParticles; j++) {
     if (particleIndex != j) {
-      if (data.getDistanceQ(particleIndex * numberOfParticles + j) < 1.0) {
-        sum +=
-            (data.getMass() / data.getDensity(j)) *
-            ((data.getPressure(particleIndex) + data.getPressure(j)) / 2.0) *
-            (thirtyPih3 * (getPosition(particleIndex) - getPosition(j))) *
-            (((1.0 - data.getDistanceQ(particleIndex * numberOfParticles + j)) *
-              (1.0 -
-               data.getDistanceQ(particleIndex * numberOfParticles + j))) /
-             data.getDistanceQ(particleIndex * numberOfParticles + j));
+      normalisedDistance =
+          data.getDistanceQ(index + j);  // Store this variable to avoid
+                                         // multiple calls of the get function
+      if (normalisedDistance < 1.0) {
+        sum += (mass / data.getDensity(j)) *
+               ((pressure + data.getPressure(j)) / 2.0) *
+               (thirtyPih3 * (position - getPosition(j))) *
+               (((1.0 - normalisedDistance) * (1.0 - normalisedDistance)) /
+                normalisedDistance);
       }
     }
   }
@@ -120,26 +126,21 @@ double SphSolver::calculatePressureForce(Fluid &data,
 double SphSolver::calcViscousForce(Fluid &data,
                                    std::function<double(int)> getVelocity,
                                    int particleIndex) {
-  double radiusOfInfluence = data.getRadInfl();
-
   double sum = 0.0;  // Initializing the summation
-  double fourtyPih4 =
-      (40.0 /
-       (M_PI * radiusOfInfluence * radiusOfInfluence * radiusOfInfluence *
-        radiusOfInfluence));  // Precalculated value used to avoid
-                              // multiple divisions and multiplications
+  double normalisedDistance;
+  double velocity = getVelocity(particleIndex);
+  double mass = data.getMass();
+  int index = particleIndex * numberOfParticles;
 
   for (int j = 0; j < numberOfParticles; j++) {
-    if (particleIndex == j) {
-    }
+    if (particleIndex != j) {
+      normalisedDistance =
+          data.getDistanceQ(index + j);  // Store this variable to avoid
+                                         // multiple calls of the get function
 
-    else {
-      if (data.getDistanceQ(particleIndex * numberOfParticles + j) < 1.0) {
-        sum +=
-            (data.getMass() / data.getDensity(j)) *
-            (getVelocity(particleIndex) - getVelocity(j)) *
-            (fourtyPih4 *
-             (1.0 - data.getDistanceQ(particleIndex * numberOfParticles + j)));
+      if (normalisedDistance < 1.0) {
+        sum += (mass / data.getDensity(j)) * (velocity - getVelocity(j)) *
+               (fourtyPih4 * (1.0 - normalisedDistance));
       }
     }
   }
@@ -199,12 +200,13 @@ void SphSolver::boundaries(Fluid &data, int particleIndex) {
   // x-direction
   if (data.getPositionX(particleIndex) < leftWall + data.getRadInfl()) {
     data.setPositionX(particleIndex, leftWall + data.getRadInfl());
+
     data.setVelocityX(particleIndex,
                       -coeffRestitution * data.getVelocityX(particleIndex));
-  }
 
-  if (data.getPositionX(particleIndex) > rightWall - data.getRadInfl()) {
+  } else if (data.getPositionX(particleIndex) > rightWall - data.getRadInfl()) {
     data.setPositionX(particleIndex, rightWall - data.getRadInfl());
+
     data.setVelocityX(particleIndex,
                       -coeffRestitution * data.getVelocityX(particleIndex));
   }
@@ -212,12 +214,13 @@ void SphSolver::boundaries(Fluid &data, int particleIndex) {
   // y-direction
   if (data.getPositionY(particleIndex) < bottomWall + data.getRadInfl()) {
     data.setPositionY(particleIndex, bottomWall + data.getRadInfl());
+
     data.setVelocityY(particleIndex,
                       -coeffRestitution * data.getVelocityY(particleIndex));
-  }
 
-  if (data.getPositionY(particleIndex) > topWall - data.getRadInfl()) {
+  } else if (data.getPositionY(particleIndex) > topWall - data.getRadInfl()) {
     data.setPositionY(particleIndex, topWall - data.getRadInfl());
+
     data.setVelocityY(particleIndex,
                       -coeffRestitution * data.getVelocityY(particleIndex));
   }
