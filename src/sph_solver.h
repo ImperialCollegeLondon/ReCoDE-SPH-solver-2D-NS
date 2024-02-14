@@ -9,6 +9,11 @@ class SphSolver {
  public:
   // Setter Functions
 
+  // Determine whether to use adaptive timestep or not
+  inline void setAdaptiveTimestep(bool adaptiveTimestepBool) {
+    this->adaptiveTimestepBool = adaptiveTimestepBool;
+  }
+
   // Assign value to dt
   inline void setTimestep(double dt) { this->dt = dt; }
 
@@ -108,7 +113,9 @@ class SphSolver {
   std::vector<std::vector<int>> cells;
   std::vector<std::vector<int>> neighbourCells;
 
-  int t = 0;  // Time at a specific iteration
+  bool adaptiveTimestepBool = true;
+
+  int t = 0;
 
   int totalIterations;
 
