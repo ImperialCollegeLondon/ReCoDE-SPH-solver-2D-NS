@@ -39,7 +39,7 @@ class particles {
   // Getter functions
 
   // Function to get the number of particles
-  inline int getNumberOfParticles() { return nbParticles; }
+  inline unsigned int getNumberOfParticles() { return nbParticles; }
 
   // Function to get the position x
   inline double getPositionX(int k) { return positionX[k]; }

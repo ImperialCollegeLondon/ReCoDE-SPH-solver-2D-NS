@@ -5,17 +5,18 @@
 
 #include "fluid.h"
 
-void icBasic(std::unique_ptr<Fluid> &fluidPtr, int n,
+void icBasic(std::unique_ptr<Fluid> &fluidPtr, unsigned int n,
              std::vector<double> &positionX, std::vector<double> &positionY);
 
-void icBlockDrop(std::unique_ptr<Fluid> &fluidPtr, int &n, double length,
-                 double width, double centerX, double centerY);
+void icBlockDrop(std::unique_ptr<Fluid> &fluidPtr, unsigned int n,
+                 double length, double width, double centerX, double centerY);
 
-void icDroplet(std::unique_ptr<Fluid> &fluidPtr, int &n, double radius,
+void icDroplet(std::unique_ptr<Fluid> &fluidPtr, unsigned int n, double radius,
                double centerX, double centerY);
 
-int closestIntegerSqrt(int n);
+unsigned int closestIntegerSqrt(unsigned int n);
 
-int rectangleN(int n, double length, double width, int &n1, int &n2);
+unsigned int rectangleN(unsigned int n, double length, double width, int &n1,
+                        int &n2);
 
 #endif

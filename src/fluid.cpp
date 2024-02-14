@@ -1,86 +1,37 @@
 #include "fluid.h"
 
-#include <cmath>
+#include <numeric>
 
 // User defined constructor
-Fluid::Fluid(const unsigned nNew) : particles(nNew) {
-  pressure.reserve(nbParticles);
-  density.reserve(nbParticles);
-}
-// Copy constructor
-Fluid &Fluid::operator=(const Fluid &fluid) {
-  if (this != &fluid) {
-    nbParticles = fluid.nbParticles;
-
-    positionX.reserve(nbParticles);
-    positionY.reserve(nbParticles);
-    velocityX.reserve(nbParticles);
-    velocityY.reserve(nbParticles);
-
-    distance.reserve(nbParticles * nbParticles);
-    distanceQ.reserve(nbParticles * nbParticles);
-
-    particleSpeedSq.reserve(nbParticles);
-
-    pressure.reserve(nbParticles);
-    density.reserve(nbParticles);
-
-    positionX = fluid.positionX;
-    positionY = fluid.positionY;
-    velocityX = fluid.velocityX;
-    velocityY = fluid.velocityY;
-
-    distance = fluid.distance;
-    distanceQ = fluid.distanceQ;
-    particleSpeedSq = fluid.particleSpeedSq;
-
-    pressure = fluid.pressure;
-    density = fluid.density;
-  }
-  return *this;
-}
+Fluid::Fluid(const unsigned nNew)
+    : particles(nNew), density(nNew, 0.0), pressure(nNew, 0.0) {}
 
 // Calculation functions
 
 void Fluid::calculateMass() {
   calculateParticleDistance();
   calculateDensity();
-  double sumDensity = 0.0;
-  for (int i = 0; i < nbParticles; i++) {
-    sumDensity += density[i];
-  }
+  double sumDensity = std::accumulate(density.begin(), density.end(), 0.0);
 
   mass = nbParticles * densityResting / sumDensity;
 }
 
 void Fluid::calculateDensity() {
-  double phi;
-  double fourPih2 =
-      (4.0 / (M_PI * radiusOfInfluence *
-              radiusOfInfluence));  // Precalculated value used to avoid
-                                    // multiple divisions and multiplications
-  double hInverse = 1.0 / radiusOfInfluence;  // Precalculated value used to
-                                              // avoid multiple divisions
+  double phi, distanceQcurr, distanceQcurr3;
 
   // find φ
-  for (int i = 0; i < nbParticles; i++) {
-    density[i] = 0;
+  for (size_t i = 0; i < nbParticles; i++) {
+    density[i] = 0.0;
 
-    for (int j = 0; j < nbParticles; j++) {
-      distanceQ[i * nbParticles + j] =
+    for (size_t j = 0; j < nbParticles; j++) {
+      distanceQcurr = distanceQ[i * nbParticles + j] =
           std::abs(distance[i * nbParticles + j] * hInverse);
 
-      if (distanceQ[i * nbParticles + j] < 1.0) {
-        phi = fourPih2 *
-              (1.0 - distanceQ[i * nbParticles + j] *
-                         distanceQ[i * nbParticles + j]) *
-              (1.0 - distanceQ[i * nbParticles + j] *
-                         distanceQ[i * nbParticles + j]) *
-              (1.0 -
-               distanceQ[i * nbParticles + j] * distanceQ[i * nbParticles + j]);
+      distanceQcurr3 = (1.0 - distanceQcurr * distanceQcurr);
+      if (distanceQcurr < 1.0) {
+        phi = fourPih2 * distanceQcurr3 * distanceQcurr3 * distanceQcurr3;
 
       }
-
       else {
         phi = 0.0;
       }
@@ -91,7 +42,7 @@ void Fluid::calculateDensity() {
 }
 
 void Fluid::calculatePressure() {
-  for (int i = 0; i < nbParticles; i++) {
+  for (size_t i = 0; i < nbParticles; i++) {
     pressure[i] = gasConstant * (density[i] - densityResting);
   }
 }
