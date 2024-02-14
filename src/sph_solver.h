@@ -31,6 +31,9 @@ class SphSolver {
   // Assign value to the total integration time
   inline void setTotalTime(double totalTime) { this->totalTime = totalTime; }
 
+  // Assign value to the total integration time
+  void setTotalTime(double totalTime);
+
   // Assign value to the frequency
   inline void setOutputFrequency(double outputFrequency) {
     this->outputFrequency = outputFrequency;
