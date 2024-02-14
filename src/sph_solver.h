@@ -12,11 +12,15 @@ class SphSolver {
   std::vector<std::vector<int>> cells;
   std::vector<std::vector<int>> neighbourCells;
 
-  int t;  // Time at a specific iteration
+  int t = 0;  // Time at a specific iteration
 
   int totalIterations;
 
   int outputFrequency;
+
+  double timeInteg = 0.0;
+
+  double totalTime;
 
   double dt;  // Timestep
 
@@ -43,6 +47,10 @@ class SphSolver {
 
   double memoryReservationFactor = 1.1;
 
+  // Adaptive timestep related variables
+  double vmax = 0.0;  // maximum velocity
+  double amax = 0.0;  // maxumum force per unit mass
+
  public:
   // Setter Functions
 
@@ -51,6 +59,9 @@ class SphSolver {
 
   // Assign value to the total iterations
   void setTotalIterations(double totalIterations);
+
+  // Assign value to the total integration time
+  void setTotalTime(double totalTime);
 
   // Assign value to the frequency
   void setOutputFrequency(double outputFrequency);
@@ -117,6 +128,9 @@ class SphSolver {
 
   // Function to treat the boundaries
   void boundaries(Fluid &data, int particleIndex);
+
+  // Function to update the timestep
+  void adaptiveTimestep(Fluid &data);
 };
 
 #endif

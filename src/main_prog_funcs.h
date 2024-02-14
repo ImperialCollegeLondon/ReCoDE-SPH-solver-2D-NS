@@ -13,5 +13,5 @@ std::tuple<std::ofstream, std::ofstream, std::ofstream> initOutputFiles(
 void createDirectory(std::string folderPath);
 
 void storeToFile(Fluid &fluid, std::string type, std::ofstream &targetFile,
-                 double dt = 0.0, int currentIteration = 0);
+                 double dt = 0.0, double currentTime = 0.0);
 #endif
