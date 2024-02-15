@@ -81,169 +81,147 @@ SPH initialise(SimulationParameters& simulationParameters) {
       "take frequency that output will be written to file");
 
   // Map the inputs read from the case file to expected inputs
+  std::string ic_case;
   po::variables_map case_vm;
-  std::ifstream caseFile;
+  std::string fileName = "case.txt";
+  retrieveInputsFromFile(fileName, ic_case, desc, case_vm);
 
-  // Try to open the case.txt file
-  try {
-    caseFile.open("../input/case.txt");
-    // Throw an exception if the file cannot be opened
-    if (!caseFile.is_open()) {
-      throw std::runtime_error("Error opening file: case.txt");
-    }
-    po::store(po::parse_config_file(caseFile, desc), case_vm);
-  } catch (std::runtime_error& e) {
-    // Handle the exception by printing the error message and exiting the
-    // program
-    std::cerr << e.what() << std::endl;
-    exit(1);
-  }
-  po::notify(case_vm);
-
-  double total_time = case_vm["T"].as<double>();  // Total integration time
-  // Error handling for the total integration time
-  try {
-    if (total_time <= 0) {
-      throw std::runtime_error(
-          "Error: Total integration time must be positive!");
-    }
-  } catch (std::runtime_error& e) {
-    // Handle the exception by printing the error message and exiting the
-    // program
-    std::cerr << e.what() << std::endl;
-    exit(1);
-  }
-
+  simulationParameters.total_time = case_vm["T"].as<double>();
   simulationParameters.dt = case_vm["dt"].as<double>();  // Time step dt
-  // Error handling for the time step
-  try {
-    if (simulationParameters.dt <= 0 or simulationParameters.dt > total_time) {
-      throw std::runtime_error(
-          "Error: Time step must be positive and lower than the total "
-          "integration time!");
-    }
-  } catch (std::runtime_error& e) {
-    // Handle the exception by printing the error message and exiting the
-    // program
-    std::cerr << e.what() << std::endl;
-    exit(1);
-  }
-
   simulationParameters.total_iter =
-      ceil(total_time /
+      ceil(simulationParameters.total_time /
            simulationParameters.dt);  // Transform time in seconds to iterations
-
   simulationParameters.frequency = case_vm["output_frequency"].as<int>();
-  // Error handling for the output frequency
-  try {
-    if (simulationParameters.frequency <= 0 or
-        simulationParameters.frequency > simulationParameters.total_iter) {
-      throw std::runtime_error(
-          "Error: Output frequency must be positive and lower than the total "
-          "number of iterations!");
-    }
-  } catch (std::runtime_error& e) {
-    // Handle the exception by printing the error message and exiting the
-    // program
-    std::cerr << e.what() << std::endl;
-    exit(1);
-  }
 
   // Map the inputs read from the domain file to expected inputs
   po::variables_map domain_vm;
-  std::ifstream domainFile;
-  try {
-    domainFile.open("../input/domain.txt");
-    // Throw an exception if the file cannot be opened
-    if (!domainFile.is_open()) {
-      throw std::runtime_error("Error opening file: domain.txt");
-    }
-    po::store(po::parse_config_file(domainFile, desc), domain_vm);
-  } catch (std::runtime_error& e) {
-    // Handle the exception by printing the error message and exiting the
-    // program
-    std::cerr << e.what() << std::endl;
-    exit(1);
-  }
-  po::notify(domain_vm);
+  fileName = "domain.txt";
+  retrieveInputsFromFile(fileName, ic_case, desc, domain_vm);
 
   simulationParameters.left_wall = domain_vm["left_wall"].as<double>();
   simulationParameters.right_wall = domain_vm["right_wall"].as<double>();
   simulationParameters.bottom_wall = domain_vm["bottom_wall"].as<double>();
   simulationParameters.top_wall = domain_vm["top_wall"].as<double>();
 
-  // Error handling for the domain boundaries input
-  try {
-    if (simulationParameters.left_wall >= simulationParameters.right_wall ||
-        simulationParameters.bottom_wall >= simulationParameters.top_wall) {
-      throw std::runtime_error(
-          "Error: Please adjust your domain boundaries so that left_wall < "
-          "right wall and bottom_wall < top_wall.");
-    }
-  } catch (std::runtime_error& e) {
-    // Handle the exception by printing the error message and exiting the
-    // program
-    std::cerr << e.what() << std::endl;
-    exit(1);
-  }
-
   // Map the inputs read from the initial condition file to expected inputs
-  std::string ic_case = case_vm["init_condition"].as<std::string>();
   po::variables_map ic_vm;
-  std::ifstream icFile;
-  // Open the file of the initial condition the user has chosen
-  try {
-    icFile.open("../input/" + ic_case + ".txt");
-    // Throw an exception if the file cannot be opened
-    if (!icFile.is_open()) {
-      throw std::runtime_error(
-          "Error opening file: " + ic_case +
-          ".txt Make sure that the value of the init_condition in the case.txt "
-          "file is one of the following: ic-one-particle, ic-two-particles, "
-          "ic-three-particles, ic-four-particles, ic-droplet, ic-block-drop.");
-    }
-    po::store(po::parse_config_file(icFile, desc), ic_vm);
-  } catch (std::runtime_error& e) {
-    // Handle the exception by printing the error message and exiting the
-    // program
-    std::cerr << e.what() << std::endl;
-    exit(1);
-  }
-  po::notify(ic_vm);
-
-  // Fixed nb_particles ic cases
-  std::map<std::string, int> initConditionToParticlesMap = {
-      {"ic-one-particle", 1},
-      {"ic-two-particles", 2},
-      {"ic-three-particles", 3},
-      {"ic-four-particles", 4}};
+  ic_case = case_vm["init_condition"].as<std::string>();
+  fileName = ic_case + ".txt";
+  retrieveInputsFromFile(fileName, ic_case, desc, ic_vm);
 
   // Get the number of particles based on the ic case
   if (ic_case == "ic-droplet" || ic_case == "ic-block-drop") {
     simulationParameters.nb_particles = ic_vm["n"].as<int>();
-    // Error handling for the number of particles
-    try {
-      if (simulationParameters.nb_particles <= 0) {
-        throw std::runtime_error(
-            "Error: Number of particles must be positive!");
-      }
-    } catch (std::runtime_error& e) {
-      // Handle the exception by printing the error message and exiting the
-      // program
-      std::cerr << e.what() << std::endl;
-      exit(1);
-    }
   } else {
     simulationParameters.nb_particles =
         initConditionToParticlesMap[case_vm["init_condition"]
                                         .as<std::string>()];
   }
+
+  // Map the inputs read from the constants file to expected inputs
+  po::variables_map constants_vm;
+  fileName = "constants.txt";
+  retrieveInputsFromFile(fileName, ic_case, desc, constants_vm);
+
+  simulationParameters.h =
+      constants_vm["h"].as<double>();  // Radius of influence
+  simulationParameters.gas_constant = constants_vm["gas_constant"].as<double>();
+  simulationParameters.density_resting =
+      constants_vm["density_resting"].as<double>();
+  simulationParameters.viscosity = constants_vm["viscosity"].as<double>();
+  simulationParameters.acceleration_gravity =
+      constants_vm["acceleration_gravity"].as<double>();
+  simulationParameters.coeff_restitution =
+      constants_vm["coeff_restitution"].as<double>();
+
+  // Error handling of input parameters before the SPH class is initialised
+  handleInputErrors(simulationParameters);
+
   /**After the number of particles is introduced inside the class and
    * therefore the appropriate matrices are initialized, the particles
    * are ordered in the correct positions
    **/
   SPH sph(simulationParameters.nb_particles);
+  sph = setInitialConditions(ic_case, simulationParameters, ic_vm);
 
+  // Set the inputs to the sph object
+  sph.set_timestep(simulationParameters.dt);
+
+  sph.set_rad_infl(simulationParameters.h);
+  sph.set_gas_constant(simulationParameters.gas_constant);
+  sph.set_density_resting(simulationParameters.density_resting);
+  sph.set_viscosity(simulationParameters.viscosity);
+  sph.set_acceleration_gravity(simulationParameters.acceleration_gravity);
+  sph.set_coeff_restitution(simulationParameters.coeff_restitution);
+
+  sph.set_left_wall(simulationParameters.left_wall);
+  sph.set_right_wall(simulationParameters.right_wall);
+  sph.set_bottom_wall(simulationParameters.bottom_wall);
+  sph.set_top_wall(simulationParameters.top_wall);
+
+  // Calculate the mass of the particles
+  sph.calc_mass();
+
+  return sph;
+}
+
+void retrieveInputsFromFile(std::string fileName, std::string icCase,
+                            po::options_description desc,
+                            po::variables_map& vm) {
+  std::ifstream caseFile;
+  std::string errorMessage = "Error opening file: " + fileName;
+  if (fileName == icCase + ".txt") {
+    errorMessage +=
+        " Make sure that the value of the init_condition in the case.txt "
+        "file is one of the following: ic-one-particle, ic-two-particles, "
+        "ic-three-particles, ic-four-particles, ic-droplet, ic-block-drop.";
+  }
+  // Try to open the file
+  try {
+    caseFile.open("../input/" + fileName);
+    // Throw an exception if the file cannot be opened
+    if (!caseFile.is_open()) {
+      throw std::runtime_error(errorMessage);
+    }
+    po::store(po::parse_config_file(caseFile, desc), vm);
+  } catch (std::runtime_error& e) {
+    std::cerr << e.what() << std::endl;
+    exit(1);
+  }
+  po::notify(vm);
+}
+
+void handleInputErrors(SimulationParameters input) {
+  try {
+    if (input.total_time <= 0) {
+      throw std::runtime_error(
+          "Error: Total integration time must be positive!");
+    } else if (input.dt <= 0 or input.dt > input.total_time) {
+      throw std::runtime_error(
+          "Error: Time step must be positive and lower than the total "
+          "integration time!");
+    } else if (input.frequency <= 0 or input.frequency > input.total_iter) {
+      throw std::runtime_error(
+          "Error: Output frequency must be positive and lower than the total "
+          "number of iterations!");
+    } else if (input.left_wall >= input.right_wall ||
+               input.bottom_wall >= input.top_wall) {
+      throw std::runtime_error(
+          "Error: Please adjust your domain boundaries so that left_wall < "
+          "right wall and bottom_wall < top_wall.");
+    } else if (input.nb_particles <= 0) {
+      throw std::runtime_error("Error: Number of particles must be positive!");
+    }
+  } catch (std::runtime_error& e) {
+    std::cerr << e.what() << std::endl;
+    exit(1);
+  }
+}
+
+SPH setInitialConditions(std::string ic_case,
+                         SimulationParameters& simulationParameters,
+                         po::variables_map ic_vm) {
+  SPH sph(simulationParameters.nb_particles);
   // Fixed particles ic cases
   if (ic_case == "ic-one-particle" || ic_case == "ic-two-particles" ||
       ic_case == "ic-three-particles" || ic_case == "ic-four-particles") {
@@ -264,15 +242,13 @@ SPH initialise(SimulationParameters& simulationParameters) {
               "adjust the initial position coordinates.");
         }
       } catch (std::runtime_error& e) {
-        // Handle the exception by printing the error message and exiting the
-        // program
         std::cerr << e.what() << std::endl;
         delete[] init_x;
         delete[] init_y;
         exit(1);
       }
     }
-    sph = ic_basic(simulationParameters.nb_particles, init_x, init_y);
+    SPH sph = ic_basic(simulationParameters.nb_particles, init_x, init_y);
     delete[] init_x;
     delete[] init_y;
     // Block drop case
@@ -286,8 +262,6 @@ SPH initialise(SimulationParameters& simulationParameters) {
         throw std::runtime_error("Error: Length and width must be positive!");
       }
     } catch (std::runtime_error& e) {
-      // Handle the exception by printing the error message and exiting the
-      // program
       std::cerr << e.what() << std::endl;
       exit(1);
     }
@@ -304,8 +278,6 @@ SPH initialise(SimulationParameters& simulationParameters) {
             "adjust the center coordinates.");
       }
     } catch (std::runtime_error& e) {
-      // Handle the exception by printing the error message and exiting the
-      // program
       std::cerr << e.what() << std::endl;
       exit(1);
     }
@@ -321,8 +293,6 @@ SPH initialise(SimulationParameters& simulationParameters) {
         throw std::runtime_error("Error: Radius must be positive!");
       }
     } catch (std::runtime_error& e) {
-      // Handle the exception by printing the error message and exiting the
-      // program
       std::cerr << e.what() << std::endl;
       exit(1);
     }
@@ -339,8 +309,6 @@ SPH initialise(SimulationParameters& simulationParameters) {
             "adjust the center coordinates.");
       }
     } catch (std::runtime_error& e) {
-      // Handle the exception by printing the error message and exiting the
-      // program
       std::cerr << e.what() << std::endl;
       exit(1);
     }
@@ -354,54 +322,6 @@ SPH initialise(SimulationParameters& simulationParameters) {
               << "ic-block-drop." << std::endl;
     exit(1);
   }
-
-  // Map the inputs read from the constants file to expected inputs
-  po::variables_map constants_vm;
-  std::ifstream constantsFile;
-  try {
-    constantsFile.open("../input/constants.txt");
-    // Throw an exception if the file cannot be opened
-    if (!constantsFile.is_open()) {
-      throw std::runtime_error("Error opening file: constants.txt");
-    }
-    po::store(po::parse_config_file(constantsFile, desc), constants_vm);
-  } catch (std::runtime_error& e) {
-    // Handle the exception by printing the error message and exiting the
-    // program
-    std::cerr << e.what() << std::endl;
-    exit(1);
-  }
-  po::notify(constants_vm);
-
-  simulationParameters.h =
-      constants_vm["h"].as<double>();  // Radius of influence
-  simulationParameters.gas_constant = constants_vm["gas_constant"].as<double>();
-  simulationParameters.density_resting =
-      constants_vm["density_resting"].as<double>();
-  simulationParameters.viscosity = constants_vm["viscosity"].as<double>();
-  simulationParameters.acceleration_gravity =
-      constants_vm["acceleration_gravity"].as<double>();
-  simulationParameters.coeff_restitution =
-      constants_vm["coeff_restitution"].as<double>();
-
-  // Set the inputs to the sph object
-  sph.set_timestep(simulationParameters.dt);
-
-  sph.set_rad_infl(simulationParameters.h);
-  sph.set_gas_constant(simulationParameters.gas_constant);
-  sph.set_density_resting(simulationParameters.density_resting);
-  sph.set_viscosity(simulationParameters.viscosity);
-  sph.set_acceleration_gravity(simulationParameters.acceleration_gravity);
-  sph.set_coeff_restitution(simulationParameters.coeff_restitution);
-
-  sph.set_left_wall(simulationParameters.left_wall);
-  sph.set_right_wall(simulationParameters.right_wall);
-  sph.set_bottom_wall(simulationParameters.bottom_wall);
-  sph.set_top_wall(simulationParameters.top_wall);
-
-  // Calculate the mass of the particles
-  sph.calc_mass();
-
   return sph;
 }
 
