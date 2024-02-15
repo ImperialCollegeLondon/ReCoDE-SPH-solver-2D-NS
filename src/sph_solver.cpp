@@ -232,21 +232,22 @@ double SphSolver::calculatePressureForce(Fluid &data,
   double position = getPosition(particleIndex);
   double pressure = data.getPressure(particleIndex);
   double mass = data.getMass();
+  double radiusOfInfluence = data.getRadInfl();
 
   for (int j = 0; j < neighbourParticles[particleIndex].size(); j++) {
     if (particleIndex != neighbourParticles[particleIndex][j].first) {
       normalisedDistance =
           neighbourParticles[particleIndex][j].second / radiusOfInfluence;
-      sum += (mass /
-              data.getDensity(neighbourParticles[particleIndex][j].first)) *
-             ((pressure +
-               data.getPressure(neighbourParticles[particleIndex][j].first)) /
-              2.0) *
-             (thirtyPih3 *
-              (position -
-               getPosition(neighbourParticles[particleIndex][j].first))) *
-             (((1.0 - normalisedDistance) * (1.0 - normalisedDistance)) /
-              normalisedDistance);
+      sum +=
+          (mass / data.getDensity(neighbourParticles[particleIndex][j].first)) *
+          ((pressure +
+            data.getPressure(neighbourParticles[particleIndex][j].first)) /
+           2.0) *
+          (thirtyPih3 *
+           (position -
+            getPosition(neighbourParticles[particleIndex][j].first))) *
+          (((1.0 - normalisedDistance) * (1.0 - normalisedDistance)) /
+           normalisedDistance);
     }
   }
   return -sum;
@@ -258,13 +259,15 @@ double SphSolver::calcViscousForce(Fluid &data,
   double sum = 0.0;  // Initializing the summation
   double velocity = getVelocity(particleIndex);
   double mass = data.getMass();
+  double radiusOfInfluence = data.getRadInfl();
 
   for (int j = 0; j < neighbourParticles[particleIndex].size(); j++) {
     if (particleIndex != neighbourParticles[particleIndex][j].first) {
-      sum += (mass / data.getDensity(neighbourParticles[particleIndex][j].first)) *
-             (velocity - getVelocity(neighbourParticles[particleIndex][j].first)) *
-             (fourtyPih4 * (1.0 - neighbourParticles[particleIndex][j].second /
-                                      radiusOfInfluence));
+      sum +=
+          (mass / data.getDensity(neighbourParticles[particleIndex][j].first)) *
+          (velocity - getVelocity(neighbourParticles[particleIndex][j].first)) *
+          (fourtyPih4 * (1.0 - neighbourParticles[particleIndex][j].second /
+                                   radiusOfInfluence));
     }
   }
 
