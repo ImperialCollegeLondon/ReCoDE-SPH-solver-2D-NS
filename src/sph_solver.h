@@ -39,6 +39,10 @@ class SphSolver {
   double forceGravityY;
   double forceGravityX = 0.0;
 
+  const int MAX_NEIGHBOUR_CELLS = 8;
+
+  double memoryReservationFactor = 1.1;
+
  public:
   // Setter Functions
 

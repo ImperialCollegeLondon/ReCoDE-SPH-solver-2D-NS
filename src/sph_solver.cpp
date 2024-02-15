@@ -55,13 +55,18 @@ void SphSolver::createGrid(Fluid &data) {
   int cellsCols =
       static_cast<int>(std::ceil((rightWall - leftWall) / radiusOfInfluence));
   numberOfCells = cellsRows * cellsCols;
-  cells.resize(numberOfCells);
-  neighbourCells.resize(numberOfCells);
+  cells.reserve(numberOfCells);
+  neighbourCells.reserve(numberOfCells);
 
   assignNeighbourCells(cellsRows, cellsCols);
 }
 
 void SphSolver::assignNeighbourCells(int cellsRows, int cellsCols) {
+  // Each cell could have at most 8 neighbours (and most of them do), so reserve
+  // the memory
+  for (int i = 0; i < numberOfCells; i++) {
+    neighbourCells[i].reserve(MAX_NEIGHBOUR_CELLS);
+  }
   // Flags to check if the cell is on the edge or in the middle
   bool top = false;
   bool left = false;
@@ -127,8 +132,12 @@ void SphSolver::assignNeighbourCells(int cellsRows, int cellsCols) {
 }
 
 void SphSolver::placeParticlesInCells(Fluid &data) {
+  int currentCellSize;
   for (int i = 0; i < numberOfCells; i++) {
+    currentCellSize = cells[i].size();
     cells[i].clear();
+    cells[i].reserve(
+        static_cast<int>(memoryReservationFactor * currentCellSize));
   }
 
   double radiusOfInfluence = data.getRadInfl();
@@ -144,8 +153,12 @@ void SphSolver::placeParticlesInCells(Fluid &data) {
 }
 
 void SphSolver::neighbourParticlesSearch(Fluid &data) {
+  int currentNumberOfNeighbours;
   for (int i = 0; i < numberOfParticles; i++) {
+    currentNumberOfNeighbours = neighbourParticles[i].size();
     neighbourParticles[i].clear();
+    neighbourParticles[i].reserve(
+        static_cast<int>(memoryReservationFactor * currentNumberOfNeighbours));
   }
 
   placeParticlesInCells(data);
