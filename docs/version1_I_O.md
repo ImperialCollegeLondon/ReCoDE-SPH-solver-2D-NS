@@ -27,6 +27,8 @@ The newly introduced input files are the following:
 - `ic-block-drop.txt`: sets initial conditions for SPH, including the number of particles, the length and width of the block, and the initial axes positions for the center of the block
 - `ic-droplet.txt`: sets initial conditions for SPH, including the number of particles, the size of the radius of the droplet, and the initial axes positions for the center of the droplet
 
+Significant refactoring has been also performed in order to make the `initialise()` function cleaner. Input retriaval functionality has been implemented in the `retrieveInputsFromFile()` function, which is now used for all different input files. Additionally, the code related to the initial conditions cases has been moved to the `setInitialConditions()` function so that this functionality is separated from the rest of the initialisation process. Finally, input error handling blocks used inside initialise have been combined and moved in the `handleInputErrors()` function to enhance readability.
+
 ### Outputs
 
 ---
