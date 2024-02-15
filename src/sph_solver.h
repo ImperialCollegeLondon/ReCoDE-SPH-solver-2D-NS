@@ -94,7 +94,13 @@ class SphSolver {
   void boundaries(Fluid &data, int particleIndex);
 
  private:
+  private:
   int numberOfParticles;
+  std::vector<std::vector<std::pair<int, double>>> neighbourParticles;
+
+  int numberOfCells;
+  std::vector<std::vector<int>> cells;
+  std::vector<std::vector<int>> neighbourCells;
 
   int t;  // Time at a specific iteration
 
@@ -122,6 +128,10 @@ class SphSolver {
   double forceViscousX, forceViscousY;
   double forceGravityY;
   double forceGravityX = 0.0;
+
+  const int MAX_NEIGHBOUR_CELLS = 8;
+
+  double memoryReservationFactor = 1.1;
 };
 
 #endif
