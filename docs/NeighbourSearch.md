@@ -137,4 +137,27 @@ void SphSolver::neighbourParticlesSearch(Fluid &data) {
 
 After all particles have been placed in cells, the actual neighbours searching can occur. We know that a particle's neighbours could only lie in the same cell or in a neighbouring cell. In the `SphSolver::neighbourParticlesSearch` function, for each cell, for each particle in the cell, we iterate over all other particles in the same cell, calculate the pair's distance, and if it is lower or equal to the radius of influence, we count the second particle as a neighbour of the first particle. In order to store each particle's neighbours, as well as their distance to the particle, we utilise a container of type `vector<vector<pair<int, double>>>`. In this container, the outer vector accounts for each particle and its size should be equal to the `numberOfParticles`. The inner vector is used to push back "neighbour-distance pairs". For each particle's neighbour, we store a pair of the neighbour's index (`int`) and the distance between the particle and its neighbour (`double`). This container provides a way to store and access each particle's neighbours and their corresponding distances during our calculations. Finally, the whole process is repeated for each neighbouring cell of the current cell, so that we are sure that we have identified all neighbours for each particle.
 
-The neighbour searching algorithm provides a significantly more efficient way to identify the particles that affect each particles during the SPH calculations. Even though the code may seem more complex, with up to four nested `for` loops, most of these loops iterate over a low number of neighbour particles, and in the end are significantly faster than the initial double nested `numberOfParticles` range loops, resulting in significantly lower execution times compared to the brute force approach, especially as the number of particles grows.
+```
+double SphSolver::calcViscousForce(Fluid &data,
+                                   std::function<double(int)> getVelocity,
+                                   int particleIndex) {
+  double sum = 0.0;  // Initializing the summation
+  double velocity = getVelocity(particleIndex);
+  double mass = data.getMass();
+  double radiusOfInfluence = data.getRadInfl();
+
+  for (int j = 0; j < neighbourParticles[particleIndex].size(); j++) {
+    if (particleIndex != neighbourParticles[particleIndex][j].first) {
+      sum +=
+          (mass / data.getDensity(neighbourParticles[particleIndex][j].first)) *
+          (velocity - getVelocity(neighbourParticles[particleIndex][j].first)) *
+          (fourtyPih4 * (1.0 - neighbourParticles[particleIndex][j].second /
+                                   radiusOfInfluence));
+    }
+  }
+
+  return -data.getViscosity() * sum;
+}
+```
+
+The neighbour searching algorithm provides a significantly more efficient way to identify the particles that affect each particle during the SPH calculations. Even though the code may seem more complex, with up to four nested `for` loops, most of these loops iterate over a low number of neighbour particles. Additionally, the initial `numberOfParticles` range loop that was used during each iteration's calculations, as well as the distance checks, have now been replaced by a simple and faster iteration over each particle's neighbours (`for (int j = 0; j < neighbourParticles[particleIndex].size(); j++)`), resulting in significantly lower execution times compared to the brute force approach, especially as the number of particles grows.
