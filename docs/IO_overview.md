@@ -10,7 +10,7 @@ Initially, we outline the two primary concepts or solutions employed to guarante
 
 ---
 
-Programs which perform simulation must be able to have the scenario they are simulating specified by the user. However, the user may sometimes provide invalid values as part of this specification. It's desirable to have a system in place that can handle these invalid values and provide the user with a clear message about which values are invalid. 
+Programs which perform simulations must be able to have the scenario they are simulating specified by the user. However, the user may sometimes provide invalid values as part of this specification. It's desirable to have a system in place that can handle these invalid values and provide the user with a clear message about which values are invalid. 
 
 In the current program, the Boost Program Options library (`<boost/program_options.hpp>`) is utilised. Boost Program Options is a powerful C++ library that simplifies the handling of program input. It provides a straightforward and intuitive way to manage command-line arguments, read files, and define options for your C++ programs. This way, it allows focusing on the logic of the program rather than dealing with the complexities of input parsing. Use of this library facilitates the easy reading of user inputs and allows us to provide enhanced definitions of the expected input parameters, accompanied by their types, using the `options_description` object and its `add_options()` function.
 
@@ -177,4 +177,4 @@ std::tuple<std::ofstream, std::ofstream, std::ofstream> initOutputFiles(
 ...
 ```
 
-This application exports data to CSV files based on a user-defined intervals in simulation time, specified within the `/exec/input/case.txt` input file. This interval might be, for instance, every 1s of simulated time, even if the timestep of the simulation is much shorter (say $10^{-4}$s). In cases where the simulation  time is large and the timestep is small, this approach can dramatically reduce the amount of data which needs to be written to the output files, compared to writing output for every timestep of the simulation. As writing to files is a relatively slow operation, this approach can significantly reduce the time taken to run the program. 
+This application exports data to CSV files based on a user-defined intervals in simulation time, specified within the `/exec/input/case.txt` input file. This approach allows the program to minimise memory usage by writing data in intervals, preventing unnecessary resource consumption and ensuring smooth operation even with large datasets. Additionally, less frequent exporting reduces interruptions for write operations, enhancing program responsiveness and user experience. Ultimately, this user-controlled export frequency strikes a balance between data granularity and resource efficiency, adapting to diverse project needs and system constraints.

@@ -20,7 +20,7 @@ This command looks for a directory (`-type d`) with a name matching that of the 
 
 ### 2. Choosing the Style Guide
 
-Teh style guide defines the rules `clang-format` will use to format your code.The default style guide is  `llvm` or we can choose another pre-defined style guide, or we could define out own. Here we choose the pre-defined `google`style.
+The style guide defines the rules clang-format will use to format your code. The default style guide is llvm, but we can choose any other pre-defined style guide, or we could define our own. Here we choose the pre-defined googlestyle.
 
 ```bash
 if ! [ -f "$config_file" ]; then
