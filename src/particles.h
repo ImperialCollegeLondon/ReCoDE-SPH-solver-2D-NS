@@ -5,26 +5,6 @@
 #include <vector>
 
 class particles {
- protected:
-  unsigned int nbParticles;  // number of particles and characteristic size of
-                             // the class arrays
-
-  // Positions
-  std::vector<double> positionX;
-  std::vector<double> positionY;
-
-  // Velocities
-  std::vector<double> velocityX;
-  std::vector<double> velocityY;
-
-  std::vector<double> particleSpeedSq;  // u(i)^2+v(i)^2
-
-  // Distances
-  std::vector<double>
-      distance;  // Array to store the distances between the particles
-  std::vector<double>
-      distanceQ;  // Array to store the values of the normalised distance q
-
  public:
   /******** CONSTRUCTORS/DESTRUCTOR********/
 
@@ -39,7 +19,7 @@ class particles {
   // Getter functions
 
   // Function to get the number of particles
-  inline int getNumberOfParticles() { return nbParticles; }
+  inline unsigned int getNumberOfParticles() { return nbParticles; }
 
   // Function to get the position x
   inline double getPositionX(int k) { return positionX[k]; }
@@ -82,6 +62,26 @@ class particles {
 
   // Function to calculate the matrix with rij
   void calculateParticleDistance();
+
+ protected:
+  unsigned int nbParticles;  // number of particles and characteristic size of
+                             // the class arrays
+
+  // Positions
+  std::vector<double> positionX;
+  std::vector<double> positionY;
+
+  // Velocities
+  std::vector<double> velocityX;
+  std::vector<double> velocityY;
+
+  std::vector<double> particleSpeedSq;  // u(i)^2+v(i)^2
+
+  // Distances
+  std::vector<double>
+      distance;  // Array to store the distances between the particles
+  std::vector<double>
+      distanceQ;  // Array to store the values of the normalised distance q
 };
 
 #endif

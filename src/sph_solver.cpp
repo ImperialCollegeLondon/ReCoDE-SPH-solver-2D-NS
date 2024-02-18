@@ -1,40 +1,10 @@
 #include "sph_solver.h"
 
-#include <cmath>
 #include <iomanip>
 #include <iostream>
 
 #include "fluid.h"
 #include "main_prog_funcs.h"
-
-// Setter functions
-void SphSolver::setTimestep(double dt) { this->dt = dt; }
-
-void SphSolver::setTotalIterations(double totalIterations) {
-  this->totalIterations = totalIterations;
-}
-
-void SphSolver::setOutputFrequency(double f) { this->outputFrequency = f; }
-
-void SphSolver::setCoeffRestitution(double coeffRestitution) {
-  this->coeffRestitution = coeffRestitution;
-}
-
-void SphSolver::setLeftWall(double leftWall) { this->leftWall = leftWall; }
-
-void SphSolver::setRightWall(double rightWall) { this->rightWall = rightWall; }
-
-void SphSolver::setBottomWall(double bottomWall) {
-  this->bottomWall = bottomWall;
-}
-
-void SphSolver::setTopWall(double topWall) { this->topWall = topWall; }
-
-void SphSolver::setPrecalculatedValues(double radiusOfInfluence) {
-  thirtyPih3 = -30.0 / (M_PI * std::pow(radiusOfInfluence, 3.0));
-
-  fourtyPih4 = 40.0 / (M_PI * std::pow(radiusOfInfluence, 4.0));
-}
 
 void SphSolver::timeIntegration(Fluid &data, std::ofstream &finalPositionsFile,
                                 std::ofstream &energiesFile) {
@@ -186,12 +156,10 @@ void SphSolver::updatePosition(Fluid &data, int particleIndex) {
 }
 
 double SphSolver::velocityIntegration(Fluid &data, int particleIndex,
-                                      double &forcePressure,
-                                      double &forceViscous,
-                                      double &forceGravity) {
-  double acceleration;
-  acceleration = (forcePressure + forceViscous + forceGravity) /
-                 data.getDensity(particleIndex);
+                                      double forcePressure, double forceViscous,
+                                      double forceGravity) {
+  double acceleration = (forcePressure + forceViscous + forceGravity) /
+                        data.getDensity(particleIndex);
 
   return acceleration * dt;
 }

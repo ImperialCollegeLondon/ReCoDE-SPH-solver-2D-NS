@@ -1,32 +1,15 @@
 #ifndef FLUID_H
 #define FLUID_H
 
+#include <cmath>
+#include <execution>
 #include <fstream>
 
 #include "particles.h"
 
 class Fluid : public particles {
- private:
-  // Constants of the problem
-  double gasConstant;
-  double densityResting;
-  double viscosity;
-  double accelerationGravity;
-  double radiusOfInfluence;
-
-  // Mass
-  double mass = 1.0;
-
-  // Density
-  std::vector<double> density;
-
-  // Pressure
-  std::vector<double> pressure;
-
  public:
   explicit Fluid(const unsigned nNew);
-
-  Fluid &operator=(const Fluid &fluid);
 
   // Setter functions
 
@@ -43,6 +26,8 @@ class Fluid : public particles {
   // Assign value to the radius of influence
   inline void setRadInfl(double radiusOfInfluence) {
     this->radiusOfInfluence = radiusOfInfluence;
+    hInverse = 1.0 / radiusOfInfluence;
+    fourPih2 = (4.0 / (M_PI * radiusOfInfluence * radiusOfInfluence));
   }
 
   // Assign value to viscosity
@@ -76,7 +61,7 @@ class Fluid : public particles {
   // Function to calculate and get the kinetic energy
   inline double getKineticEnergy() {
     double sum = 0;
-    for (int i = 0; i < nbParticles; i++) {
+    for (size_t i = 0; i < nbParticles; i++) {
       particleSpeedSq[i] =
           velocityX[i] * velocityX[i] + velocityY[i] * velocityY[i];
 
@@ -90,7 +75,7 @@ class Fluid : public particles {
   inline double getPotentialEnergy() {
     double sum = 0;
 
-    for (int i = 0; i < nbParticles; i++) {
+    for (size_t i = 0; i < nbParticles; i++) {
       sum += positionY[i] - radiusOfInfluence;
     }
 
@@ -108,5 +93,25 @@ class Fluid : public particles {
 
   // Function to calculate the pressure
   void calculatePressure();
+
+ private:
+  // Constants of the problem
+  double gasConstant;
+  double densityResting;
+  double viscosity;
+  double accelerationGravity;
+  double radiusOfInfluence;
+  // Helper member variables
+  double hInverse;
+  double fourPih2;
+
+  // Mass
+  double mass = 1.0;
+
+  // Density
+  std::vector<double> density;
+
+  // Pressure
+  std::vector<double> pressure;
 };
 #endif

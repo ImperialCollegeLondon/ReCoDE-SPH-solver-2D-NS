@@ -1,5 +1,6 @@
 // This is a main program to run the SPH simulation
 #include <boost/program_options.hpp>
+#include <climits>
 #include <filesystem>
 #include <iostream>
 
@@ -9,7 +10,7 @@
 namespace po = boost::program_options;
 
 // Start of the main programme
-int main(int argc, char* argv[]) {
+int main() {
   // Define the output folder
   std::string OUTPUT_FOLDER = "../output";
 
@@ -45,7 +46,7 @@ int main(int argc, char* argv[]) {
 }
 
 void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
-  int nbParticles;  //  Number of particles
+  unsigned int nbParticles;  //  Number of particles
 
   // Process to obtain the inputs provided by the user
   po::options_description desc("Allowed options");
@@ -66,7 +67,7 @@ void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
       "length", po::value<double>(), "take length of the block")(
       "width", po::value<double>(), "take width of the block")(
       "radius", po::value<double>(), "take radius of the droplet")(
-      "n", po::value<int>(), "take number of particles")(
+      "n", po::value<unsigned int>(), "take number of particles")(
       "center_x", po::value<double>(), "take center of the particle mass in x")(
       "center_y", po::value<double>(), "take center of the particle mass in y")(
       "init_x_1", po::value<double>(), "take x_1")(
@@ -206,7 +207,7 @@ void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
   po::notify(icVm);
 
   // Fixed nbParticles ic cases
-  std::map<std::string, int> initConditionToParticlesMap = {
+  std::map<std::string, unsigned int> initConditionToParticlesMap = {
       {"ic-one-particle", 1},
       {"ic-two-particles", 2},
       {"ic-three-particles", 3},
@@ -214,10 +215,10 @@ void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
 
   // Get the number of particles based on the ic case (for the more complex ic)
   if (icCase == "ic-droplet" || icCase == "ic-block-drop") {
-    nbParticles = icVm["n"].as<int>();
+    nbParticles = icVm["n"].as<unsigned int>();
     // Error handling for the number of particles
     try {
-      if (nbParticles <= 0) {
+      if (nbParticles == 0) {
         throw std::runtime_error(
             "Error: Number of particles must be positive!");
       }
@@ -240,7 +241,7 @@ void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
     std::vector<double> initY;
     initY.reserve(nbParticles);
 
-    for (int i = 0; i < nbParticles; i++) {
+    for (size_t i = 0; i < nbParticles; i++) {
       initX[i] = icVm["init_x_" + std::to_string(i + 1)].as<double>();
       initY[i] = icVm["init_y_" + std::to_string(i + 1)].as<double>();
       // Error handling for the initial positions
@@ -429,7 +430,8 @@ void storeToFile(Fluid& fluid, std::string type, std::ofstream& targetFile,
                << fluid.getPotentialEnergy() + fluid.getKineticEnergy() << "\n";
   } else if (type == "position") {
     // Write positions in the position file
-    for (int k = 0; k < fluid.getNumberOfParticles(); k++) {
+    unsigned int nbParticles = fluid.getNumberOfParticles();
+    for (size_t k = 0; k < nbParticles; k++) {
       targetFile << fluid.getPositionX(k) << "," << fluid.getPositionY(k)
                  << "\n";
     }
