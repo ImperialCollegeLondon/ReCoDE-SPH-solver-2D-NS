@@ -58,8 +58,9 @@ Then, inside the `retrieveInputFromFile` function, the code line `po::store(po::
 ```cpp
 /* **************************** SPH_main.cpp **************************** */
 
-void retrieveInputsFromFile(std::string fileName, std::string icCase,
-                            po::options_description desc,
+void retrieveInputsFromFile(const std::string& fileName,
+                            const std::string& icCase,
+                            const po::options_description& desc,
                             po::variables_map& vm) {
   std::ifstream caseFile;
   std::string errorMessage = "Error opening file: " + fileName;
@@ -100,30 +101,37 @@ In C++, exceptions provide suitable functionality for input error handling. With
 ```cpp
 /* **************************** SPH_main.cpp **************************** */
 
-void handleInputErrors(po::variables_map caseVm, po::variables_map domainVm,
-                       po::variables_map constantsVm, po::variables_map icVm) {
+void handleInputErrors(const po::variables_map& caseVm,
+                       const po::variables_map& domainVm,
+                       const po::variables_map& constantsVm,
+                       const po::variables_map& icVm) {
   try {
     // Error handling for the total integration time
     if (caseVm["T"].as<double>() <= 0) {
       throw std::runtime_error(
           "Error: Total integration time must be positive!");
-    // Error handling for the time step
-    } else if (caseVm["dt"].as<double>() <= 0 or caseVm["dt"].as<double>() > caseVm["T"].as<double>()) {
+      // Error handling for the time step
+    } else if (caseVm["dt"].as<double>() <= 0 or
+               caseVm["dt"].as<double>() > caseVm["T"].as<double>()) {
       throw std::runtime_error(
           "Error: Time step must be positive and lower than the total "
           "integration time!");
-    // Error handling for the output frequency
-    } else if (caseVm["output_frequency"].as<int>() <= 0 or caseVm["output_frequency"].as<int>() > ceil(caseVm["T"].as<double>() / caseVm["dt"].as<double>())) {
+      // Error handling for the output frequency
+    } else if (caseVm["output_frequency"].as<int>() <= 0 or
+               caseVm["output_frequency"].as<int>() >
+                   ceil(caseVm["T"].as<double>() / caseVm["dt"].as<double>())) {
       throw std::runtime_error(
           "Error: Output frequency must be positive and lower than the total "
           "number of iterations!");
-    // Error handling for the domain boundaries input
-    } else if (domainVm["left_wall"].as<double>() >= domainVm["right_wall"].as<double>() ||
-               domainVm["bottom_wall"].as<double>() >= domainVm["top_wall"].as<double>()) {
+      // Error handling for the domain boundaries input
+    } else if (domainVm["left_wall"].as<double>() >=
+                   domainVm["right_wall"].as<double>() ||
+               domainVm["bottom_wall"].as<double>() >=
+                   domainVm["top_wall"].as<double>()) {
       throw std::runtime_error(
           "Error: Please adjust your domain boundaries so that left_wall < "
           "right wall and bottom_wall < top_wall.");
-    // Error handling for the number of particles
+      // Error handling for the number of particles
     } else if (icVm["n"].as<int>() <= 0) {
       throw std::runtime_error("Error: Number of particles must be positive!");
     }
@@ -178,7 +186,7 @@ This sets the foundation for the creation of the ouput files themselves. These f
 /* **************************** SPH_main.cpp **************************** */
 
 std::tuple<std::ofstream, std::ofstream, std::ofstream> initOutputFiles(
-    std::string outputFolder) {
+    const std::string& outputFolder) {
   // Create the output folder if it doesn't exist
   createDirectory(outputFolder);
 

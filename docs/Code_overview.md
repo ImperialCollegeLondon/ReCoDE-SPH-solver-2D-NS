@@ -67,8 +67,9 @@ void initialise(fluid** fluidPtr, SphSolver& sphSolver) {
 }
 
 
-void retrieveInputsFromFile(std::string fileName, std::string icCase,
-                            po::options_description desc,
+void retrieveInputsFromFile(const std::string& fileName,
+                            const std::string& icCase,
+                            const po::options_description& desc,
                             po::variables_map& vm) {
   std::ifstream caseFile;
   std::string errorMessage = "Error opening file: " + fileName;
@@ -101,8 +102,10 @@ Additionally, using the `handleInputErrors()` function, error handling is integr
 ```cpp
 /* **************************** SPH_main.cpp **************************** */
 
-void handleInputErrors(po::variables_map caseVm, po::variables_map domainVm,
-                       po::variables_map constantsVm, po::variables_map icVm) {
+void handleInputErrors(const po::variables_map& caseVm,
+                       const po::variables_map& domainVm,
+                       const po::variables_map& constantsVm,
+                       const po::variables_map& icVm) {
   try {
     // Error handling for the total integration time
     if (caseVm["T"].as<double>() <= 0) {
@@ -175,8 +178,10 @@ Inside the `setInitialConditions()` function, an `std::map` object is used to ma
 ```cpp
 /* **************************** SPH_main.cpp **************************** */
 
-void setInitialConditions(std::string icCase, std::unique_ptr<Fluid>& fluidPtr,
-                          po::variables_map icVm, po::variables_map domainVm) {
+void setInitialConditions(const std::string& icCase,
+                          std::unique_ptr<Fluid>& fluidPtr,
+                          const po::variables_map& icVm,
+                          const po::variables_map& domainVm) {
   // Fixed nbParticles ic cases map
   std::map<std::string, int> initConditionToParticlesMap = {
       {"ic-one-particle", 1},
