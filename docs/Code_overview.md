@@ -130,8 +130,6 @@ void icBasic(Fluid *&fluidPtr, int nbParticles, double *positionX, double *posit
   // This needs to be deleted by the caller.
   fluidPtr = new Fluid(nbParticles);
 
-  Fluid &fluid = *fluidPtr;  // Use a reference to the object
-
   for (int i = 0; i < nbParticles; i++) {
     fluid(0, i) = positionX[i];
     fluid(1, i) = positionY[i];

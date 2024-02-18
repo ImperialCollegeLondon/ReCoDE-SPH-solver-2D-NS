@@ -75,10 +75,6 @@ class Fluid : public particles {
   inline double getPotentialEnergy() {
     double sum = 0;
 
-    // std::for_each( std::execution::par, positionY.begin(), positionY.end(),
-    // [&](const auto &Y){
-    //   sum += Y - radiusOfInfluence;
-    // });
     for (size_t i = 0; i < nbParticles; i++) {
       sum += positionY[i] - radiusOfInfluence;
     }

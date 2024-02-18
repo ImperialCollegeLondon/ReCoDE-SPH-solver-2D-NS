@@ -218,7 +218,7 @@ void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
     nbParticles = icVm["n"].as<unsigned int>();
     // Error handling for the number of particles
     try {
-      if (nbParticles >= UINT_MAX) {
+      if (nbParticles == 0) {
         throw std::runtime_error(
             "Error: Number of particles must be positive!");
       }
@@ -430,8 +430,8 @@ void storeToFile(Fluid& fluid, std::string type, std::ofstream& targetFile,
                << fluid.getPotentialEnergy() + fluid.getKineticEnergy() << "\n";
   } else if (type == "position") {
     // Write positions in the position file
-    unsigned int nb = fluid.getNumberOfParticles();
-    for (size_t k = 0; k < nb; k++) {
+    unsigned int nbParticles = fluid.getNumberOfParticles();
+    for (size_t k = 0; k < nbParticles; k++) {
       targetFile << fluid.getPositionX(k) << "," << fluid.getPositionY(k)
                  << "\n";
     }

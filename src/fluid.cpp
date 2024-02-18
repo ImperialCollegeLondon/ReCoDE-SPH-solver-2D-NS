@@ -17,22 +17,22 @@ void Fluid::calculateMass() {
 }
 
 void Fluid::calculateDensity() {
-  double phi, distanceQcurr, distanceQcurr3;
+  double phi, normalisedDistance, normalisedDistanceSqr;
 
   // find φ
   for (size_t i = 0; i < nbParticles; i++) {
     density[i] = 0.0;
 
     for (size_t j = 0; j < nbParticles; j++) {
-      distanceQcurr = distanceQ[i * nbParticles + j] =
+      normalisedDistance = distanceQ[i * nbParticles + j] =
           std::abs(distance[i * nbParticles + j] * hInverse);
 
-      distanceQcurr3 = (1.0 - distanceQcurr * distanceQcurr);
-      if (distanceQcurr < 1.0) {
-        phi = fourPih2 * distanceQcurr3 * distanceQcurr3 * distanceQcurr3;
+      normalisedDistanceSqr = (1.0 - normalisedDistance * normalisedDistance);
+      if (normalisedDistance < 1.0) {
+        phi = fourPih2 * normalisedDistanceSqr * normalisedDistanceSqr *
+              normalisedDistanceSqr;
 
-      }
-      else {
+      } else {
         phi = 0.0;
       }
 

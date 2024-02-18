@@ -9,15 +9,19 @@
 
 void icBasic(std::unique_ptr<Fluid> &fluidPtr, unsigned int nbParticles,
              std::vector<double> &positionX, std::vector<double> &positionY) {
+  // Instead of using `new` operator, we're creating a
+  // std::unique_ptr that can manage its resources (which
+  // means that we don't need to care about
+  // deleting the memory.). std::make_unique is using the
+  // constructor of Fluid to create an std::unique_ptr.
+  // See also RAII for an explanation on smart pointers.
   fluidPtr = std::make_unique<Fluid>(nbParticles);
 
-  Fluid &fluid = *fluidPtr;  // Use a reference to the object
-
   for (size_t i = 0; i < nbParticles; i++) {
-    fluid.setPositionX(i, positionX[i]);
-    fluid.setPositionY(i, positionY[i]);
-    fluid.setVelocityX(i, 0.0);
-    fluid.setVelocityY(i, 0.0);
+    fluidPtr->setPositionX(i, positionX[i]);
+    fluidPtr->setPositionY(i, positionY[i]);
+    fluidPtr->setVelocityX(i, 0.0);
+    fluidPtr->setVelocityY(i, 0.0);
   }
 }
 
@@ -25,20 +29,14 @@ void icBasic(std::unique_ptr<Fluid> &fluidPtr, unsigned int nbParticles,
 void icBlockDrop(std::unique_ptr<Fluid> &fluidPtr, unsigned int nbParticles,
                  double length, double width, double centerX, double centerY) {
   int n1, n2;
-  // Instead of using `new` operator, we're creating a
-  // std::unique_ptr that can manage its resources (which
-  // means that we don't need to care about
-  // deleting the memory.). std::make_unique is using the
-  // constructor of Fluid to create an std::unique_ptr.
-  // See also RAII for an explanation on smart pointers.
-  fluidPtr =
-      std::make_unique<Fluid>(rectangleN(nbParticles, length, width, n1, n2));
 
-  Fluid &fluid = *fluidPtr;  // Use a reference to the object
+  nbParticles = rectangleN(nbParticles, length, width, n1, n2);
+
+  fluidPtr = std::make_unique<Fluid>(nbParticles);
 
   // Distance between neighboring particles in x and y
-  double dx = length / double((n1 - 1));
-  double dy = width / double((n2 - 1));
+  double dx = length / static_cast<double>((n1 - 1));
+  double dy = width / static_cast<double>((n2 - 1));
 
   // Starting position in x
   double positionX = centerX - length / 2.0;
@@ -50,8 +48,9 @@ void icBlockDrop(std::unique_ptr<Fluid> &fluidPtr, unsigned int nbParticles,
     for (int j = 0; j < n2; j++) {
       kx = i * n2 + j;
 
-      fluid.setPositionX(kx, positionX + double(rand()) / RAND_MAX / 100000);
-      fluid.setVelocityX(kx, 0.0);
+      fluidPtr->setPositionX(kx,
+                             positionX + double(rand()) / RAND_MAX / 100000);
+      fluidPtr->setVelocityX(kx, 0.0);
     }
     positionX += dx;
   }
@@ -61,8 +60,9 @@ void icBlockDrop(std::unique_ptr<Fluid> &fluidPtr, unsigned int nbParticles,
     positionY = centerY - width / 2.0;
     for (int j = 0; j < n2; j++) {
       ky = i * n2 + j;
-      fluid.setPositionY(ky, positionY + double(rand()) / RAND_MAX / 100000);
-      fluid.setVelocityY(ky, 0.0);
+      fluidPtr->setPositionY(ky,
+                             positionY + double(rand()) / RAND_MAX / 100000);
+      fluidPtr->setVelocityY(ky, 0.0);
       positionY += dy;
     }
   }
@@ -73,10 +73,8 @@ void icDroplet(std::unique_ptr<Fluid> &fluidPtr, unsigned int nbParticles,
                double radius, double centerX, double centerY) {
   nbParticles = closestIntegerSqrt(nbParticles);
 
-  std::vector<double> positionXStore;
-  positionXStore.reserve(nbParticles);
-  std::vector<double> positionYStore;
-  positionYStore.reserve(nbParticles);
+  std::vector<double> positionXStore(nbParticles, 0.0);
+  std::vector<double> positionYStore(nbParticles, 0.0);
 
   unsigned int el = std::sqrt(nbParticles);
 
@@ -113,19 +111,17 @@ void icDroplet(std::unique_ptr<Fluid> &fluidPtr, unsigned int nbParticles,
 
   fluidPtr = std::make_unique<Fluid>(nbParticles);
 
-  Fluid &fluid = *fluidPtr;  // Use a reference to the object
-
   kx = 0;
   for (size_t i = 0; i < el; i++) {
     for (size_t j = 0; j < el; j++) {
       if (std::hypot(positionYStore[i * el + j] - centerY,
                      positionXStore[i * el + j] - centerX) <= radius) {
-        fluid.setPositionX(kx, positionXStore[i * el + j] +
-                                   double(rand()) / RAND_MAX / 100000);
-        fluid.setPositionY(kx, positionYStore[i * el + j] +
-                                   double(rand()) / RAND_MAX / 100000);
-        fluid.setVelocityX(kx, 0.0);
-        fluid.setVelocityY(kx, 0.0);
+        fluidPtr->setPositionX(kx, positionXStore[i * el + j] +
+                                       double(rand()) / RAND_MAX / 100000);
+        fluidPtr->setPositionY(kx, positionYStore[i * el + j] +
+                                       double(rand()) / RAND_MAX / 100000);
+        fluidPtr->setVelocityX(kx, 0.0);
+        fluidPtr->setVelocityY(kx, 0.0);
         kx++;
       }
     }
