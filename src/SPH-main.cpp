@@ -1,12 +1,9 @@
 // This is a main program to run the SPH simulation
-#include <boost/program_options.hpp>
 #include <filesystem>
 #include <iostream>
 
 #include "initial_conditions.h"
 #include "main_prog_funcs.h"
-
-namespace po = boost::program_options;
 
 // Start of the main programme
 int main(int argc, char* argv[]) {
@@ -45,8 +42,6 @@ int main(int argc, char* argv[]) {
 }
 
 void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
-  int nbParticles;  //  Number of particles
-
   // Process to obtain the inputs provided by the user
   po::options_description desc("Allowed options");
   desc.add_options()("init_condition", po::value<std::string>(),
@@ -84,116 +79,121 @@ void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
       "output_frequency", po::value<int>(),
       "take frequency that output will be written to file");
 
-  // Map the inputs read from the case file to expected inputs
-  po::variables_map caseVm;
-  std::ifstream caseFile;
+  // Map the inputs read from the input files to expected inputs
+  std::string icCase;
+  std::vector<std::string> fileNames = {"case.txt", "domain.txt",
+                                        "constants.txt"};
+  po::variables_map caseVm, domainVm, constantsVm, icVm;
+  std::vector<po::variables_map*> variableMaps = {&caseVm, &domainVm,
+                                                  &constantsVm};
 
-  // Try to open the case.txt file
+  for (size_t i = 0; i < fileNames.size(); ++i) {
+    retrieveInputsFromFile(fileNames[i], icCase, desc, *(variableMaps[i]));
+  }
+
+  icCase = caseVm["init_condition"].as<std::string>();
+  std::string fileName = icCase + ".txt";
+  retrieveInputsFromFile(fileName, icCase, desc, icVm);
+
+  handleInputErrors(caseVm, domainVm, constantsVm, icVm);
+
+  setInitialConditions(icCase, fluidPtr, icVm, domainVm);
+
+  // Set the parameters of the solver for the specific simulation
+  sphSolver.setTimestep(caseVm["dt"].as<double>());
+  sphSolver.setTotalIterations(
+      ceil(caseVm["T"].as<double>() / caseVm["dt"].as<double>()));
+  sphSolver.setOutputFrequency(caseVm["output_frequency"].as<int>());
+  sphSolver.setCoeffRestitution(constantsVm["coeff_restitution"].as<double>());
+  sphSolver.setLeftWall(domainVm["left_wall"].as<double>());
+  sphSolver.setRightWall(domainVm["right_wall"].as<double>());
+  sphSolver.setTopWall(domainVm["top_wall"].as<double>());
+  sphSolver.setBottomWall(domainVm["bottom_wall"].as<double>());
+  sphSolver.setPrecalculatedValues(constantsVm["h"].as<double>());
+
+  // Define the fluid based on the inputs
+  fluidPtr->setRadInfl(constantsVm["h"].as<double>());
+  fluidPtr->setGasConstant(constantsVm["gas_constant"].as<double>());
+  fluidPtr->setDensityResting(constantsVm["density_resting"].as<double>());
+  fluidPtr->setViscosity(constantsVm["viscosity"].as<double>());
+  fluidPtr->setAccelerationGravity(
+      constantsVm["acceleration_gravity"].as<double>());
+
+  // Calculate the mass of the particles
+  sphSolver.createGrid(*fluidPtr);
+  sphSolver.neighbourParticlesSearch(*fluidPtr);
+  std::vector<std::vector<std::pair<int, double>>> neighboursPerParticle =
+      sphSolver.getNeighbourParticles();
+  fluidPtr->calculateMass(neighboursPerParticle);
+
+  return;
+}
+
+void retrieveInputsFromFile(std::string fileName, std::string icCase,
+                            po::options_description desc,
+                            po::variables_map& vm) {
+  std::ifstream caseFile;
+  std::string errorMessage = "Error opening file: " + fileName;
+  if (fileName == icCase + ".txt") {
+    errorMessage +=
+        " Make sure that the value of the init_condition in the case.txt "
+        "file is one of the following: ic-one-particle, ic-two-particles, "
+        "ic-three-particles, ic-four-particles, ic-droplet, ic-block-drop.";
+  }
+  // Try to open the file
   try {
-    caseFile.open("../input/case.txt");
+    caseFile.open("../input/" + fileName);
     // Throw an exception if the file cannot be opened
     if (!caseFile.is_open()) {
-      throw std::runtime_error("Error opening file: case.txt");
+      throw std::runtime_error(errorMessage);
     }
-    po::store(po::parse_config_file(caseFile, desc), caseVm);
+    po::store(po::parse_config_file(caseFile, desc), vm);
   } catch (std::runtime_error& e) {
     // Handle the exception by printing the error message and exiting the
     // program
     std::cerr << e.what() << std::endl;
     exit(1);
   }
-  po::notify(caseVm);
+  po::notify(vm);
+}
 
-  double totalTime = caseVm["T"].as<double>();  // Total integration time
-  // Error handling for the total integration time
+void handleInputErrors(po::variables_map caseVm, po::variables_map domainVm,
+                       po::variables_map constantsVm, po::variables_map icVm) {
   try {
-    if (totalTime <= 0) {
+    // Error handling for the total integration time
+    if (caseVm["T"].as<double>() <= 0) {
       throw std::runtime_error(
           "Error: Total integration time must be positive!");
-    }
-  } catch (std::runtime_error& e) {
-    // Handle the exception by printing the error message and exiting the
-    // program
-    std::cerr << e.what() << std::endl;
-    exit(1);
-  }
-
-  // Time step dt
-  // Error handling for the time step
-  try {
-    if (caseVm["dt"].as<double>() <= 0 or
-        caseVm["dt"].as<double>() > totalTime) {
+      // Error handling for the time step
+    } else if (caseVm["dt"].as<double>() <= 0 or
+               caseVm["dt"].as<double>() > caseVm["T"].as<double>()) {
       throw std::runtime_error(
           "Error: Time step must be positive and lower than the total "
           "integration time!");
-    }
-  } catch (std::runtime_error& e) {
-    // Handle the exception by printing the error message and exiting the
-    // program
-    std::cerr << e.what() << std::endl;
-    exit(1);
-  }
-
-  // CFL coefficient 1
-  // Error handling for the CFL coefficient 1
-  try {
-    if (caseVm["coeffCfl1"].as<double>() <= 0 or
+      // Error handling for the output frequency
+    } else if (caseVm["output_frequency"].as<int>() <= 0 or
+               caseVm["output_frequency"].as<int>() >
+                   ceil(caseVm["T"].as<double>() / caseVm["dt"].as<double>())) {
+      throw std::runtime_error(
+          "Error: Output frequency must be positive and lower than the total "
+          "number of iterations!");
+      // Error handling for the domain boundaries input
+    else if (caseVm["coeffCfl1"].as<double>() <= 0 or
         caseVm["coeffCfl1"].as<double>() >= 1 or
         caseVm["coeffCfl2"].as<double>() <= 0 or
         caseVm["coeffCfl2"].as<double>() >= 1) {
       throw std::runtime_error(
           "Error: The CFL coefficients must be positive and less than 1");
-    }
-  } catch (std::runtime_error& e) {
-    // Handle the exception by printing the error message and exiting the
-    // program
-    std::cerr << e.what() << std::endl;
-    exit(1);
-  }
-
-  // Error handling for the output frequency
-  try {
-    if (caseVm["output_frequency"].as<int>() <= 0 or
-        caseVm["output_frequency"].as<int>() >
-            ceil(totalTime / caseVm["dt"].as<double>())) {
-      throw std::runtime_error(
-          "Error: Output frequency must be positive and lower than the total "
-          "number of iterations!");
-    }
-  } catch (std::runtime_error& e) {
-    // Handle the exception by printing the error message and exiting the
-    // program
-    std::cerr << e.what() << std::endl;
-    exit(1);
-  }
-
-  // Map the inputs read from the domain file to expected inputs
-  po::variables_map domainVm;
-  std::ifstream domainFile;
-  try {
-    domainFile.open("../input/domain.txt");
-    // Throw an exception if the file cannot be opened
-    if (!domainFile.is_open()) {
-      throw std::runtime_error("Error opening file: domain.txt");
-    }
-    po::store(po::parse_config_file(domainFile, desc), domainVm);
-  } catch (std::runtime_error& e) {
-    // Handle the exception by printing the error message and exiting the
-    // program
-    std::cerr << e.what() << std::endl;
-    exit(1);
-  }
-  po::notify(domainVm);
-
-  // Error handling for the domain boundaries input
-  try {
-    if (domainVm["left_wall"].as<double>() >=
-            domainVm["right_wall"].as<double>() ||
-        domainVm["bottom_wall"].as<double>() >=
-            domainVm["top_wall"].as<double>()) {
+    } else if (domainVm["left_wall"].as<double>() >=
+                   domainVm["right_wall"].as<double>() ||
+               domainVm["bottom_wall"].as<double>() >=
+                   domainVm["top_wall"].as<double>()) {
       throw std::runtime_error(
           "Error: Please adjust your domain boundaries so that left_wall < "
           "right wall and bottom_wall < top_wall.");
+      // Error handling for the number of particles
+    } else if (icVm["n"].as<int>() <= 0) {
+      throw std::runtime_error("Error: Number of particles must be positive!");
     }
   } catch (std::runtime_error& e) {
     // Handle the exception by printing the error message and exiting the
@@ -201,32 +201,11 @@ void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
     std::cerr << e.what() << std::endl;
     exit(1);
   }
+}
 
-  // Map the inputs read from the initial condition file to expected inputs
-  std::string icCase = caseVm["init_condition"].as<std::string>();
-  po::variables_map icVm;
-  std::ifstream icFile;
-  // Open the file of the initial condition the user has chosen
-  try {
-    icFile.open("../input/" + icCase + ".txt");
-    // Throw an exception if the file cannot be opened
-    if (!icFile.is_open()) {
-      throw std::runtime_error(
-          "Error opening file: " + icCase +
-          ".txt Make sure that the value of the init_condition in the case.txt "
-          "file is one of the following: ic-one-particle, ic-two-particles, "
-          "ic-three-particles, ic-four-particles, ic-droplet, ic-block-drop.");
-    }
-    po::store(po::parse_config_file(icFile, desc), icVm);
-  } catch (std::runtime_error& e) {
-    // Handle the exception by printing the error message and exiting the
-    // program
-    std::cerr << e.what() << std::endl;
-    exit(1);
-  }
-  po::notify(icVm);
-
-  // Fixed nbParticles ic cases
+void setInitialConditions(std::string icCase, std::unique_ptr<Fluid>& fluidPtr,
+                          po::variables_map icVm, po::variables_map domainVm) {
+  // Fixed nbParticles ic cases map
   std::map<std::string, int> initConditionToParticlesMap = {
       {"ic-one-particle", 1},
       {"ic-two-particles", 2},
@@ -234,23 +213,11 @@ void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
       {"ic-four-particles", 4}};
 
   // Get the number of particles based on the ic case (for the more complex ic)
+  int nbParticles;
   if (icCase == "ic-droplet" || icCase == "ic-block-drop") {
     nbParticles = icVm["n"].as<int>();
-    // Error handling for the number of particles
-    try {
-      if (nbParticles <= 0) {
-        throw std::runtime_error(
-            "Error: Number of particles must be positive!");
-      }
-    } catch (std::runtime_error& e) {
-      // Handle the exception by printing the error message and exiting the
-      // program
-      std::cerr << e.what() << std::endl;
-      exit(1);
-    }
   } else {
-    nbParticles =
-        initConditionToParticlesMap[caseVm["init_condition"].as<std::string>()];
+    nbParticles = initConditionToParticlesMap[icCase];
   }
 
   // Fixed particles ic cases
@@ -275,8 +242,6 @@ void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
               "adjust the initial position coordinates.");
         }
       } catch (std::runtime_error& e) {
-        // Handle the exception by printing the error message and exiting the
-        // program
         std::cerr << e.what() << std::endl;
         exit(1);
       }
@@ -294,8 +259,6 @@ void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
         throw std::runtime_error("Error: Length and width must be positive!");
       }
     } catch (std::runtime_error& e) {
-      // Handle the exception by printing the error message and exiting the
-      // program
       std::cerr << e.what() << std::endl;
       exit(1);
     }
