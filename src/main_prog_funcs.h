@@ -9,19 +9,25 @@
 
 namespace po = boost::program_options;
 
-void initialise(std::unique_ptr<Fluid> &fluidPtr, SphSolver &solver);
+void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& solver);
+
 std::tuple<std::ofstream, std::ofstream, std::ofstream> initOutputFiles(
-    std::string folderPath);
+    const std::string& folderPath);
 
-void retrieveInputsFromFile(std::string fileName, std::string icCase,
-                            po::options_description desc,
-                            po::variables_map &vm);
+void retrieveInputsFromFile(const std::string& fileName,
+                            const std::string& icCase,
+                            const po::options_description& desc,
+                            po::variables_map& vm);
 
-void handleInputErrors(po::variables_map caseVm, po::variables_map domainVm,
-                       po::variables_map constantsVm, po::variables_map icVm);
+void handleInputErrors(const po::variables_map& caseVm,
+                       const po::variables_map& domainVm,
+                       const po::variables_map& constantsVm,
+                       const po::variables_map& icVm);
 
-void setInitialConditions(std::string icCase, std::unique_ptr<Fluid> &fluidPtr,
-                          po::variables_map icVm, po::variables_map domainVm);
+void setInitialConditions(const std::string& icCase,
+                          std::unique_ptr<Fluid>& fluidPtr,
+                          const po::variables_map& icVm,
+                          const po::variables_map& domainVm);
 
 void createDirectory(std::string folderPath);
 
