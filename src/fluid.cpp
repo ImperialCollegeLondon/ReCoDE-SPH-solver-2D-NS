@@ -17,9 +17,6 @@ Fluid &Fluid::operator=(const Fluid &fluid) {
     velocityX.reserve(nbParticles);
     velocityY.reserve(nbParticles);
 
-    distance.reserve(nbParticles * nbParticles);
-    distanceQ.reserve(nbParticles * nbParticles);
-
     particleSpeedSq.reserve(nbParticles);
 
     pressure.reserve(nbParticles);
@@ -30,8 +27,6 @@ Fluid &Fluid::operator=(const Fluid &fluid) {
     velocityX = fluid.velocityX;
     velocityY = fluid.velocityY;
 
-    distance = fluid.distance;
-    distanceQ = fluid.distanceQ;
     particleSpeedSq = fluid.particleSpeedSq;
 
     pressure = fluid.pressure;
@@ -42,9 +37,9 @@ Fluid &Fluid::operator=(const Fluid &fluid) {
 
 // Calculation functions
 
-void Fluid::calculateMass() {
-  calculateParticleDistance();
-  calculateDensity();
+void Fluid::calculateMass(
+    std::vector<std::vector<std::pair<int, double>>> neighbours) {
+  calculateDensity(neighbours);
   double sumDensity = 0.0;
   for (int i = 0; i < nbParticles; i++) {
     sumDensity += density[i];
@@ -53,7 +48,8 @@ void Fluid::calculateMass() {
   mass = nbParticles * densityResting / sumDensity;
 }
 
-void Fluid::calculateDensity() {
+void Fluid::calculateDensity(
+    std::vector<std::vector<std::pair<int, double>>> neighbours) {
   double phi;
   double fourPih2 =
       (4.0 / (M_PI * radiusOfInfluence *
@@ -61,30 +57,15 @@ void Fluid::calculateDensity() {
                                     // multiple divisions and multiplications
   double hInverse = 1.0 / radiusOfInfluence;  // Precalculated value used to
                                               // avoid multiple divisions
-
+  double normalisedDistance;
   // find φ
   for (int i = 0; i < nbParticles; i++) {
-    density[i] = 0;
-
-    for (int j = 0; j < nbParticles; j++) {
-      distanceQ[i * nbParticles + j] =
-          std::abs(distance[i * nbParticles + j] * hInverse);
-
-      if (distanceQ[i * nbParticles + j] < 1.0) {
-        phi = fourPih2 *
-              (1.0 - distanceQ[i * nbParticles + j] *
-                         distanceQ[i * nbParticles + j]) *
-              (1.0 - distanceQ[i * nbParticles + j] *
-                         distanceQ[i * nbParticles + j]) *
-              (1.0 -
-               distanceQ[i * nbParticles + j] * distanceQ[i * nbParticles + j]);
-
-      }
-
-      else {
-        phi = 0.0;
-      }
-
+    density[i] = mass * fourPih2;
+    for (int j = 0; j < neighbours[i].size(); j++) {
+      normalisedDistance = neighbours[i][j].second * hInverse;
+      phi = fourPih2 * (1.0 - normalisedDistance * normalisedDistance) *
+            (1.0 - normalisedDistance * normalisedDistance) *
+            (1.0 - normalisedDistance * normalisedDistance);
       density[i] += mass * phi;
     }
   }

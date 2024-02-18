@@ -2,6 +2,7 @@
 #define FLUID_H
 
 #include <fstream>
+#include <utility>
 
 #include "particles.h"
 
@@ -101,10 +102,12 @@ class Fluid : public particles {
 
   // Function to calculate the mass of the particles before the simulation
   // starts
-  void calculateMass();
+  void calculateMass(
+      std::vector<std::vector<std::pair<int, double>>> neighboursList);
 
   // Function to calculate the density
-  void calculateDensity();
+  void calculateDensity(
+      std::vector<std::vector<std::pair<int, double>>> neighboursList);
 
   // Function to calculate the pressure
   void calculatePressure();

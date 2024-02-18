@@ -19,12 +19,6 @@ class particles {
 
   std::vector<double> particleSpeedSq;  // u(i)^2+v(i)^2
 
-  // Distances
-  std::vector<double>
-      distance;  // Array to store the distances between the particles
-  std::vector<double>
-      distanceQ;  // Array to store the values of the normalised distance q
-
  public:
   /******** CONSTRUCTORS/DESTRUCTOR********/
 
@@ -53,9 +47,6 @@ class particles {
   // Function to get the velocity y
   inline double getVelocityY(int k) { return velocityY[k]; }
 
-  // Function to get the normalised distance between the particles
-  inline double getDistanceQ(int k) { return distanceQ[k]; }
-
   // Setter functions
 
   // Function to set the position x
@@ -77,11 +68,6 @@ class particles {
   inline void setVelocityY(int k, double newVelocityY) {
     velocityY[k] = newVelocityY;
   }
-
-  // Calculation functions
-
-  // Function to calculate the matrix with rij
-  void calculateParticleDistance();
 };
 
 #endif
