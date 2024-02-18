@@ -102,25 +102,30 @@ void SphSolver::assignNeighbourCells(int cellsRows, int cellsCols) {
   }
 }
 
-void SphSolver::placeParticlesInCells(Fluid &data) {
-  int currentCellSize;
-  for (int i = 0; i < numberOfCells; i++) {
-    currentCellSize = cells[i].size();
-    cells[i].clear();
-    cells[i].reserve(
-        static_cast<int>(memoryReservationFactor * currentCellSize));
-  }
+// Time integration
+void SphSolver::timeIntegration(Fluid &data, std::ofstream &finalPositionsFile,
+                                std::ofstream &energiesFile) {
+  std ::cout << "Time integration started -- OK"
+             << "\n";
 
-  double radiusOfInfluence = data.getRadInfl();
-  int cellsCols =
-      static_cast<int>(std::ceil((rightWall - leftWall) / radiusOfInfluence));
-  for (int i = 0; i < numberOfParticles; i++) {
-    double positionX = data.getPositionX(i);
-    double positionY = data.getPositionY(i);
-    int j = static_cast<int>(positionX / radiusOfInfluence) +
-            static_cast<int>(positionY / radiusOfInfluence) * cellsCols;
-    cells[j].push_back(i);
+  for (int time = 0; time < totalIterations; time++) {
+    t = time;
+    // In each iteration the distances between the particles are recalculated,
+    // as well as their density and pressure
+    neighbourParticlesSearch(data);
+    data.calculateDensity(neighbourParticles);
+    data.calculatePressure();
+    particleIterations(data);
+
+    if (time % outputFrequency == 0) {
+      storeToFile(data, "energy", energiesFile, dt, t);
+    }
   }
+  // Store particles' positions after integration is completed
+  storeToFile(data, "position", finalPositionsFile, dt, totalIterations);
+
+  std ::cout << "Time integration finished -- OK"
+             << "\n";
 }
 
 void SphSolver::neighbourParticlesSearch(Fluid &data) {
@@ -178,30 +183,25 @@ void SphSolver::neighbourParticlesSearch(Fluid &data) {
   }
 }
 
-// Time integration
-void SphSolver::timeIntegration(Fluid &data, std::ofstream &finalPositionsFile,
-                                std::ofstream &energiesFile) { 
-  std ::cout << "Time integration started -- OK"
-             << "\n";
-
-  for (int time = 0; time < totalIterations; time++) {
-    t = time;
-    // In each iteration the distances between the particles are recalculated,
-    // as well as their density and pressure
-    neighbourParticlesSearch(data);
-    data.calculateDensity(neighbourParticles);
-    data.calculatePressure();
-    particleIterations(data);
-
-    if (time % outputFrequency == 0) {
-      storeToFile(data, "energy", energiesFile, dt, t);
-    }
+void SphSolver::placeParticlesInCells(Fluid &data) {
+  int currentCellSize;
+  for (int i = 0; i < numberOfCells; i++) {
+    currentCellSize = cells[i].size();
+    cells[i].clear();
+    cells[i].reserve(
+        static_cast<int>(memoryReservationFactor * currentCellSize));
   }
-  // Store particles' positions after integration is completed
-  storeToFile(data, "position", finalPositionsFile, dt, totalIterations);
 
-  std ::cout << "Time integration finished -- OK"
-             << "\n";
+  double radiusOfInfluence = data.getRadInfl();
+  int cellsCols =
+      static_cast<int>(std::ceil((rightWall - leftWall) / radiusOfInfluence));
+  for (int i = 0; i < numberOfParticles; i++) {
+    double positionX = data.getPositionX(i);
+    double positionY = data.getPositionY(i);
+    int j = static_cast<int>(positionX / radiusOfInfluence) +
+            static_cast<int>(positionY / radiusOfInfluence) * cellsCols;
+    cells[j].push_back(i);
+  }
 }
 
 void SphSolver::particleIterations(Fluid &data) {
