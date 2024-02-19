@@ -1,4 +1,5 @@
-init_condition = ic-droplet       # Name of initial condition
+init_condition = ic-droplet        # Name of initial condition
 T = 2	          	               # Integration time (s)
 dt = 1e-4	      		           # Timestep (s)
+adaptive_timestep = true           # Flag to use an adaptive timestep
 output_frequency = 1               # Output frequency in timesteps

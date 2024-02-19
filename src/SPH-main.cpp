@@ -52,8 +52,10 @@ void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
   desc.add_options()("init_condition", po::value<std::string>(),
                      "take an initial condition")("T", po::value<double>(),
                                                   "take integration time")(
-      "dt", po::value<double>(), "take time-step")("h", po::value<double>(),
-                                                   "take radius of influence")(
+      "dt", po::value<double>(), "take time-step")(
+      "adaptive_timestep", po::value<bool>(),
+      "take flag for adaptive time-step")("h", po::value<double>(),
+                                          "take radius of influence")(
       "gas_constant", po::value<double>(), "take gas constant")(
       "density_resting", po::value<double>(), "take resting density")(
       "viscosity", po::value<double>(), "take viscosity")(
@@ -122,6 +124,21 @@ void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
       throw std::runtime_error(
           "Error: Time step must be positive and lower than the total "
           "integration time!");
+    }
+  } catch (std::runtime_error& e) {
+    // Handle the exception by printing the error message and exiting the
+    // program
+    std::cerr << e.what() << std::endl;
+    exit(1);
+  }
+
+  // Adaptive time step flag
+  // Error handling for the adaptive time step flag
+  try {
+    if (!caseVm["adaptive_timestep"].as<bool>()) {
+      throw std::runtime_error(
+          "Error: the adaptive timestep must be a bool variable which is "
+          "either true or false ");
     }
   } catch (std::runtime_error& e) {
     // Handle the exception by printing the error message and exiting the
@@ -360,7 +377,7 @@ void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
 
   // Set the parameters of the solver for the specific simulation
   sphSolver.setTimestep(caseVm["dt"].as<double>());
-  sphSolver.setTotalIterations(ceil(totalTime / caseVm["dt"].as<double>()));
+  sphSolver.setAdaptiveTimestep(caseVm["adaptive_timestep"].as<bool>());
   sphSolver.setTotalTime(totalTime);
   sphSolver.setOutputFrequency(caseVm["output_frequency"].as<int>());
   sphSolver.setCoeffRestitution(constantsVm["coeff_restitution"].as<double>());
