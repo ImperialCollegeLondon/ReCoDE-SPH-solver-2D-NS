@@ -118,14 +118,14 @@ in a tree node.
 ```log
 .
 ├── docs
-│   ├── ClangFormat.md
-│   ├── CMake.md
-│   ├── Code_execution.md
-│   ├── Code_overview.md
 │   ├── index.md
-│   ├── IO_overview.md
-│   ├── OOP_concepts.md
-│   └── SPH.md
+│   ├── 1.SPH.md
+│   ├── 2.Code_overview.md
+│   ├── 3.Code_execution.md
+│   ├── 4.IO_overview.md
+│   ├── 5.OOP_concepts.md
+│   ├── A1.ClangFormat.md
+│   └── A2.CMake.md
 ├── exec
 │   ├── build
 │   └── input
@@ -134,10 +134,10 @@ in a tree node.
 │       ├── domain.txt
 │       ├── ic-block-drop.txt
 │       ├── ic-droplet.txt
-│       ├── ic-four-particles.txt
 │       ├── ic-one-particles.txt
+│       ├── ic-two-particles.txt
 │       ├── ic-three-particles.txt
-│       └── ic-two-particles.txt
+│       └── ic-four-particles.txt
 ├── notebooks
 ├── post
 │   ├── plot_energies.ipynb
