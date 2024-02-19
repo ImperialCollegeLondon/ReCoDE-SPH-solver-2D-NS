@@ -209,6 +209,7 @@ void SphSolver::placeParticlesInCells(Fluid &data) {
     cells[j].push_back(i);
   }
 }
+
 // Time integration
 void SphSolver::timeIntegration(Fluid &data, std::ofstream &finalPositionsFile,
                                 std::ofstream &energiesFile) {

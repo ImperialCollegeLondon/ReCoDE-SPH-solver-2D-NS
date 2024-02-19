@@ -46,7 +46,6 @@ void Fluid::calculateMass(
   }
 
   mass = nbParticles * densityResting / sumDensity;
-  std::cout << "Mass = " << mass << std::endl;
 }
 
 void Fluid::calculateDensity(
