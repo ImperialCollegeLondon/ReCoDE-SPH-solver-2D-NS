@@ -8,7 +8,6 @@ Fluid::Fluid(const unsigned nNew)
     : particles(nNew), density(nNew, 0.0), pressure(nNew, 0.0) {}
 
 // Calculation functions
-
 void Fluid::calculateMass(
     std::vector<std::vector<std::pair<int, double>>> neighbours) {
   calculateDensity(neighbours);
