@@ -430,8 +430,6 @@ void initialise(Fluid*& fluidPtr, SphSolver& sphSolver) {
 
   // Calculate the mass of the particles
   fluidPtr->calculateMass();
-
-  return;
 }
 
 void createDirectory(std::string folderPath) {

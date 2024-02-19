@@ -21,8 +21,6 @@ void icBasic(Fluid *&fluidPtr, int nbParticles, double *positionX,
     fluid(2, i) = 0.0;
     fluid(3, i) = 0.0;
   }
-
-  return;
 }
 
 // Block drop
@@ -66,8 +64,6 @@ void icBlockDrop(Fluid *&fluidPtr, int &nbParticles, double length,
       positionY += dy;
     }
   }
-
-  return;
 }
 
 // Droplet
@@ -133,8 +129,6 @@ void icDroplet(Fluid *&fluidPtr, int &nbParticles, double radius,
 
   delete[] positionXStore;
   delete[] positionYStore;
-
-  return;
 }
 
 int rectangleN(int nbParticles, double length, double width, int &n1, int &n2) {
