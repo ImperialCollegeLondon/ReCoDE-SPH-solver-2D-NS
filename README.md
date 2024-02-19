@@ -40,6 +40,10 @@ Provide your best estimate -->
 
 ## Requirements
 
+
+
+
+
 <!--
 If your exemplar requires students to have a background knowledge of something
 especially this is the place to mention that.
@@ -48,13 +52,17 @@ List any resources you would recommend to get the students started.
 
 If there is an existing exemplar in the ReCoDE repositories link to that.
 -->
-- Any experience with basic programming concepts (for loops, functions, reading and writing files etc.).
+
+### Academic
+
+- Experience with basic programming concepts (for loops, functions, reading and writing files etc.).
 
 - Some experience with C++ (familiarity with pointers, C++ classes and the use of external libraries).
 
 - Basic understanding of numerical analysis concepts (time marching, temporal integration etc.)
 
-### Academic
+
+
 
 <!-- List the system requirements and how to obtain them, that can be as simple
 as adding a hyperlink to as detailed as writing step-by-step instructions.
