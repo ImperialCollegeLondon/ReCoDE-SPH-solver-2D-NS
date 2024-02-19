@@ -53,6 +53,8 @@ void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
                      "take an initial condition")("T", po::value<double>(),
                                                   "take integration time")(
       "dt", po::value<double>(), "take time-step")(
+      "coeffCfl1", po::value<double>(), "take lamda nu")(
+      "coeffCfl2", po::value<double>(), "take lamda f")(
       "adaptive_timestep", po::value<bool>(),
       "take flag for adaptive time-step")("h", po::value<double>(),
                                           "take radius of influence")(
@@ -132,13 +134,28 @@ void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
     exit(1);
   }
 
-  // Adaptive time step flag
-  // Error handling for the adaptive time step flag
+  // CFL coefficient 1
+  // Error handling for the CFL coefficient 1
   try {
-    if (!caseVm["adaptive_timestep"].as<bool>()) {
+    if (caseVm["coeffCfl1"].as<double>() <= 0 or
+        caseVm["coeffCfl1"].as<double>() >= 1) {
       throw std::runtime_error(
-          "Error: the adaptive timestep must be a bool variable which is "
-          "either true or false ");
+          "Error: The CFL coefficients must be positive and less than 1");
+    }
+  } catch (std::runtime_error& e) {
+    // Handle the exception by printing the error message and exiting the
+    // program
+    std::cerr << e.what() << std::endl;
+    exit(1);
+  }
+
+  // CFL coefficient 1
+  // Error handling for the CFL coefficient 1
+  try {
+    if (caseVm["coeffCfl2"].as<double>() <= 0 or
+        caseVm["coeffCfl2"].as<double>() > totalTime) {
+      throw std::runtime_error(
+          "Error: The CFL coefficients must be positive and less than 1");
     }
   } catch (std::runtime_error& e) {
     // Handle the exception by printing the error message and exiting the
@@ -378,6 +395,8 @@ void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
   // Set the parameters of the solver for the specific simulation
   sphSolver.setTimestep(caseVm["dt"].as<double>());
   sphSolver.setAdaptiveTimestep(caseVm["adaptive_timestep"].as<bool>());
+  sphSolver.setCflCoefficients(caseVm["coeffCfl1"].as<double>(),
+                               caseVm["coeffCfl2"].as<double>());
   sphSolver.setTotalTime(totalTime);
   sphSolver.setOutputFrequency(caseVm["output_frequency"].as<int>());
   sphSolver.setCoeffRestitution(constantsVm["coeff_restitution"].as<double>());
@@ -435,7 +454,7 @@ std::tuple<std::ofstream, std::ofstream, std::ofstream> initOutputFiles(
                  << "\n";
 
   energies << std::fixed << std::setprecision(5);
-  energies << "t,Ek,Ep,Etotal"
+  energies << "dt,t,Ek,Ep,Etotal"
            << "\n";
 
   return std::make_tuple(std::move(initialPositions), std::move(finalPositions),
@@ -446,8 +465,8 @@ void storeToFile(Fluid& fluid, std::string type, std::ofstream& targetFile,
                  double dt, double currentTime) {
   if (type == "energy") {
     // Write energies in the Energy-File
-    targetFile << currentTime << "," << fluid.getKineticEnergy() << ","
-               << fluid.getPotentialEnergy() << ","
+    targetFile << dt << "," << currentTime << "," << fluid.getKineticEnergy()
+               << "," << fluid.getPotentialEnergy() << ","
                << fluid.getPotentialEnergy() + fluid.getKineticEnergy() << "\n";
   } else if (type == "position") {
     // Write positions in the position file

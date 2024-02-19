@@ -12,17 +12,21 @@ class SphSolver {
   std::vector<std::vector<int>> cells;
   std::vector<std::vector<int>> neighbourCells;
 
+  // Time related variables
   bool adaptiveTimestepBool = false;
 
   int t = 0;
 
   int outputFrequency;
 
-  double timeInteg = 0.0;
+  double currentIntegrationTime = 0.0;
 
   double totalTime;
 
   double dt;  // Timestep
+
+  double coeffCfl1;  // CFL coefficients
+  double coeffCfl2;  // CFL coefficients
 
   // Boundaries
   double coeffRestitution;
@@ -48,14 +52,17 @@ class SphSolver {
   double memoryReservationFactor = 1.1;
 
   // Adaptive timestep related variables
-  double vmax = 0.0;  // maximum velocity
-  double amax = 0.0;  // maxumum force per unit mass
+  double maxVelocity = 0.0;      // maximum velocity
+  double maxAcceleration = 0.0;  // maxumum force per unit mass
 
  public:
   // Setter Functions
 
   // Determine whether to use adaptive timestep or not
   void setAdaptiveTimestep(bool adaptiveTimestepBool);
+
+  // Determine whether to use adaptive timestep or not
+  void setCflCoefficients(double coeffCfl1, double coeffCfl2);
 
   // Assign value to dt
   void setTimestep(double dt);
