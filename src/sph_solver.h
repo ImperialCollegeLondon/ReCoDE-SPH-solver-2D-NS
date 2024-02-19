@@ -19,6 +19,9 @@ class SphSolver {
     this->coeffCfl2 = coeffCfl2;
   }
 
+  // Determine whether to use adaptive timestep or not
+  void setCflCoefficients(double coeffCfl1, double coeffCfl2);
+
   // Assign value to dt
   inline void setTimestep(double dt) {
     if (!adaptiveTimestepBool) {
