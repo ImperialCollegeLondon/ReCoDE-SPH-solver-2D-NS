@@ -29,14 +29,14 @@ int main(int argc, char* argv[]) {
   initialise(sphFluid, sphSolver);
 
   std::cout << "Initialisation finished -- OK"
-             << "\n";
+            << "\n";
 
   // Initialise output files
   auto [initialPositions, finalPositionsFile, energiesFile] =
       initOutputFiles(OUTPUT_FOLDER);
 
   std::cout << "Output files created -- OK"
-             << "\n";
+            << "\n";
 
   // Store particles' positions before integration has started
   storeToFile(*sphFluid, "position", initialPositions);
@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
   sphSolver.timeIntegration(*sphFluid, finalPositionsFile, energiesFile);
 
   std::cout << "SPH-SOLVER executed successfully -- OK"
-             << "\n";
+            << "\n";
 
   // delete the fluid object from the memory, if it was allocated
   // properly
