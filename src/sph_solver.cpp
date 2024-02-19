@@ -34,7 +34,7 @@ void SphSolver::setTopWall(double topWall) { this->topWall = topWall; }
 
 void SphSolver::timeIntegration(Fluid &data, std::ofstream &finalPositionsFile,
                                 std::ofstream &energiesFile) {
-  std ::cout << "Time integration started -- OK"
+  std::cout << "Time integration started -- OK"
              << "\n";
 
   numberOfParticles = data.getNumberOfParticles();
@@ -55,7 +55,7 @@ void SphSolver::timeIntegration(Fluid &data, std::ofstream &finalPositionsFile,
   // Store particles' positions after integration is completed
   storeToFile(data, "position", finalPositionsFile, dt, totalIterations);
 
-  std ::cout << "Time integration finished -- OK"
+  std::cout << "Time integration finished -- OK"
              << "\n";
 }
 
