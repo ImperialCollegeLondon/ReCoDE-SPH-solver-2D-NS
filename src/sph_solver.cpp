@@ -180,7 +180,7 @@ void SphSolver::timeIntegration(Fluid &data, std::ofstream &finalPositionsFile,
       vmax = 0.0;
       amax = 0.0;
       if (t == 0) {
-        dt = 1e-4;
+        dt = 1e-8;
       }
     }
 
@@ -198,12 +198,12 @@ void SphSolver::timeIntegration(Fluid &data, std::ofstream &finalPositionsFile,
     timeInteg += dt;
     t++;
 
-     if (adaptTimestep) {
-      adaptiveTimestep(data);    }
-
+    if (adaptiveTimestepBool) {
+      adaptiveTimestep(data);
+    }
   }
   // Store particles' positions after integration is completed
-  storeToFile(data, "position", finalPositionsFile, dt, totalIterations);
+  storeToFile(data, "position", finalPositionsFile, dt, timeInteg);
 
   std ::cout << "Time integration finished -- OK"
              << "\n";
@@ -316,7 +316,6 @@ double SphSolver::calculatePressureForce(Fluid &data,
              (((1.0 - normalisedDistance) * (1.0 - normalisedDistance)) /
               normalisedDistance);
     }
-
   }
   return -sum;
 }
@@ -341,7 +340,6 @@ double SphSolver::calcViscousForce(Fluid &data,
              (velocity - getVelocity(neighbourIndex)) *
              (fourtyPih4 * (1.0 - normalisedDistance));
     }
-
   }
 
   return -data.getViscosity() * sum;
