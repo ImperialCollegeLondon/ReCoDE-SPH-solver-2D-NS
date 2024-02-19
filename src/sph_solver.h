@@ -14,6 +14,11 @@ class SphSolver {
     this->adaptiveTimestepBool = adaptiveTimestepBool;
   }
 
+  void setCflCoefficients(double coeffCfl1, double coeffCfl2) {
+    this->coeffCfl1 = coeffCfl1;
+    this->coeffCfl2 = coeffCfl2;
+  }
+
   // Assign value to dt
   inline void setTimestep(double dt) { this->dt = dt; }
 
@@ -116,11 +121,14 @@ class SphSolver {
 
   int outputFrequency;
 
-  double dt;  // Timestep
-
-  double timeInteg = 0.0;
+  double currentIntegrationTime = 0.0;
 
   double totalTime;
+
+  double dt;  // Timestep
+
+  double coeffCfl1;  // CFL coefficients
+  double coeffCfl2;  // CFL coefficients
 
   // Boundaries
   double coeffRestitution;
@@ -146,8 +154,8 @@ class SphSolver {
   double memoryReservationFactor = 1.1;
 
   // Adaptive timestep related variables
-  double vmax = 0.0;  // maximum velocity
-  double amax = 0.0;  // maxumum force per unit mass
+  double maxVelocity = 0.0;      // maximum velocity
+  double maxAcceleration = 0.0;  // maxumum force per unit mass
 };
 
 #endif

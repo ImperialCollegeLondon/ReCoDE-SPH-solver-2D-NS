@@ -184,12 +184,13 @@ void SphSolver::timeIntegration(Fluid &data, std::ofstream &finalPositionsFile,
   std ::cout << "Time integration started -- OK"
              << "\n";
 
-  while (timeInteg < totalTime) {
+  while (currentIntegrationTime < totalTime) {
     if (adaptiveTimestepBool) {
-      vmax = 0.0;
-      amax = 0.0;
+      // Reset the adaptive timestep related variables
+      maxVelocity = 0.0;
+      maxAcceleration = 0.0;
       if (t == 0) {
-        dt = 1e-8;
+        dt = 1e-4;
       }
     }
 
@@ -200,11 +201,12 @@ void SphSolver::timeIntegration(Fluid &data, std::ofstream &finalPositionsFile,
     data.calculatePressure();
     particleIterations(data);
 
+    currentIntegrationTime += dt;
+
     if (t % outputFrequency == 0) {
-      storeToFile(data, "energy", energiesFile, dt, timeInteg);
+      storeToFile(data, "energy", energiesFile, dt, currentIntegrationTime);
     }
 
-    timeInteg += dt;
     t++;
 
     if (adaptiveTimestepBool) {
@@ -212,7 +214,7 @@ void SphSolver::timeIntegration(Fluid &data, std::ofstream &finalPositionsFile,
     }
   }
   // Store particles' positions after integration is completed
-  storeToFile(data, "position", finalPositionsFile, dt, timeInteg);
+  storeToFile(data, "position", finalPositionsFile, dt, currentIntegrationTime);
 
   std ::cout << "Time integration finished -- OK"
              << "\n";
@@ -328,7 +330,7 @@ void SphSolver::updatePosition(Fluid &data, int particleIndex) {
   data.setPositionX(particleIndex, newPosition);
 
   if (adaptiveTimestepBool) {
-    vmax = std::max(vmax, std::abs(newVelocity));
+    maxVelocity = std::max(maxVelocity, std::abs(newVelocity));
   }
 
   // y-direction
@@ -343,7 +345,7 @@ void SphSolver::updatePosition(Fluid &data, int particleIndex) {
   data.setPositionY(particleIndex, newPosition);
 
   if (adaptiveTimestepBool) {
-    vmax = std::max(vmax, std::abs(newVelocity));
+    maxVelocity = std::max(maxVelocity, std::abs(newVelocity));
   }
 }
 
@@ -354,7 +356,7 @@ double SphSolver::velocityIntegration(Fluid &data, int particleIndex,
                         data.getDensity(particleIndex);
 
   if (adaptiveTimestepBool) {
-    amax = std::max(amax, std::abs(acceleration));
+    maxAcceleration = std::max(maxAcceleration, std::abs(acceleration));
   }
 
   return acceleration * dt;
@@ -375,6 +377,12 @@ void SphSolver::boundaries(Fluid &data, int particleIndex) {
                       -coeffRestitution * data.getVelocityX(particleIndex));
   }
 
+  if (adaptiveTimestepBool) {
+    maxVelocity = std::max(
+        maxVelocity,
+        std::abs(-coeffRestitution * data.getVelocityX(particleIndex)));
+  }
+
   // y-direction
   if (data.getPositionY(particleIndex) < bottomWall + data.getRadInfl()) {
     data.setPositionY(particleIndex, bottomWall + data.getRadInfl());
@@ -388,10 +396,18 @@ void SphSolver::boundaries(Fluid &data, int particleIndex) {
     data.setVelocityY(particleIndex,
                       -coeffRestitution * data.getVelocityY(particleIndex));
   }
+
+  if (adaptiveTimestepBool) {
+    maxVelocity = std::max(
+        maxVelocity,
+        std::abs(-coeffRestitution * data.getVelocityY(particleIndex)));
+  }
 }
 
 void SphSolver::adaptiveTimestep(Fluid &data) {
   double h = data.getRadInfl();
 
-  dt = std::min(0.025 * h / vmax, 0.05 * pow(h / amax, 0.5));
+  // Update the timestep based on the CFL number
+  dt = std::min(coeffCfl1 * h / maxVelocity,
+                coeffCfl1 * pow(h / maxAcceleration, 0.5));
 }
