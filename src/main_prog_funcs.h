@@ -31,6 +31,6 @@ void setInitialConditions(const std::string& icCase,
 
 void createDirectory(std::string folderPath);
 
-void storeToFile(Fluid &fluid, std::string type, std::ofstream &targetFile,
+void storeToFile(Fluid& fluid, std::string type, std::ofstream& targetFile,
                  double dt = 0.0, double currentTime = 0.0);
 #endif
