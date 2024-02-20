@@ -122,7 +122,7 @@ class SphSolver {
 
   bool adaptiveTimestepBool = false;
 
-  int t = 0;
+  size_t t = 0;
 
   int totalIterations;
 
