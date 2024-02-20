@@ -102,8 +102,10 @@ void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
 
   // Set the parameters of the solver for the specific simulation
   sphSolver.setTimestep(caseVm["dt"].as<double>());
-  sphSolver.setTotalIterations(
-      ceil(caseVm["T"].as<double>() / caseVm["dt"].as<double>()));
+  sphSolver.setAdaptiveTimestep(caseVm["adaptive_timestep"].as<bool>());
+  sphSolver.setCflCoefficients(caseVm["coeffCfl1"].as<double>(),
+                               caseVm["coeffCfl2"].as<double>());
+  sphSolver.setTotalTime(caseVm["T"].as<double>());
   sphSolver.setOutputFrequency(caseVm["output_frequency"].as<int>());
   sphSolver.setCoeffRestitution(constantsVm["coeff_restitution"].as<double>());
   sphSolver.setLeftWall(domainVm["left_wall"].as<double>());
@@ -181,13 +183,14 @@ void handleInputErrors(const po::variables_map& caseVm,
       throw std::runtime_error(
           "Error: Output frequency must be positive and lower than the total "
           "number of iterations!");
-      // Error handling for the domain boundaries input
-    else if (caseVm["coeffCfl1"].as<double>() <= 0 or
-        caseVm["coeffCfl1"].as<double>() >= 1 or
-        caseVm["coeffCfl2"].as<double>() <= 0 or
-        caseVm["coeffCfl2"].as<double>() >= 1) {
+      // Error handling for the CFL coefficients
+    } else if (caseVm["coeffCfl1"].as<double>() <= 0 or
+               caseVm["coeffCfl1"].as<double>() >= 1 or
+               caseVm["coeffCfl2"].as<double>() <= 0 or
+               caseVm["coeffCfl2"].as<double>() >= 1) {
       throw std::runtime_error(
           "Error: The CFL coefficients must be positive and less than 1");
+      // Error handling for the domain boundaries
     } else if (domainVm["left_wall"].as<double>() >=
                    domainVm["right_wall"].as<double>() ||
                domainVm["bottom_wall"].as<double>() >=

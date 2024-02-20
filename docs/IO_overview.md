@@ -21,36 +21,40 @@ A snippet from the program's code, related to the management of input parameters
 
 // Process to obtain the inputs provided by the user
 po::options_description desc("Allowed options");
-desc.add_options()("init_condition", po::value<std::string>(),
-                    "take an initial condition")("T", po::value<double>(),
-                                                "take integration time")(
-    "dt", po::value<double>(), "take time-step")("h", po::value<double>(),
-                                                "take radius of influence")(
-    "gas_constant", po::value<double>(), "take gas constant")(
-    "density_resting", po::value<double>(), "take resting density")(
-    "viscosity", po::value<double>(), "take viscosity")(
-    "acceleration_gravity", po::value<double>(), "take acc due to gravity")(
-    "coeff_restitution", po::value<double>(), "take coeff of restitution")(
-    "left_wall", po::value<double>(), "take left wall position")(
-    "right_wall", po::value<double>(), "take right wall position")(
-    "bottom_wall", po::value<double>(), "take bottom wall position")(
-    "top_wall", po::value<double>(), "take top wall position")(
-    "length", po::value<double>(), "take length of the block")(
-    "width", po::value<double>(), "take width of the block")(
-    "radius", po::value<double>(), "take radius of the droplet")(
-    "n", po::value<int>(), "take number of particles")(
-    "center_x", po::value<double>(), "take center of the particle mass in x")(
-    "center_y", po::value<double>(), "take center of the particle mass in y")(
-    "init_x_1", po::value<double>(), "take x_1")(
-    "init_y_1", po::value<double>(), "take y_2")(
-    "init_x_2", po::value<double>(), "take x_2")(
-    "init_y_2", po::value<double>(), "take y_2")(
-    "init_x_3", po::value<double>(), "take x_3")(
-    "init_y_3", po::value<double>(), "take y_3")(
-    "init_x_4", po::value<double>(), "take x_4")(
-    "init_y_4", po::value<double>(), "take y_4")(
-    "output_frequency", po::value<int>(),
-    "take frequency that output will be written to file");
+  desc.add_options()("init_condition", po::value<std::string>(),
+                     "take an initial condition")("T", po::value<double>(),
+                                                  "take integration time")(
+      "dt", po::value<double>(), "take time-step")(
+      "coeffCfl1", po::value<double>(), "take lamda nu")(
+      "coeffCfl2", po::value<double>(), "take lamda f")(
+      "adaptive_timestep", po::value<bool>(),
+      "take flag for adaptive time-step")("h", po::value<double>(),
+                                          "take radius of influence")(
+      "gas_constant", po::value<double>(), "take gas constant")(
+      "density_resting", po::value<double>(), "take resting density")(
+      "viscosity", po::value<double>(), "take viscosity")(
+      "acceleration_gravity", po::value<double>(), "take acc due to gravity")(
+      "coeff_restitution", po::value<double>(), "take coeff of restitution")(
+      "left_wall", po::value<double>(), "take left wall position")(
+      "right_wall", po::value<double>(), "take right wall position")(
+      "bottom_wall", po::value<double>(), "take bottom wall position")(
+      "top_wall", po::value<double>(), "take top wall position")(
+      "length", po::value<double>(), "take length of the block")(
+      "width", po::value<double>(), "take width of the block")(
+      "radius", po::value<double>(), "take radius of the droplet")(
+      "n", po::value<int>(), "take number of particles")(
+      "center_x", po::value<double>(), "take center of the particle mass in x")(
+      "center_y", po::value<double>(), "take center of the particle mass in y")(
+      "init_x_1", po::value<double>(), "take x_1")(
+      "init_y_1", po::value<double>(), "take y_2")(
+      "init_x_2", po::value<double>(), "take x_2")(
+      "init_y_2", po::value<double>(), "take y_2")(
+      "init_x_3", po::value<double>(), "take x_3")(
+      "init_y_3", po::value<double>(), "take y_3")(
+      "init_x_4", po::value<double>(), "take x_4")(
+      "init_y_4", po::value<double>(), "take y_4")(
+      "output_frequency", po::value<int>(),
+      "take frequency that output will be written to file");
 ```
 
 Then, inside the `retrieveInputFromFile` function, the code line `po::store(po::parse_config_file(caseFile, desc), vm);` uses these definitions (`desc`) to search for matches between the input parsed from the `*.txt` files in the `exec/input/` directory (`caseFile`), and the expected parameters. These mapped pairs are finally stored in another object provided by the library, called a `variables_map`. This approach enhances the flexibility and robustness of the input reading process. Users can specify input parameters in the `.txt` files in any order, provided they are given as `key = value` pairs.
@@ -96,7 +100,7 @@ Another crucial part of reading input by a program is error handling. In order f
 
 Even though we cannot control the user's actions, we can - and we should always - control our program's behavior to these actions. A program that simply crashes on unexpected input is not user-friendly, since it does not provide any guidance to the user regarding their wrong input. Error handling is the process of properly handling this "bad" input, so that the program provides information to the user regarding the reason of the error or the correct usage of the program, before it normally exits.
 
-In C++, exceptions provide suitable functionality for input error handling. With exceptions, we can add `try`/`catch` blocks to our program. The `try` part should include the error-prone code, which in the case of handling input could be either the proper opening of the file (e.g., `icFile.is_open()` above) or a condition that checks that the input value adheres to the program's rules (e.g., `caseVm["dt"].as<double>() <= 0`). In case of non-expected behavior, a `throw` statement is used, which throws an exception. There are numerous types of exceptions, such as the `runtime_error` exception thrown in the `handleInputErrors` function below, accompanied by an intuitive error message. Finally, the exception thrown in the `try` block, is caught in the `catch` block. In other words, the `catch` block performs the "handling" of the error, and this is where our code for the desired behavior in case of an error should be included. In the `handleInputErrors` function, we check the values of user input for parameters such as total integration time, time step, output frequency, domain boundaries, the number of particles, and when the `runtime_error` exception is caught, the program prints an appropriate error message, in order to guide the user regarding the correct usage. This way the program exits in a controlled manner.
+In C++, exceptions provide suitable functionality for input error handling. With exceptions, we can add `try`/`catch` blocks to our program. The `try` part should include the error-prone code, which in the case of handling input could be either the proper opening of the file (e.g., `icFile.is_open()` above) or a condition that checks that the input value adheres to the program's rules (e.g., `caseVm["dt"].as<double>() <= 0`). In case of non-expected behavior, a `throw` statement is used, which throws an exception. There are numerous types of exceptions, such as the `runtime_error` exception thrown in the `handleInputErrors` function below, accompanied by an intuitive error message. Finally, the exception thrown in the `try` block, is caught in the `catch` block. In other words, the `catch` block performs the "handling" of the error, and this is where our code for the desired behavior in case of an error should be included. In the `handleInputErrors` function, we check the values of user input for parameters such as total integration time, time step, output frequency, CFL coefficients, domain boundaries, the number of particles, and when the `runtime_error` exception is caught, the program prints an appropriate error message, in order to guide the user regarding the correct usage. This way the program exits in a controlled manner.
 
 ```cpp
 /* **************************** SPH_main.cpp **************************** */
@@ -123,7 +127,14 @@ void handleInputErrors(const po::variables_map& caseVm,
       throw std::runtime_error(
           "Error: Output frequency must be positive and lower than the total "
           "number of iterations!");
-      // Error handling for the domain boundaries input
+      // Error handling for the CFL coefficients
+    } else if (caseVm["coeffCfl1"].as<double>() <= 0 or
+               caseVm["coeffCfl1"].as<double>() >= 1 or
+               caseVm["coeffCfl2"].as<double>() <= 0 or
+               caseVm["coeffCfl2"].as<double>() >= 1) {
+      throw std::runtime_error(
+          "Error: The CFL coefficients must be positive and less than 1");
+      // Error handling for the domain boundaries
     } else if (domainVm["left_wall"].as<double>() >=
                    domainVm["right_wall"].as<double>() ||
                domainVm["bottom_wall"].as<double>() >=
@@ -201,7 +212,6 @@ std::tuple<std::ofstream, std::ofstream, std::ofstream> initOutputFiles(
   initialPositions << std::fixed << std::setprecision(5);
   initialPositions << "Position_X,Position_Y"
                    << "\n";
-
 ...
 ```
 
