@@ -8,16 +8,30 @@
 #include "main_prog_funcs.h"
 
 // Setter functions
-void SphSolver::setTimestep(double dt) { this->dt = dt; }
 
-void SphSolver::setTotalIterations(double totalIterations) {
-  this->totalIterations = totalIterations;
+void SphSolver::setAdaptiveTimestep(bool adaptiveTimestepBool) {
+  this->adaptiveTimestepBool = adaptiveTimestepBool;
 }
+
+void SphSolver::setTimestep(double dt) {
+  if (!adaptiveTimestepBool) {
+    this->dt = dt;
+  } else {
+    this->dt = initialTimestep;
+  }
+}
+
+void SphSolver::setTotalTime(double totalTime) { this->totalTime = totalTime; }
 
 void SphSolver::setOutputFrequency(double f) { this->outputFrequency = f; }
 
 void SphSolver::setCoeffRestitution(double coeffRestitution) {
   this->coeffRestitution = coeffRestitution;
+}
+
+void SphSolver::setCflCoefficients(double coeffCfl1, double coeffCfl2) {
+  this->coeffCfl1 = coeffCfl1;
+  this->coeffCfl2 = coeffCfl2;
 }
 
 void SphSolver::setLeftWall(double leftWall) { this->leftWall = leftWall; }
@@ -131,32 +145,6 @@ void SphSolver::assignNeighbourCells(int cellsRows, int cellsCols) {
   }
 }
 
-// Time integration
-void SphSolver::timeIntegration(Fluid &data, std::ofstream &finalPositionsFile,
-                                std::ofstream &energiesFile) {
-  std ::cout << "Time integration started -- OK"
-             << "\n";
-
-  for (int time = 0; time < totalIterations; time++) {
-    t = time;
-    // In each iteration the distances between the particles are recalculated,
-    // as well as their density and pressure
-    neighbourParticlesSearch(data);
-    data.calculateDensity(neighbourParticles);
-    data.calculatePressure();
-    particleIterations(data);
-
-    if (time % outputFrequency == 0) {
-      storeToFile(data, "energy", energiesFile, dt, t);
-    }
-  }
-  // Store particles' positions after integration is completed
-  storeToFile(data, "position", finalPositionsFile, dt, totalIterations);
-
-  std ::cout << "Time integration finished -- OK"
-             << "\n";
-}
-
 void SphSolver::neighbourParticlesSearch(Fluid &data) {
   int currentNumberOfNeighbours;
   for (int i = 0; i < numberOfParticles; i++) {
@@ -233,6 +221,45 @@ void SphSolver::placeParticlesInCells(Fluid &data) {
   }
 }
 
+// Time integration
+void SphSolver::timeIntegration(Fluid &data, std::ofstream &finalPositionsFile,
+                                std::ofstream &energiesFile) {
+  std ::cout << "Time integration started -- OK"
+             << "\n";
+
+  while (currentIntegrationTime < totalTime) {
+    if (adaptiveTimestepBool) {
+      // Reset the adaptive timestep related variables
+      maxVelocity = 0.0;
+      maxAcceleration = 0.0;
+    }
+
+    // In each iteration the distances between the particles are recalculated,
+    // as well as their density and pressure
+    neighbourParticlesSearch(data);
+    data.calculateDensity(neighbourParticles);
+    data.calculatePressure();
+    particleIterations(data);
+
+    currentIntegrationTime += dt;
+
+    if (t % outputFrequency == 0) {
+      storeToFile(data, "energy", energiesFile, dt, currentIntegrationTime);
+    }
+
+    t++;
+
+    if (adaptiveTimestepBool) {
+      adaptiveTimestep(data);
+    }
+  }
+  // Store particles' positions after integration is completed
+  storeToFile(data, "position", finalPositionsFile, dt, currentIntegrationTime);
+
+  std ::cout << "Time integration finished -- OK"
+             << "\n";
+}
+
 void SphSolver::particleIterations(Fluid &data) {
   int i;
 
@@ -280,6 +307,7 @@ double SphSolver::calculatePressureForce(Fluid &data,
     if (particleIndex != neighbourParticles[particleIndex][j].first) {
       normalisedDistance =
           neighbourParticles[particleIndex][j].second / radiusOfInfluence;
+
       sum +=
           (mass / data.getDensity(neighbourParticles[particleIndex][j].first)) *
           ((pressure +
@@ -341,6 +369,10 @@ void SphSolver::updatePosition(Fluid &data, int particleIndex) {
 
   data.setPositionX(particleIndex, newPosition);
 
+  if (adaptiveTimestepBool) {
+    maxVelocity = std::max(maxVelocity, std::abs(newVelocity));
+  }
+
   // y-direction
   newVelocity = data.getVelocityY(particleIndex) +
                 integrationCoeff *
@@ -351,6 +383,10 @@ void SphSolver::updatePosition(Fluid &data, int particleIndex) {
 
   newPosition = data.getPositionY(particleIndex) + newVelocity * dt;
   data.setPositionY(particleIndex, newPosition);
+
+  if (adaptiveTimestepBool) {
+    maxVelocity = std::max(maxVelocity, std::abs(newVelocity));
+  }
 }
 
 double SphSolver::velocityIntegration(Fluid &data, int particleIndex,
@@ -360,6 +396,10 @@ double SphSolver::velocityIntegration(Fluid &data, int particleIndex,
   double acceleration;
   acceleration = (forcePressure + forceViscous + forceGravity) /
                  data.getDensity(particleIndex);
+
+  if (adaptiveTimestepBool) {
+    maxAcceleration = std::max(maxAcceleration, std::abs(acceleration));
+  }
 
   return acceleration * dt;
 }
@@ -379,6 +419,12 @@ void SphSolver::boundaries(Fluid &data, int particleIndex) {
                       -coeffRestitution * data.getVelocityX(particleIndex));
   }
 
+  if (adaptiveTimestepBool) {
+    maxVelocity = std::max(
+        maxVelocity,
+        std::abs(-coeffRestitution * data.getVelocityX(particleIndex)));
+  }
+
   // y-direction
   if (data.getPositionY(particleIndex) < bottomWall + data.getRadInfl()) {
     data.setPositionY(particleIndex, bottomWall + data.getRadInfl());
@@ -392,4 +438,18 @@ void SphSolver::boundaries(Fluid &data, int particleIndex) {
     data.setVelocityY(particleIndex,
                       -coeffRestitution * data.getVelocityY(particleIndex));
   }
+
+  if (adaptiveTimestepBool) {
+    maxVelocity = std::max(
+        maxVelocity,
+        std::abs(-coeffRestitution * data.getVelocityY(particleIndex)));
+  }
+}
+
+void SphSolver::adaptiveTimestep(Fluid &data) {
+  double h = data.getRadInfl();
+
+  // Update the timestep based on the CFL number
+  dt = std::min(coeffCfl1 * h / maxVelocity,
+                coeffCfl2 * pow(h / maxAcceleration, 0.5));
 }

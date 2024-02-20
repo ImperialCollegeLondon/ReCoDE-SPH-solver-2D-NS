@@ -5,6 +5,8 @@
 
 class SphSolver {
  private:
+  constexpr static double initialTimestep = 1e-4;
+
   int numberOfParticles;
   std::vector<std::vector<std::pair<int, double>>> neighbourParticles;
 
@@ -12,13 +14,21 @@ class SphSolver {
   std::vector<std::vector<int>> cells;
   std::vector<std::vector<int>> neighbourCells;
 
-  int t;  // Time at a specific iteration
+  // Time related variables
+  bool adaptiveTimestepBool = false;
 
-  int totalIterations;
+  size_t t = 0;
 
   int outputFrequency;
 
+  double currentIntegrationTime = 0.0;
+
+  double totalTime;
+
   double dt;  // Timestep
+
+  double coeffCfl1;  // CFL coefficients
+  double coeffCfl2;  // CFL coefficients
 
   // Boundaries
   double coeffRestitution;
@@ -43,14 +53,24 @@ class SphSolver {
 
   double memoryReservationFactor = 1.1;
 
+  // Adaptive timestep related variables
+  double maxVelocity = 0.0;      // maximum velocity
+  double maxAcceleration = 0.0;  // maxumum force per unit mass
+
  public:
   // Setter Functions
+
+  // Determine whether to use adaptive timestep or not
+  void setAdaptiveTimestep(bool adaptiveTimestepBool);
+
+  // Determine whether to use adaptive timestep or not
+  void setCflCoefficients(double coeffCfl1, double coeffCfl2);
 
   // Assign value to dt
   void setTimestep(double dt);
 
-  // Assign value to the total iterations
-  void setTotalIterations(double totalIterations);
+  // Assign value to the total integration time
+  void setTotalTime(double totalTime);
 
   // Assign value to the frequency
   void setOutputFrequency(double outputFrequency);
@@ -117,6 +137,9 @@ class SphSolver {
 
   // Function to treat the boundaries
   void boundaries(Fluid &data, int particleIndex);
+
+  // Function to update the timestep
+  void adaptiveTimestep(Fluid &data);
 };
 
 #endif

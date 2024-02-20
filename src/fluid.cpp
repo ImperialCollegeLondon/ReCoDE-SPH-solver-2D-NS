@@ -1,6 +1,7 @@
 #include "fluid.h"
 
 #include <cmath>
+#include <iostream>
 
 // User defined constructor
 Fluid::Fluid(const unsigned nNew) : particles(nNew) {
@@ -36,7 +37,6 @@ Fluid &Fluid::operator=(const Fluid &fluid) {
 }
 
 // Calculation functions
-
 void Fluid::calculateMass(
     std::vector<std::vector<std::pair<int, double>>> neighbours) {
   calculateDensity(neighbours);
