@@ -25,7 +25,7 @@ void SphSolver::adaptiveTimestep(Fluid &data) {
 
 ## Efficiency and further considerations
 
-With the default  factors $\lambda _ \nu$ and $\lambda _ f$, the adaptive timestep approach required 15994 iterations to simulate a falling droplet of 800 particles and radius equal to 0.1, in opposition to the constant timestep approach which would require 20000 iterations. A selection of $\lambda _ \nu = 0.075$ and $\lambda _ f = 0.05$ produced the result in only 8188 iterations without any effect on the results.
+With the default  factors $\lambda _ \nu$ and $\lambda _ f$, the adaptive timestep approach required 15994 iterations to simulate a falling droplet of 800 particles and radius equal to 0.1, in opposition to the constant timestep approach which required 20000 iterations. A selection of $\lambda _ \nu = 0.075$ and $\lambda _ f = 0.05$ produced the result in only 8188 iterations.
 
 <div style="text-align: center;">
     <img src="images/no_adaptive_timestep.png" alt="Alt Text 1" style="display: inline-block; width: 300px;">
@@ -33,6 +33,6 @@ With the default  factors $\lambda _ \nu$ and $\lambda _ f$, the adaptive timest
     <img src="images/cfl1_0.075_cfl2_0.05.png" alt="Alt Text 2" style="display: inline-block; width: 300px;">
 </div>
 
- ***Energy plots with the use of adaptive timestep: 15994 iterations (left) and 8188 iterations (right).***
+ ***Energy plots with the use of constant timestep 1e-4 (left), adaptive timestep: 15994 iterations (middle) and 8188 iterations (right).***
 
-The results are similar for both simulations which means that for this case a more relaxed than the default criterion is applicable. Although the adaptive timestep introduces an extra layer of robustness (stability of cases with high number of particles in a very tight formation is not guaranteed) and potentially increased efficiency, different fluids and cases require an adjustment of the CFL coefficients in order to exploit the advantages of the approach and therefore, the user should be careful in their selection.
+Regarding the constant timestep, small overshoots of the energy plots are present. These are smoothed out in the adaptive timestep cases, although the program required a smaller amount of iterations to be executed. Regarding the adaptive timestep cases, the results are similar for both simulations which means that for this case a more relaxed than the default criterion is applicable. Although the adaptive timestep introduces an extra layer of robustness (stability of cases with high number of particles in a very tight formation is not guaranteed) and potentially increased efficiency, different fluids and cases require an adjustment of the CFL coefficients in order to exploit the advantages of the approach and therefore, the user should be careful in their selection.
