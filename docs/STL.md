@@ -1,6 +1,6 @@
-# STL Changes
+# STL usage
 
-Throughout the previous version of the code base there has been extensive use of C-style arrays and raw pointers. This could be harmless in the case that the code base stays the same and the developers can be sure about their memory management and ownership semantics. But, as the code base expands, it will be more difficult to track every object, moving from function to function.
+Throughout the previous version of the code base there has been extensive use of C-style arrays and raw pointers (v0-v2 of the project's repository). This could be harmless in the case that the code base stays the same and the developers can be sure about their memory management and ownership semantics. But, as the code base expands, it will be more difficult to track every object, moving from function to function.
 
 Modern C++ uses the STL which is a library that comprises a lot of algorithms as well as standard containers, most of which have been optimised in the best possible way (though some of [them](https://stackoverflow.com/a/17797560) still cause problems).
 
