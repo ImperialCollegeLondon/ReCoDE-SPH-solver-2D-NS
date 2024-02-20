@@ -448,5 +448,5 @@ void SphSolver::adaptiveTimestep(Fluid &data) {
 
   // Update the timestep based on the CFL number
   dt = std::min(coeffCfl1 * h / maxVelocity,
-                coeffCfl1 * pow(h / maxAcceleration, 0.5));
+                coeffCfl2 * pow(h / maxAcceleration, 0.5));
 }
