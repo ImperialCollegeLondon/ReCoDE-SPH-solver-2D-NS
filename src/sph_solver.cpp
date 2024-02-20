@@ -13,7 +13,13 @@ void SphSolver::setAdaptiveTimestep(bool adaptiveTimestepBool) {
   this->adaptiveTimestepBool = adaptiveTimestepBool;
 }
 
-void SphSolver::setTimestep(double dt) { this->dt = dt; }
+void SphSolver::setTimestep(double dt) {
+  if (!adaptiveTimestepBool) {
+    this->dt = dt;
+  } else {
+    this->dt = initialTimestep;
+  }
+}
 
 void SphSolver::setTotalTime(double totalTime) { this->totalTime = totalTime; }
 

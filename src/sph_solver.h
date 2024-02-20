@@ -5,6 +5,8 @@
 
 class SphSolver {
  private:
+  constexpr static double initialTimestep = 1e-4;
+
   int numberOfParticles;
   std::vector<std::vector<std::pair<int, double>>> neighbourParticles;
 

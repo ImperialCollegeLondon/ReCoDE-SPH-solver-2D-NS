@@ -25,8 +25,9 @@ void SphSolver::adaptiveTimestep(Fluid &data) {
 With the default  factors $\lambda _\nu $ and $\lambda _f$, the adaptive timestep approach required 15994 iterations to simulate a falling droplet of 800 particles in opposition to the constant timestep approach which would require 20000 iterations. A selection of $\lambda _\nu = 0.075 $ and $\lambda _f = 0.05$ resulted to only 8188 iterations with the following results.
 
 <div style="text-align: center;">
-    <img src="images/cfl_default.png" alt="Alt Text 1" style="display: inline-block; width: 400px;">
-    <img src="images/cfl1_0.075_cfl2_0.05.png" alt="Alt Text 2" style="display: inline-block; width: 400px;">
+    <img src="images/no_adaptive_timestep.png" alt="Alt Text 1" style="display: inline-block; width: 300px;">
+    <img src="images/cfl_default.png" alt="Alt Text 1" style="display: inline-block; width: 300px;">
+    <img src="images/cfl1_0.075_cfl2_0.05.png" alt="Alt Text 2" style="display: inline-block; width: 300px;">
 </div>
 
  ***Energy plots with the default CFL coefficients (left) and with $\lambda _ \nu = 0.075$ , $\lambda _ f = 0.05$ (right).***
