@@ -20,7 +20,13 @@ class SphSolver {
   }
 
   // Assign value to dt
-  inline void setTimestep(double dt) { this->dt = dt; }
+  inline void setTimestep(double dt) {
+    if (!adaptiveTimestepBool) {
+      this->dt = dt;
+    } else {
+      this->dt = initialTimestep;
+    }
+  }
 
   // Assign value to the total integration time
   inline void setTotalTime(double totalTime) { this->totalTime = totalTime; }
@@ -105,7 +111,8 @@ class SphSolver {
   void adaptiveTimestep(Fluid &data);
 
  private:
-  private:
+  constexpr static double initialTimestep = 1e-4;
+
   int numberOfParticles;
   std::vector<std::vector<std::pair<int, double>>> neighbourParticles;
 

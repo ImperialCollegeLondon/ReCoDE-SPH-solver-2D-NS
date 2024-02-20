@@ -139,22 +139,9 @@ void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
   // Error handling for the CFL coefficient 1
   try {
     if (caseVm["coeffCfl1"].as<double>() <= 0 or
-        caseVm["coeffCfl1"].as<double>() >= 1) {
-      throw std::runtime_error(
-          "Error: The CFL coefficients must be positive and less than 1");
-    }
-  } catch (std::runtime_error& e) {
-    // Handle the exception by printing the error message and exiting the
-    // program
-    std::cerr << e.what() << std::endl;
-    exit(1);
-  }
-
-  // CFL coefficient 1
-  // Error handling for the CFL coefficient 1
-  try {
-    if (caseVm["coeffCfl1"].as<double>() <= 0 or
-        caseVm["coeffCfl1"].as<double>() >= 1) {
+        caseVm["coeffCfl1"].as<double>() >= 1 or
+        caseVm["coeffCfl2"].as<double>() <= 0 or
+        caseVm["coeffCfl2"].as<double>() >= 1) {
       throw std::runtime_error(
           "Error: The CFL coefficients must be positive and less than 1");
     }
