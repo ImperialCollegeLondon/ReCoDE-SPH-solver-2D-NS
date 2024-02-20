@@ -1,6 +1,6 @@
 # Good practices for computational efficiency
 
-The complexity of the SPH algorithm, requires the code implementation to display good computational performance in order for the program to be able to handle cases which involve big numbers of particles. In this project we attempted to apply several standard good practices to avoid unecessary computations or accesses to memory locations, and therefore to retain a reasonable and useful CPU time of execution. It is a good practice to apply such optimizations and techniques without compromising the memory usage, readability and future maintenance of the code, and always balancing the trade-off between these three.
+The complexity of the SPH algorithm, requires the code implementation to display good computational performance in order for the program to be able to handle cases which involve big numbers of particles. In this project we attempted to apply several standard good practices to avoid unecessary computations or accesses to memory locations, and therefore to retain a reasonable and useful CPU time of execution. It is a good practice to apply such optimizations and techniques without compromising the memory usage, readability and future maintenance of the code, and always to balance the trade-off between these three.
 
 ## Optimisation flags
 
