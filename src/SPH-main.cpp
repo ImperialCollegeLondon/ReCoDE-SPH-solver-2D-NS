@@ -101,8 +101,10 @@ void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
 
   // Set the parameters of the solver for the specific simulation
   sphSolver.setTimestep(caseVm["dt"].as<double>());
-  sphSolver.setTotalIterations(
-      ceil(caseVm["T"].as<double>() / caseVm["dt"].as<double>()));
+  sphSolver.setAdaptiveTimestep(caseVm["adaptive_timestep"].as<bool>());
+  sphSolver.setCflCoefficients(caseVm["coeffCfl1"].as<double>(),
+                               caseVm["coeffCfl2"].as<double>());
+  sphSolver.setTotalTime(caseVm["T"].as<double>());
   sphSolver.setOutputFrequency(caseVm["output_frequency"].as<int>());
   sphSolver.setCoeffRestitution(constantsVm["coeff_restitution"].as<double>());
   sphSolver.setLeftWall(domainVm["left_wall"].as<double>());
@@ -180,13 +182,14 @@ void handleInputErrors(const po::variables_map& caseVm,
       throw std::runtime_error(
           "Error: Output frequency must be positive and lower than the total "
           "number of iterations!");
-      // Error handling for the domain boundaries input
-    else if (caseVm["coeffCfl1"].as<double>() <= 0 or
-        caseVm["coeffCfl1"].as<double>() >= 1 or
-        caseVm["coeffCfl2"].as<double>() <= 0 or
-        caseVm["coeffCfl2"].as<double>() >= 1) {
+      // Error handling for the CFL coefficients
+    } else if (caseVm["coeffCfl1"].as<double>() <= 0 or
+               caseVm["coeffCfl1"].as<double>() >= 1 or
+               caseVm["coeffCfl2"].as<double>() <= 0 or
+               caseVm["coeffCfl2"].as<double>() >= 1) {
       throw std::runtime_error(
           "Error: The CFL coefficients must be positive and less than 1");
+      // Error handling for the domain boundaries
     } else if (domainVm["left_wall"].as<double>() >=
                    domainVm["right_wall"].as<double>() ||
                domainVm["bottom_wall"].as<double>() >=
@@ -328,55 +331,6 @@ void setInitialConditions(const std::string& icCase,
               << "ic-block-drop." << std::endl;
     exit(1);
   }
-
-  // Map the inputs read from the constants file to expected inputs
-  po::variables_map constantsVm;
-  std::ifstream constantsFile;
-  try {
-    constantsFile.open("../input/constants.txt");
-    // Throw an exception if the file cannot be opened
-    if (!constantsFile.is_open()) {
-      throw std::runtime_error("Error opening file: constants.txt");
-    }
-    po::store(po::parse_config_file(constantsFile, desc), constantsVm);
-  } catch (std::runtime_error& e) {
-    // Handle the exception by printing the error message and exiting the
-    // program
-    std::cerr << e.what() << std::endl;
-    exit(1);
-  }
-  po::notify(constantsVm);
-
-  // Set the parameters of the solver for the specific simulation
-  sphSolver.setTimestep(caseVm["dt"].as<double>());
-  sphSolver.setAdaptiveTimestep(caseVm["adaptive_timestep"].as<bool>());
-  sphSolver.setCflCoefficients(caseVm["coeffCfl1"].as<double>(),
-                               caseVm["coeffCfl2"].as<double>());
-  sphSolver.setTotalTime(totalTime);
-  sphSolver.setOutputFrequency(caseVm["output_frequency"].as<int>());
-  sphSolver.setCoeffRestitution(constantsVm["coeff_restitution"].as<double>());
-  sphSolver.setLeftWall(domainVm["left_wall"].as<double>());
-  sphSolver.setRightWall(domainVm["right_wall"].as<double>());
-  sphSolver.setTopWall(domainVm["top_wall"].as<double>());
-  sphSolver.setBottomWall(domainVm["bottom_wall"].as<double>());
-  sphSolver.setPrecalculatedValues(constantsVm["h"].as<double>());
-
-  // Define the fluid based on the inputs
-  fluidPtr->setRadInfl(constantsVm["h"].as<double>());
-  fluidPtr->setGasConstant(constantsVm["gas_constant"].as<double>());
-  fluidPtr->setDensityResting(constantsVm["density_resting"].as<double>());
-  fluidPtr->setViscosity(constantsVm["viscosity"].as<double>());
-  fluidPtr->setAccelerationGravity(
-      constantsVm["acceleration_gravity"].as<double>());
-
-  // Calculate the mass of the particles
-  sphSolver.createGrid(*fluidPtr);
-  sphSolver.neighbourParticlesSearch(*fluidPtr);
-  std::vector<std::vector<std::pair<int, double>>> neighboursPerParticle =
-      sphSolver.getNeighbourParticles();
-  fluidPtr->calculateMass(neighboursPerParticle);
-
-  return;
 }
 
 void createDirectory(std::string folderPath) {

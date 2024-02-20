@@ -22,15 +22,18 @@ The program expects the parameters which are specified in the `exec/input` direc
 ```cpp
 /* **************************** SPH_main.cpp **************************** */
 
-void initialise(fluid** fluidPtr, SphSolver& sphSolver) {
-
+void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
   // Process to obtain the inputs provided by the user
   po::options_description desc("Allowed options");
   desc.add_options()("init_condition", po::value<std::string>(),
-                      "take an initial condition")("T", po::value<double>(),
+                     "take an initial condition")("T", po::value<double>(),
                                                   "take integration time")(
-      "dt", po::value<double>(), "take time-step")("h", po::value<double>(),
-                                                  "take radius of influence")(
+      "dt", po::value<double>(), "take time-step")(
+      "coeffCfl1", po::value<double>(), "take lamda nu")(
+      "coeffCfl2", po::value<double>(), "take lamda f")(
+      "adaptive_timestep", po::value<bool>(),
+      "take flag for adaptive time-step")("h", po::value<double>(),
+                                          "take radius of influence")(
       "gas_constant", po::value<double>(), "take gas constant")(
       "density_resting", po::value<double>(), "take resting density")(
       "viscosity", po::value<double>(), "take viscosity")(
@@ -54,7 +57,7 @@ void initialise(fluid** fluidPtr, SphSolver& sphSolver) {
       "init_y_3", po::value<double>(), "take y_3")(
       "init_x_4", po::value<double>(), "take x_4")(
       "init_y_4", po::value<double>(), "take y_4")(
-      "outputFrequency", po::value<int>(),
+      "output_frequency", po::value<int>(),
       "take frequency that output will be written to file");
   ...
 
@@ -124,7 +127,14 @@ void handleInputErrors(const po::variables_map& caseVm,
       throw std::runtime_error(
           "Error: Output frequency must be positive and lower than the total "
           "number of iterations!");
-      // Error handling for the domain boundaries input
+      // Error handling for the CFL coefficients
+    } else if (caseVm["coeffCfl1"].as<double>() <= 0 or
+               caseVm["coeffCfl1"].as<double>() >= 1 or
+               caseVm["coeffCfl2"].as<double>() <= 0 or
+               caseVm["coeffCfl2"].as<double>() >= 1) {
+      throw std::runtime_error(
+          "Error: The CFL coefficients must be positive and less than 1");
+      // Error handling for the domain boundaries
     } else if (domainVm["left_wall"].as<double>() >=
                    domainVm["right_wall"].as<double>() ||
                domainVm["bottom_wall"].as<double>() >=
@@ -255,8 +265,10 @@ Finally, after the object initialisation, the rest of the parameters which are r
 
   // Set the parameters of the solver for the specific simulation
   sphSolver.setTimestep(caseVm["dt"].as<double>());
-  sphSolver.setTotalIterations(
-      ceil(caseVm["T"].as<double>() / caseVm["dt"].as<double>()));
+  sphSolver.setAdaptiveTimestep(caseVm["adaptive_timestep"].as<bool>());
+  sphSolver.setCflCoefficients(caseVm["coeffCfl1"].as<double>(),
+                               caseVm["coeffCfl2"].as<double>());
+  sphSolver.setTotalTime(caseVm["T"].as<double>());
   sphSolver.setOutputFrequency(caseVm["output_frequency"].as<int>());
   sphSolver.setCoeffRestitution(constantsVm["coeff_restitution"].as<double>());
   sphSolver.setLeftWall(domainVm["left_wall"].as<double>());
@@ -294,16 +306,16 @@ Upon successful execution, the program generates two types of files:
 ```cpp
 /* **************************** SPH_main.cpp **************************** */
 
-void storeToFile(fluid& fluid, int nbParticles, std::string type,
-                 std::ofstream& targetFile, double dt, int currentIteration) {
+void storeToFile(Fluid& fluid, std::string type, std::ofstream& targetFile,
+                 double dt, double currentTime) {
   if (type == "energy") {
-    // Write energies on the Energy-File
-    targetFile << currentIteration * dt << "," << fluid.getKineticEnergy()
+    // Write energies in the Energy-File
+    targetFile << dt << "," << currentTime << "," << fluid.getKineticEnergy()
                << "," << fluid.getPotentialEnergy() << ","
-               << fluid.getPotentialEnergy() + fluid.getKineticEnergy()
-               << "\n";
+               << fluid.getPotentialEnergy() + fluid.getKineticEnergy() << "\n";
   } else if (type == "position") {
-    for (int k = 0; k < nbParticles; k++) {
+    // Write positions in the position file
+    for (int k = 0; k < fluid.getNumberOfParticles(); k++) {
       targetFile << fluid.getPositionX(k) << "," << fluid.getPositionY(k)
                  << "\n";
     }
@@ -330,29 +342,39 @@ Following the initialisation of the class and the output files, the function `Sp
 
   /* **************************** sph_solver.cpp **************************** */
 
-  void SphSolver::timeIntegration(fluid &data,
-                                  std::ofstream &finalPositionsFile,
-                                  std::ofstream &energiesFile) {
+  void SphSolver::timeIntegration(Fluid &data, std::ofstream &finalPositionsFile,
+                                std::ofstream &energiesFile) {
   std ::cout << "Time integration started -- OK"
              << "\n";
 
-  numberOfParticles = data.getNumberOfParticles();
+  while (currentIntegrationTime < totalTime) {
+    if (adaptiveTimestepBool) {
+      // Reset the adaptive timestep related variables
+      maxVelocity = 0.0;
+      maxAcceleration = 0.0;
+    }
 
-  for (int time = 0; time < totalIterations; time++) {
-    t = time;
     // In each iteration the distances between the particles are recalculated,
     // as well as their density and pressure
-    data.calculateParticleDistance();
-    data.calculateDensity();
+    neighbourParticlesSearch(data);
+    data.calculateDensity(neighbourParticles);
     data.calculatePressure();
     particleIterations(data);
 
-    if (time % outputFrequency == 0) {
-      storeToFile(data, "energy", energiesFile, dt, t);
+    currentIntegrationTime += dt;
+
+    if (t % outputFrequency == 0) {
+      storeToFile(data, "energy", energiesFile, dt, currentIntegrationTime);
+    }
+
+    t++;
+
+    if (adaptiveTimestepBool) {
+      adaptiveTimestep(data);
     }
   }
   // Store particles' positions after integration is completed
-  storeToFile(data, "position", finalPositionsFile, dt, totalIterations);
+  storeToFile(data, "position", finalPositionsFile, dt, currentIntegrationTime);
 
   std ::cout << "Time integration finished -- OK"
              << "\n";
