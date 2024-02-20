@@ -181,9 +181,6 @@ void SphSolver::timeIntegration(Fluid &data, std::ofstream &finalPositionsFile,
       // Reset the adaptive timestep related variables
       maxVelocity = 0.0;
       maxAcceleration = 0.0;
-      if (t == 0) {
-        dt = 1e-4;
-      }
     }
 
     // In each iteration the distances between the particles are recalculated,
