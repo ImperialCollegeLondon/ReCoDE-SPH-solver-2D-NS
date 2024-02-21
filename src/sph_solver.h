@@ -128,8 +128,6 @@ class SphSolver {
 
   size_t t = 0;
 
-  int totalIterations;
-
   int outputFrequency;
 
   double currentIntegrationTime = 0.0;
