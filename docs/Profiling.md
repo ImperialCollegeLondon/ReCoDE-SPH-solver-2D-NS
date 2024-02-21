@@ -1,0 +1,923 @@
+# Profiling
+
+The profiling of this project was done in par with the refactoring. In order to make decisions regarding different algorithms and containers to be used, the developers profiled the codebase for each version separately. The profiling included tools like `valgrind`, `perf` and also the usual `time` in Linux distros in order to get an overall execution timing of the code.
+
+## Valgrind
+
+Valgrind is an instrumentation framework that can be used to detect memory leaks, memory corruption, and undefined memory usage in C and C++ programs. It achieves this by running the program in a virtual environment and monitoring the memory operations. Valgrind provides several tools, including Memcheck (for memory debugging), Cachegrind (for cache profiling), and Callgrind (for call graph profiling). Callgrind is a Valgrind tool designed to profile the call structure of a program. It collects information about the functions called, the number of instructions executed in each function, and the call relationships between functions. This information can be used to identify performance bottlenecks and optimize the code.
+
+### Usage
+
+1. **Installation**:
+
+    Make sure Valgrind is installed on your system. You can typically install it using your package manager on Linux systems.
+    ```bash
+    sudo apt-get install valgrind   # For Debian/Ubuntu
+    ```
+
+2. **Run your program with Callgrind**:
+
+    To profile your program with Callgrind, use the following command:
+    ```bash
+    valgrind --tool=callgrind <executable>
+    ```
+
+3. **Analyze the output**:
+
+    After running the program, Valgrind will generate a **callgrind.out.\<pid>** file (where \<pid> is the process ID of your program). You can analyze this file using the `kcachegrind` tool, which provides a graphical user interface for exploring the profiling data.
+    ```bash
+    kcachegrind callgrind.out.<pid>
+    ```
+
+    In MacOS, the user can use `qcachegrind` to analyze the output and see which of the functions consume most of the resources. The output should be similar to the one in the picture below:
+
+    ![alt text](images/callgrind1.png)
+
+    In  the image the user can see that the functions provide a percentage of CPU usage throughout the lifetime of the execution, so any bottlenecks are easily identifiable.
+
+
+## Perf
+
+`perf` is a powerful performance analysis tool in Linux that provides a wide range of features for profiling and analyzing the performance of programs. It allows you to collect and analyze various performance-related data, such as CPU usage, memory access patterns, and more.
+
+### Usage
+
+1. **Installation**:
+
+    You can install perf on most Linux systems using your package manager.
+
+    ```bash
+    sudo apt-get install linux-tools-common   # For Debian/Ubuntu
+    ```
+
+2. **Basic Usage**:
+
+    To collect performance data for a program, you can use the following basic command:
+
+    ```bash
+    perf record -g -p <pid>   # Record performance data for a running process
+    ```
+    or, for a command:
+    ```bash
+    perf record -g <executable>   # Record performance data for a specific command
+    ```
+    The `-g` option captures call-graph information, which is essential for creating flame graphs.
+
+
+3. **Flamegraphs**:
+
+    Flamegraphs are a visualization technique for profiling data that provides a detailed and intuitive representation of where time is spent in your code. They can be generated from `perf` data using tools like `FlameGraph`.
+
+    1. **Install Flamegraph**:
+
+        Clone the FlameGraph repository from GitHub.
+        ```bash
+        git clone https://github.com/brendangregg/FlameGraph.git
+        ```
+    
+    2. **Generate Flamegraph**:
+
+        Use the `stackcollapse-perf.pl` script to convert the `perf` data into a format suitable for flame graphs, and then use `flamegraph.pl` to generate the actual flame graph.
+
+        ```bash
+        perf script | FlameGraph/stackcollapse-perf.pl | FlameGraph/flamegraph.pl > flamegraph.svg
+        ```
+        This command reads the `perf script` output, collapses the stack frames, and generates a flame graph in SVG format.
+
+    3. **View Flamegraph**:
+
+        Open the generated SVG file (`flamegraph.svg`) in a web browser to explore the flame graph visually. The width of each box in the graph represents the proportional time spent in each function. An example is shown below (it is interactive, so the user can click on any function to check the function calls and how much of the CPU resources it has used):
+
+        ![alt text](images/flamegraph_ic_droplet_100.svg)
+
+        <details> 
+        <summary>SVG code</summary>
+
+        ```
+        @flamegraph_ic_droplet_100.svg
+        <?xml version="1.0" standalone="no"?>
+        <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+        <svg version="1.1" width="1200" height="390" onload="init(evt)" viewBox="0 0 1200 390" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <!-- Flame graph stack visualization. See https://github.com/brendangregg/FlameGraph for latest version, and http://www.brendangregg.com/flamegraphs.html for examples. -->
+        <!-- NOTES:  -->
+        <defs>
+            <linearGradient id="background" y1="0" y2="1" x1="0" x2="0" >
+                <stop stop-color="#eeeeee" offset="5%" />
+                <stop stop-color="#eeeeb0" offset="95%" />
+            </linearGradient>
+        </defs>
+        <style type="text/css">
+            text { font-family:Verdana; font-size:12px; fill:rgb(0,0,0); }
+            #search, #ignorecase { opacity:0.1; cursor:pointer; }
+            #search:hover, #search.show, #ignorecase:hover, #ignorecase.show { opacity:1; }
+            #subtitle { text-anchor:middle; font-color:rgb(160,160,160); }
+            #title { text-anchor:middle; font-size:17px}
+            #unzoom { cursor:pointer; }
+            #frames > *:hover { stroke:black; stroke-width:0.5; cursor:pointer; }
+            .hide { display:none; }
+            .parent { opacity:0.5; }
+        </style>
+        <script type="text/ecmascript">
+        <![CDATA[
+            "use strict";
+            var details, searchbtn, unzoombtn, matchedtxt, svg, searching, currentSearchTerm, ignorecase, ignorecaseBtn;
+            function init(evt) {
+                details = document.getElementById("details").firstChild;
+                searchbtn = document.getElementById("search");
+                ignorecaseBtn = document.getElementById("ignorecase");
+                unzoombtn = document.getElementById("unzoom");
+                matchedtxt = document.getElementById("matched");
+                svg = document.getElementsByTagName("svg")[0];
+                searching = 0;
+                currentSearchTerm = null;
+
+                // use GET parameters to restore a flamegraphs state.
+                var params = get_params();
+                if (params.x && params.y)
+                    zoom(find_group(document.querySelector('[x="' + params.x + '"][y="' + params.y + '"]')));
+                        if (params.s) search(params.s);
+            }
+
+            // event listeners
+            window.addEventListener("click", function(e) {
+                var target = find_group(e.target);
+                if (target) {
+                    if (target.nodeName == "a") {
+                        if (e.ctrlKey === false) return;
+                        e.preventDefault();
+                    }
+                    if (target.classList.contains("parent")) unzoom(true);
+                    zoom(target);
+                    if (!document.querySelector('.parent')) {
+                        // we have basically done a clearzoom so clear the url
+                        var params = get_params();
+                        if (params.x) delete params.x;
+                        if (params.y) delete params.y;
+                        history.replaceState(null, null, parse_params(params));
+                        unzoombtn.classList.add("hide");
+                        return;
+                    }
+
+                    // set parameters for zoom state
+                    var el = target.querySelector("rect");
+                    if (el && el.attributes && el.attributes.y && el.attributes._orig_x) {
+                        var params = get_params()
+                        params.x = el.attributes._orig_x.value;
+                        params.y = el.attributes.y.value;
+                        history.replaceState(null, null, parse_params(params));
+                    }
+                }
+                else if (e.target.id == "unzoom") clearzoom();
+                else if (e.target.id == "search") search_prompt();
+                else if (e.target.id == "ignorecase") toggle_ignorecase();
+            }, false)
+
+            // mouse-over for info
+            // show
+            window.addEventListener("mouseover", function(e) {
+                var target = find_group(e.target);
+                if (target) details.nodeValue = "Function: " + g_to_text(target);
+            }, false)
+
+            // clear
+            window.addEventListener("mouseout", function(e) {
+                var target = find_group(e.target);
+                if (target) details.nodeValue = ' ';
+            }, false)
+
+            // ctrl-F for search
+            // ctrl-I to toggle case-sensitive search
+            window.addEventListener("keydown",function (e) {
+                if (e.keyCode === 114 || (e.ctrlKey && e.keyCode === 70)) {
+                    e.preventDefault();
+                    search_prompt();
+                }
+                else if (e.ctrlKey && e.keyCode === 73) {
+                    e.preventDefault();
+                    toggle_ignorecase();
+                }
+            }, false)
+
+            // functions
+            function get_params() {
+                var params = {};
+                var paramsarr = window.location.search.substr(1).split('&');
+                for (var i = 0; i < paramsarr.length; ++i) {
+                    var tmp = paramsarr[i].split("=");
+                    if (!tmp[0] || !tmp[1]) continue;
+                    params[tmp[0]]  = decodeURIComponent(tmp[1]);
+                }
+                return params;
+            }
+            function parse_params(params) {
+                var uri = "?";
+                for (var key in params) {
+                    uri += key + '=' + encodeURIComponent(params[key]) + '&';
+                }
+                if (uri.slice(-1) == "&")
+                    uri = uri.substring(0, uri.length - 1);
+                if (uri == '?')
+                    uri = window.location.href.split('?')[0];
+                return uri;
+            }
+            function find_child(node, selector) {
+                var children = node.querySelectorAll(selector);
+                if (children.length) return children[0];
+            }
+            function find_group(node) {
+                var parent = node.parentElement;
+                if (!parent) return;
+                if (parent.id == "frames") return node;
+                return find_group(parent);
+            }
+            function orig_save(e, attr, val) {
+                if (e.attributes["_orig_" + attr] != undefined) return;
+                if (e.attributes[attr] == undefined) return;
+                if (val == undefined) val = e.attributes[attr].value;
+                e.setAttribute("_orig_" + attr, val);
+            }
+            function orig_load(e, attr) {
+                if (e.attributes["_orig_"+attr] == undefined) return;
+                e.attributes[attr].value = e.attributes["_orig_" + attr].value;
+                e.removeAttribute("_orig_"+attr);
+            }
+            function g_to_text(e) {
+                var text = find_child(e, "title").firstChild.nodeValue;
+                return (text)
+            }
+            function g_to_func(e) {
+                var func = g_to_text(e);
+                // if there's any manipulation we want to do to the function
+                // name before it's searched, do it here before returning.
+                return (func);
+            }
+            function update_text(e) {
+                var r = find_child(e, "rect");
+                var t = find_child(e, "text");
+                var w = parseFloat(r.attributes.width.value) -3;
+                var txt = find_child(e, "title").textContent.replace(/\([^(]*\)$/,"");
+                t.attributes.x.value = parseFloat(r.attributes.x.value) + 3;
+
+                // Smaller than this size won't fit anything
+                if (w < 2 * 12 * 0.59) {
+                    t.textContent = "";
+                    return;
+                }
+
+                t.textContent = txt;
+                var sl = t.getSubStringLength(0, txt.length);
+                // check if only whitespace or if we can fit the entire string into width w
+                if (/^ *$/.test(txt) || sl < w)
+                    return;
+
+                // this isn't perfect, but gives a good starting point
+                // and avoids calling getSubStringLength too often
+                var start = Math.floor((w/sl) * txt.length);
+                for (var x = start; x > 0; x = x-2) {
+                    if (t.getSubStringLength(0, x + 2) <= w) {
+                        t.textContent = txt.substring(0, x) + "..";
+                        return;
+                    }
+                }
+                t.textContent = "";
+            }
+
+            // zoom
+            function zoom_reset(e) {
+                if (e.attributes != undefined) {
+                    orig_load(e, "x");
+                    orig_load(e, "width");
+                }
+                if (e.childNodes == undefined) return;
+                for (var i = 0, c = e.childNodes; i < c.length; i++) {
+                    zoom_reset(c[i]);
+                }
+            }
+            function zoom_child(e, x, ratio) {
+                if (e.attributes != undefined) {
+                    if (e.attributes.x != undefined) {
+                        orig_save(e, "x");
+                        e.attributes.x.value = (parseFloat(e.attributes.x.value) - x - 10) * ratio + 10;
+                        if (e.tagName == "text")
+                            e.attributes.x.value = find_child(e.parentNode, "rect[x]").attributes.x.value + 3;
+                    }
+                    if (e.attributes.width != undefined) {
+                        orig_save(e, "width");
+                        e.attributes.width.value = parseFloat(e.attributes.width.value) * ratio;
+                    }
+                }
+
+                if (e.childNodes == undefined) return;
+                for (var i = 0, c = e.childNodes; i < c.length; i++) {
+                    zoom_child(c[i], x - 10, ratio);
+                }
+            }
+            function zoom_parent(e) {
+                if (e.attributes) {
+                    if (e.attributes.x != undefined) {
+                        orig_save(e, "x");
+                        e.attributes.x.value = 10;
+                    }
+                    if (e.attributes.width != undefined) {
+                        orig_save(e, "width");
+                        e.attributes.width.value = parseInt(svg.width.baseVal.value) - (10 * 2);
+                    }
+                }
+                if (e.childNodes == undefined) return;
+                for (var i = 0, c = e.childNodes; i < c.length; i++) {
+                    zoom_parent(c[i]);
+                }
+            }
+            function zoom(node) {
+                var attr = find_child(node, "rect").attributes;
+                var width = parseFloat(attr.width.value);
+                var xmin = parseFloat(attr.x.value);
+                var xmax = parseFloat(xmin + width);
+                var ymin = parseFloat(attr.y.value);
+                var ratio = (svg.width.baseVal.value - 2 * 10) / width;
+
+                // XXX: Workaround for JavaScript float issues (fix me)
+                var fudge = 0.0001;
+
+                unzoombtn.classList.remove("hide");
+
+                var el = document.getElementById("frames").children;
+                for (var i = 0; i < el.length; i++) {
+                    var e = el[i];
+                    var a = find_child(e, "rect").attributes;
+                    var ex = parseFloat(a.x.value);
+                    var ew = parseFloat(a.width.value);
+                    var upstack;
+                    // Is it an ancestor
+                    if (0 == 0) {
+                        upstack = parseFloat(a.y.value) > ymin;
+                    } else {
+                        upstack = parseFloat(a.y.value) < ymin;
+                    }
+                    if (upstack) {
+                        // Direct ancestor
+                        if (ex <= xmin && (ex+ew+fudge) >= xmax) {
+                            e.classList.add("parent");
+                            zoom_parent(e);
+                            update_text(e);
+                        }
+                        // not in current path
+                        else
+                            e.classList.add("hide");
+                    }
+                    // Children maybe
+                    else {
+                        // no common path
+                        if (ex < xmin || ex + fudge >= xmax) {
+                            e.classList.add("hide");
+                        }
+                        else {
+                            zoom_child(e, xmin, ratio);
+                            update_text(e);
+                        }
+                    }
+                }
+                search();
+            }
+            function unzoom(dont_update_text) {
+                unzoombtn.classList.add("hide");
+                var el = document.getElementById("frames").children;
+                for(var i = 0; i < el.length; i++) {
+                    el[i].classList.remove("parent");
+                    el[i].classList.remove("hide");
+                    zoom_reset(el[i]);
+                    if(!dont_update_text) update_text(el[i]);
+                }
+                search();
+            }
+            function clearzoom() {
+                unzoom();
+
+                // remove zoom state
+                var params = get_params();
+                if (params.x) delete params.x;
+                if (params.y) delete params.y;
+                history.replaceState(null, null, parse_params(params));
+            }
+
+            // search
+            function toggle_ignorecase() {
+                ignorecase = !ignorecase;
+                if (ignorecase) {
+                    ignorecaseBtn.classList.add("show");
+                } else {
+                    ignorecaseBtn.classList.remove("show");
+                }
+                reset_search();
+                search();
+            }
+            function reset_search() {
+                var el = document.querySelectorAll("#frames rect");
+                for (var i = 0; i < el.length; i++) {
+                    orig_load(el[i], "fill")
+                }
+                var params = get_params();
+                delete params.s;
+                history.replaceState(null, null, parse_params(params));
+            }
+            function search_prompt() {
+                if (!searching) {
+                    var term = prompt("Enter a search term (regexp " +
+                        "allowed, eg: ^ext4_)"
+                        + (ignorecase ? ", ignoring case" : "")
+                        + "\nPress Ctrl-i to toggle case sensitivity", "");
+                    if (term != null) search(term);
+                } else {
+                    reset_search();
+                    searching = 0;
+                    currentSearchTerm = null;
+                    searchbtn.classList.remove("show");
+                    searchbtn.firstChild.nodeValue = "Search"
+                    matchedtxt.classList.add("hide");
+                    matchedtxt.firstChild.nodeValue = ""
+                }
+            }
+            function search(term) {
+                if (term) currentSearchTerm = term;
+
+                var re = new RegExp(currentSearchTerm, ignorecase ? 'i' : '');
+                var el = document.getElementById("frames").children;
+                var matches = new Object();
+                var maxwidth = 0;
+                for (var i = 0; i < el.length; i++) {
+                    var e = el[i];
+                    var func = g_to_func(e);
+                    var rect = find_child(e, "rect");
+                    if (func == null || rect == null)
+                        continue;
+
+                    // Save max width. Only works as we have a root frame
+                    var w = parseFloat(rect.attributes.width.value);
+                    if (w > maxwidth)
+                        maxwidth = w;
+
+                    if (func.match(re)) {
+                        // highlight
+                        var x = parseFloat(rect.attributes.x.value);
+                        orig_save(rect, "fill");
+                        rect.attributes.fill.value = "rgb(230,0,230)";
+
+                        // remember matches
+                        if (matches[x] == undefined) {
+                            matches[x] = w;
+                        } else {
+                            if (w > matches[x]) {
+                                // overwrite with parent
+                                matches[x] = w;
+                            }
+                        }
+                        searching = 1;
+                    }
+                }
+                if (!searching)
+                    return;
+                var params = get_params();
+                params.s = currentSearchTerm;
+                history.replaceState(null, null, parse_params(params));
+
+                searchbtn.classList.add("show");
+                searchbtn.firstChild.nodeValue = "Reset Search";
+
+                // calculate percent matched, excluding vertical overlap
+                var count = 0;
+                var lastx = -1;
+                var lastw = 0;
+                var keys = Array();
+                for (k in matches) {
+                    if (matches.hasOwnProperty(k))
+                        keys.push(k);
+                }
+                // sort the matched frames by their x location
+                // ascending, then width descending
+                keys.sort(function(a, b){
+                    return a - b;
+                });
+                // Step through frames saving only the biggest bottom-up frames
+                // thanks to the sort order. This relies on the tree property
+                // where children are always smaller than their parents.
+                var fudge = 0.0001;	// JavaScript floating point
+                for (var k in keys) {
+                    var x = parseFloat(keys[k]);
+                    var w = matches[keys[k]];
+                    if (x >= lastx + lastw - fudge) {
+                        count += w;
+                        lastx = x;
+                        lastw = w;
+                    }
+                }
+                // display matched percent
+                matchedtxt.classList.remove("hide");
+                var pct = 100 * count / maxwidth;
+                if (pct != 100) pct = pct.toFixed(1)
+                matchedtxt.firstChild.nodeValue = "Matched: " + pct + "%";
+            }
+        ]]>
+        </script>
+        <rect x="0.0" y="0" width="1200.0" height="390.0" fill="url(#background)"  />
+        <text id="title" x="600.00" y="24" >Flame Graph</text>
+        <text id="details" x="10.00" y="373" > </text>
+        <text id="unzoom" x="10.00" y="24" class="hide">Reset Zoom</text>
+        <text id="search" x="1090.00" y="24" >Search</text>
+        <text id="ignorecase" x="1174.00" y="24" >ic</text>
+        <text id="matched" x="1090.00" y="373" > </text>
+        <g id="frames">
+        <g >
+        <title>SphSolver::particleIterations (27,003,631,479 samples, 75.33%)</title><rect x="208.8" y="261" width="888.8" height="15.0" fill="rgb(242,171,41)" rx="2" ry="2" />
+        <text  x="211.76" y="271.5" >SphSolver::particleIterations</text>
+        </g>
+        <g >
+        <title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_is_local (31,141,062 samples, 0.09%)</title><rect x="1179.8" y="229" width="1.0" height="15.0" fill="rgb(241,168,40)" rx="2" ry="2" />
+        <text  x="1182.80" y="239.5" ></text>
+        </g>
+        <g >
+        <title>__libc_start_call_main (35,709,559,638 samples, 99.62%)</title><rect x="13.5" y="309" width="1175.5" height="15.0" fill="rgb(210,26,6)" rx="2" ry="2" />
+        <text  x="16.51" y="319.5" >__libc_start_call_main</text>
+        </g>
+        <g >
+        <title>all (35,847,213,449 samples, 100%)</title><rect x="10.0" y="341" width="1180.0" height="15.0" fill="rgb(213,39,9)" rx="2" ry="2" />
+        <text  x="13.00" y="351.5" ></text>
+        </g>
+        <g >
+        <title>__mcount_internal (30,577,007 samples, 0.09%)</title><rect x="254.6" y="229" width="1.0" height="15.0" fill="rgb(234,133,31)" rx="2" ry="2" />
+        <text  x="257.59" y="239.5" ></text>
+        </g>
+        <g >
+        <title>storeToFile (92,667,452 samples, 0.26%)</title><rect x="1184.9" y="261" width="3.1" height="15.0" fill="rgb(225,92,22)" rx="2" ry="2" />
+        <text  x="1187.91" y="271.5" ></text>
+        </g>
+        <g >
+        <title>particles::getDistanceQ (1,299,123,887 samples, 3.62%)</title><rect x="558.0" y="229" width="42.7" height="15.0" fill="rgb(238,152,36)" rx="2" ry="2" />
+        <text  x="560.98" y="239.5" >part..</text>
+        </g>
+        <g >
+        <title>Fluid::getDensity (61,820,191 samples, 0.17%)</title><rect x="973.5" y="213" width="2.1" height="15.0" fill="rgb(212,35,8)" rx="2" ry="2" />
+        <text  x="976.52" y="223.5" ></text>
+        </g>
+        <g >
+        <title>search_binary_handler (44,629,610 samples, 0.12%)</title><rect x="11.0" y="181" width="1.5" height="15.0" fill="rgb(208,14,3)" rx="2" ry="2" />
+        <text  x="14.02" y="191.5" ></text>
+        </g>
+        <g >
+        <title>rcu_core (31,021,540 samples, 0.09%)</title><rect x="1171.6" y="165" width="1.1" height="15.0" fill="rgb(222,81,19)" rx="2" ry="2" />
+        <text  x="1174.64" y="175.5" ></text>
+        </g>
+        <g >
+        <title>_mcount (2,287,565,481 samples, 6.38%)</title><rect x="825.2" y="229" width="75.3" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+        <text  x="828.17" y="239.5" >_mcount</text>
+        </g>
+        <g >
+        <title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_Alloc_hider::_Alloc_hider (31,019,461 samples, 0.09%)</title><rect x="1177.8" y="245" width="1.0" height="15.0" fill="rgb(212,32,7)" rx="2" ry="2" />
+        <text  x="1180.76" y="255.5" ></text>
+        </g>
+        <g >
+        <title>SphSolver::calcViscousForce (10,485,237,863 samples, 29.25%)</title><rect x="255.6" y="245" width="345.1" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+        <text  x="258.60" y="255.5" >SphSolver::calcViscousForce</text>
+        </g>
+        <g >
+        <title>SphSolver::velocityIntegration (30,841,130 samples, 0.09%)</title><rect x="1001.2" y="245" width="1.1" height="15.0" fill="rgb(234,137,32)" rx="2" ry="2" />
+        <text  x="1004.24" y="255.5" ></text>
+        </g>
+        <g >
+        <title>__mcount_internal (123,400,609 samples, 0.34%)</title><rect x="1002.3" y="245" width="4.0" height="15.0" fill="rgb(234,133,31)" rx="2" ry="2" />
+        <text  x="1005.25" y="255.5" ></text>
+        </g>
+        <g >
+        <title>mmap_region (44,629,610 samples, 0.12%)</title><rect x="11.0" y="85" width="1.5" height="15.0" fill="rgb(231,121,28)" rx="2" ry="2" />
+        <text  x="14.02" y="95.5" ></text>
+        </g>
+        <g >
+        <title>entry_SYSCALL_64_after_hwframe (44,629,610 samples, 0.12%)</title><rect x="11.0" y="293" width="1.5" height="15.0" fill="rgb(218,63,15)" rx="2" ry="2" />
+        <text  x="14.02" y="303.5" ></text>
+        </g>
+        <g >
+        <title>SphSolver::calcViscousForce (31,131,038 samples, 0.09%)</title><rect x="205.7" y="261" width="1.0" height="15.0" fill="rgb(247,196,46)" rx="2" ry="2" />
+        <text  x="208.69" y="271.5" ></text>
+        </g>
+        <g >
+        <title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_dispose (31,141,062 samples, 0.09%)</title><rect x="1179.8" y="245" width="1.0" height="15.0" fill="rgb(251,215,51)" rx="2" ry="2" />
+        <text  x="1182.80" y="255.5" ></text>
+        </g>
+        <g >
+        <title>std::abs (123,871,292 samples, 0.35%)</title><rect x="1180.8" y="261" width="4.1" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+        <text  x="1183.83" y="271.5" ></text>
+        </g>
+        <g >
+        <title>SphSolver::timeIntegration (35,678,524,841 samples, 99.53%)</title><rect x="13.5" y="277" width="1174.5" height="15.0" fill="rgb(228,109,26)" rx="2" ry="2" />
+        <text  x="16.51" y="287.5" >SphSolver::timeIntegration</text>
+        </g>
+        <g >
+        <title>std::abs (308,597,352 samples, 0.86%)</title><rect x="195.5" y="245" width="10.2" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+        <text  x="198.53" y="255.5" ></text>
+        </g>
+        <g >
+        <title>__mcount_internal (342,219,075 samples, 0.95%)</title><rect x="976.6" y="229" width="11.2" height="15.0" fill="rgb(234,133,31)" rx="2" ry="2" />
+        <text  x="979.56" y="239.5" ></text>
+        </g>
+        <g >
+        <title>virtual thunk to std::basic_ofstream&lt;char, std::char_traits&lt;char&gt; &gt;::~basic_ofstream (30,967,891 samples, 0.09%)</title><rect x="12.5" y="293" width="1.0" height="15.0" fill="rgb(215,50,12)" rx="2" ry="2" />
+        <text  x="15.49" y="303.5" ></text>
+        </g>
+        <g >
+        <title>particles::getDistanceQ (1,940,669,927 samples, 5.41%)</title><rect x="900.5" y="229" width="63.9" height="15.0" fill="rgb(238,152,36)" rx="2" ry="2" />
+        <text  x="903.47" y="239.5" >particl..</text>
+        </g>
+        <g >
+        <title>Fluid::getDensity (31,013,203 samples, 0.09%)</title><rect x="253.6" y="229" width="1.0" height="15.0" fill="rgb(212,35,8)" rx="2" ry="2" />
+        <text  x="256.57" y="239.5" ></text>
+        </g>
+        <g >
+        <title>kmem_cache_alloc_bulk (44,629,610 samples, 0.12%)</title><rect x="11.0" y="37" width="1.5" height="15.0" fill="rgb(234,135,32)" rx="2" ry="2" />
+        <text  x="14.02" y="47.5" ></text>
+        </g>
+        <g >
+        <title>SphSolver::velocityIntegration (154,501,743 samples, 0.43%)</title><rect x="971.5" y="229" width="5.1" height="15.0" fill="rgb(234,137,32)" rx="2" ry="2" />
+        <text  x="974.48" y="239.5" ></text>
+        </g>
+        <g >
+        <title>__GI___printf_fp_l (30,991,949 samples, 0.09%)</title><rect x="10.0" y="277" width="1.0" height="15.0" fill="rgb(250,208,49)" rx="2" ry="2" />
+        <text  x="13.00" y="287.5" ></text>
+        </g>
+        <g >
+        <title>bprm_execve (44,629,610 samples, 0.12%)</title><rect x="11.0" y="229" width="1.5" height="15.0" fill="rgb(218,61,14)" rx="2" ry="2" />
+        <text  x="14.02" y="239.5" ></text>
+        </g>
+        <g >
+        <title>particles::calculateParticleDistance (31,034,797 samples, 0.09%)</title><rect x="1188.0" y="277" width="1.0" height="15.0" fill="rgb(246,189,45)" rx="2" ry="2" />
+        <text  x="1190.96" y="287.5" ></text>
+        </g>
+        <g >
+        <title>SphSolver::calculatePressureForce (11,107,941,972 samples, 30.99%)</title><rect x="600.7" y="245" width="365.7" height="15.0" fill="rgb(211,30,7)" rx="2" ry="2" />
+        <text  x="603.75" y="255.5" >SphSolver::calculatePressureForce</text>
+        </g>
+        <g >
+        <title>particles::operator (216,216,820 samples, 0.60%)</title><rect x="246.5" y="229" width="7.1" height="15.0" fill="rgb(208,16,3)" rx="2" ry="2" />
+        <text  x="249.45" y="239.5" ></text>
+        </g>
+        <g >
+        <title>__sqrt (154,507,874 samples, 0.43%)</title><rect x="1097.6" y="261" width="5.1" height="15.0" fill="rgb(227,103,24)" rx="2" ry="2" />
+        <text  x="1100.65" y="271.5" ></text>
+        </g>
+        <g >
+        <title>asm_sysvec_apic_timer_interrupt (31,021,540 samples, 0.09%)</title><rect x="1171.6" y="245" width="1.1" height="15.0" fill="rgb(232,127,30)" rx="2" ry="2" />
+        <text  x="1174.64" y="255.5" ></text>
+        </g>
+        <g >
+        <title>_mcount (685,661,482 samples, 1.91%)</title><rect x="173.0" y="245" width="22.5" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+        <text  x="175.96" y="255.5" >_..</text>
+        </g>
+        <g >
+        <title>_mcount (123,868,454 samples, 0.35%)</title><rect x="1006.3" y="245" width="4.1" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+        <text  x="1009.32" y="255.5" ></text>
+        </g>
+        <g >
+        <title>do_mmap (44,629,610 samples, 0.12%)</title><rect x="11.0" y="101" width="1.5" height="15.0" fill="rgb(228,107,25)" rx="2" ry="2" />
+        <text  x="14.02" y="111.5" ></text>
+        </g>
+        <g >
+        <title>__mcount_internal (433,379,738 samples, 1.21%)</title><rect x="222.0" y="229" width="14.3" height="15.0" fill="rgb(234,133,31)" rx="2" ry="2" />
+        <text  x="224.99" y="239.5" ></text>
+        </g>
+        <g >
+        <title>__mcount_internal (4,171,440,110 samples, 11.64%)</title><rect x="687.9" y="229" width="137.3" height="15.0" fill="rgb(234,133,31)" rx="2" ry="2" />
+        <text  x="690.86" y="239.5" >__mcount_internal</text>
+        </g>
+        <g >
+        <title>SPH_SOLVER (35,847,114,253 samples, 100.00%)</title><rect x="10.0" y="325" width="1180.0" height="15.0" fill="rgb(213,38,9)" rx="2" ry="2" />
+        <text  x="13.00" y="335.5" >SPH_SOLVER</text>
+        </g>
+        <g >
+        <title>SphSolver::calculatePressureForce (62,022,654 samples, 0.17%)</title><rect x="206.7" y="261" width="2.1" height="15.0" fill="rgb(211,30,7)" rx="2" ry="2" />
+        <text  x="209.72" y="271.5" ></text>
+        </g>
+        <g >
+        <title>load_elf_binary (44,629,610 samples, 0.12%)</title><rect x="11.0" y="165" width="1.5" height="15.0" fill="rgb(223,83,20)" rx="2" ry="2" />
+        <text  x="14.02" y="175.5" ></text>
+        </g>
+        <g >
+        <title>_mcount (309,931,496 samples, 0.86%)</title><rect x="236.3" y="229" width="10.2" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+        <text  x="239.25" y="239.5" ></text>
+        </g>
+        <g >
+        <title>__mcount_internal (30,979,503 samples, 0.09%)</title><rect x="1178.8" y="197" width="1.0" height="15.0" fill="rgb(234,133,31)" rx="2" ry="2" />
+        <text  x="1181.78" y="207.5" ></text>
+        </g>
+        <g >
+        <title>mas_alloc_nodes (44,629,610 samples, 0.12%)</title><rect x="11.0" y="53" width="1.5" height="15.0" fill="rgb(215,46,11)" rx="2" ry="2" />
+        <text  x="14.02" y="63.5" ></text>
+        </g>
+        <g >
+        <title>sqrt@plt (154,808,070 samples, 0.43%)</title><rect x="1172.7" y="261" width="5.1" height="15.0" fill="rgb(220,73,17)" rx="2" ry="2" />
+        <text  x="1175.67" y="271.5" ></text>
+        </g>
+        <g >
+        <title>elf_map (44,629,610 samples, 0.12%)</title><rect x="11.0" y="149" width="1.5" height="15.0" fill="rgb(236,145,34)" rx="2" ry="2" />
+        <text  x="14.02" y="159.5" ></text>
+        </g>
+        <g >
+        <title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_S_copy_chars (30,979,503 samples, 0.09%)</title><rect x="1178.8" y="229" width="1.0" height="15.0" fill="rgb(223,85,20)" rx="2" ry="2" />
+        <text  x="1181.78" y="239.5" ></text>
+        </g>
+        <g >
+        <title>do_syscall_64 (44,629,610 samples, 0.12%)</title><rect x="11.0" y="277" width="1.5" height="15.0" fill="rgb(209,20,4)" rx="2" ry="2" />
+        <text  x="14.02" y="287.5" ></text>
+        </g>
+        <g >
+        <title>Fluid::getPotentialEnergy (61,891,063 samples, 0.17%)</title><rect x="1185.9" y="245" width="2.1" height="15.0" fill="rgb(226,100,23)" rx="2" ry="2" />
+        <text  x="1188.92" y="255.5" ></text>
+        </g>
+        <g >
+        <title>__x64_sys_execve (44,629,610 samples, 0.12%)</title><rect x="11.0" y="261" width="1.5" height="15.0" fill="rgb(247,193,46)" rx="2" ry="2" />
+        <text  x="14.02" y="271.5" ></text>
+        </g>
+        <g >
+        <title>SphSolver::updatePosition (1,058,632,399 samples, 2.95%)</title><rect x="966.4" y="245" width="34.8" height="15.0" fill="rgb(216,53,12)" rx="2" ry="2" />
+        <text  x="969.39" y="255.5" >Sp..</text>
+        </g>
+        <g >
+        <title>void std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_construct&lt;char const*&gt; (30,979,503 samples, 0.09%)</title><rect x="1178.8" y="245" width="1.0" height="15.0" fill="rgb(254,226,54)" rx="2" ry="2" />
+        <text  x="1181.78" y="255.5" ></text>
+        </g>
+        <g >
+        <title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::~basic_string (31,141,062 samples, 0.09%)</title><rect x="1179.8" y="261" width="1.0" height="15.0" fill="rgb(248,201,48)" rx="2" ry="2" />
+        <text  x="1182.80" y="271.5" ></text>
+        </g>
+        <g >
+        <title>Fluid::getKineticEnergy (30,776,389 samples, 0.09%)</title><rect x="1184.9" y="245" width="1.0" height="15.0" fill="rgb(231,123,29)" rx="2" ry="2" />
+        <text  x="1187.91" y="255.5" ></text>
+        </g>
+        <g >
+        <title>[unknown] (106,589,450 samples, 0.30%)</title><rect x="10.0" y="309" width="3.5" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
+        <text  x="13.00" y="319.5" ></text>
+        </g>
+        <g >
+        <title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_S_copy (30,979,503 samples, 0.09%)</title><rect x="1178.8" y="213" width="1.0" height="15.0" fill="rgb(254,227,54)" rx="2" ry="2" />
+        <text  x="1181.78" y="223.5" ></text>
+        </g>
+        <g >
+        <title>vm_mmap_pgoff (44,629,610 samples, 0.12%)</title><rect x="11.0" y="117" width="1.5" height="15.0" fill="rgb(237,150,35)" rx="2" ry="2" />
+        <text  x="14.02" y="127.5" ></text>
+        </g>
+        <g >
+        <title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::basic_string&lt;std::allocator&lt;char&gt; &gt; (61,998,964 samples, 0.17%)</title><rect x="1177.8" y="261" width="2.0" height="15.0" fill="rgb(209,22,5)" rx="2" ry="2" />
+        <text  x="1180.76" y="271.5" ></text>
+        </g>
+        <g >
+        <title>particles::operator (191,039,703 samples, 0.53%)</title><rect x="995.0" y="229" width="6.2" height="15.0" fill="rgb(208,16,3)" rx="2" ry="2" />
+        <text  x="997.95" y="239.5" ></text>
+        </g>
+        <g >
+        <title>std::ostream&amp; std::ostream::_M_insert&lt;double&gt; (30,967,891 samples, 0.09%)</title><rect x="12.5" y="261" width="1.0" height="15.0" fill="rgb(244,180,43)" rx="2" ry="2" />
+        <text  x="15.49" y="271.5" ></text>
+        </g>
+        <g >
+        <title>Fluid::getPressure (61,131,371 samples, 0.17%)</title><rect x="213.9" y="245" width="2.0" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+        <text  x="216.86" y="255.5" ></text>
+        </g>
+        <g >
+        <title>particles::operator (278,520,487 samples, 0.78%)</title><rect x="1088.5" y="245" width="9.1" height="15.0" fill="rgb(208,16,3)" rx="2" ry="2" />
+        <text  x="1091.48" y="255.5" ></text>
+        </g>
+        <g >
+        <title>__mcount_internal (3,492,817,491 samples, 9.74%)</title><rect x="347.2" y="229" width="115.0" height="15.0" fill="rgb(234,133,31)" rx="2" ry="2" />
+        <text  x="350.20" y="239.5" >__mcount_inter..</text>
+        </g>
+        <g >
+        <title>_mcount (216,332,229 samples, 0.60%)</title><rect x="987.8" y="229" width="7.2" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+        <text  x="990.83" y="239.5" ></text>
+        </g>
+        <g >
+        <title>SphSolver::boundaries (1,052,418,965 samples, 2.94%)</title><rect x="218.9" y="245" width="34.7" height="15.0" fill="rgb(231,121,29)" rx="2" ry="2" />
+        <text  x="221.93" y="255.5" >Sp..</text>
+        </g>
+        <g >
+        <title>vm_mmap (44,629,610 samples, 0.12%)</title><rect x="11.0" y="133" width="1.5" height="15.0" fill="rgb(225,92,22)" rx="2" ry="2" />
+        <text  x="14.02" y="143.5" ></text>
+        </g>
+        <g >
+        <title>mas_preallocate (44,629,610 samples, 0.12%)</title><rect x="11.0" y="69" width="1.5" height="15.0" fill="rgb(206,8,2)" rx="2" ry="2" />
+        <text  x="14.02" y="79.5" ></text>
+        </g>
+        <g >
+        <title>do_execveat_common.isra.0 (44,629,610 samples, 0.12%)</title><rect x="11.0" y="245" width="1.5" height="15.0" fill="rgb(231,123,29)" rx="2" ry="2" />
+        <text  x="14.02" y="255.5" ></text>
+        </g>
+        <g >
+        <title>particles::calculateParticleDistance (1,907,682,741 samples, 5.32%)</title><rect x="1109.9" y="261" width="62.8" height="15.0" fill="rgb(246,189,45)" rx="2" ry="2" />
+        <text  x="1112.87" y="271.5" >partic..</text>
+        </g>
+        <g >
+        <title>__do_softirq (31,021,540 samples, 0.09%)</title><rect x="1171.6" y="181" width="1.1" height="15.0" fill="rgb(246,191,45)" rx="2" ry="2" />
+        <text  x="1174.64" y="191.5" ></text>
+        </g>
+        <g >
+        <title>main (35,709,559,638 samples, 99.62%)</title><rect x="13.5" y="293" width="1175.5" height="15.0" fill="rgb(243,179,42)" rx="2" ry="2" />
+        <text  x="16.51" y="303.5" >main</text>
+        </g>
+        <g >
+        <title>irq_exit_rcu (31,021,540 samples, 0.09%)</title><rect x="1171.6" y="213" width="1.1" height="15.0" fill="rgb(254,227,54)" rx="2" ry="2" />
+        <text  x="1174.64" y="223.5" ></text>
+        </g>
+        <g >
+        <title>__sqrt_finite@GLIBC_2.15 (216,731,579 samples, 0.60%)</title><rect x="1102.7" y="261" width="7.2" height="15.0" fill="rgb(249,204,48)" rx="2" ry="2" />
+        <text  x="1105.74" y="271.5" ></text>
+        </g>
+        <g >
+        <title>particles::operator (61,973,385 samples, 0.17%)</title><rect x="964.4" y="229" width="2.0" height="15.0" fill="rgb(208,16,3)" rx="2" ry="2" />
+        <text  x="967.35" y="239.5" ></text>
+        </g>
+        <g >
+        <title>SphSolver::calcGravityForce (61,590,210 samples, 0.17%)</title><rect x="253.6" y="245" width="2.0" height="15.0" fill="rgb(236,144,34)" rx="2" ry="2" />
+        <text  x="256.57" y="255.5" ></text>
+        </g>
+        <g >
+        <title>Fluid::getDensity (92,950,693 samples, 0.26%)</title><rect x="210.8" y="245" width="3.1" height="15.0" fill="rgb(212,35,8)" rx="2" ry="2" />
+        <text  x="213.80" y="255.5" ></text>
+        </g>
+        <g >
+        <title>__vfprintf_internal (30,991,949 samples, 0.09%)</title><rect x="10.0" y="293" width="1.0" height="15.0" fill="rgb(232,125,30)" rx="2" ry="2" />
+        <text  x="13.00" y="303.5" ></text>
+        </g>
+        <g >
+        <title>_mcount (2,910,651,862 samples, 8.12%)</title><rect x="462.2" y="229" width="95.8" height="15.0" fill="rgb(223,84,20)" rx="2" ry="2" />
+        <text  x="465.17" y="239.5" >_mcount</text>
+        </g>
+        <g >
+        <title>Fluid::getMass (30,953,748 samples, 0.09%)</title><rect x="346.2" y="229" width="1.0" height="15.0" fill="rgb(207,10,2)" rx="2" ry="2" />
+        <text  x="349.18" y="239.5" ></text>
+        </g>
+        <g >
+        <title>__mcount_internal (30,775,160 samples, 0.09%)</title><rect x="975.6" y="213" width="1.0" height="15.0" fill="rgb(234,133,31)" rx="2" ry="2" />
+        <text  x="978.55" y="223.5" ></text>
+        </g>
+        <g >
+        <title>Fluid::getPressure (30,261,846 samples, 0.08%)</title><rect x="686.9" y="229" width="1.0" height="15.0" fill="rgb(230,119,28)" rx="2" ry="2" />
+        <text  x="689.86" y="239.5" ></text>
+        </g>
+        <g >
+        <title>std::__cxx11::basic_string&lt;char, std::char_traits&lt;char&gt;, std::allocator&lt;char&gt; &gt;::_M_local_data (31,141,062 samples, 0.09%)</title><rect x="1179.8" y="213" width="1.0" height="15.0" fill="rgb(214,42,10)" rx="2" ry="2" />
+        <text  x="1182.80" y="223.5" ></text>
+        </g>
+        <g >
+        <title>Fluid::calculateDensity (5,838,330,636 samples, 16.29%)</title><rect x="13.5" y="261" width="192.2" height="15.0" fill="rgb(244,182,43)" rx="2" ry="2" />
+        <text  x="16.51" y="271.5" >Fluid::calculateDensity</text>
+        </g>
+        <g >
+        <title>exec_binprm (44,629,610 samples, 0.12%)</title><rect x="11.0" y="197" width="1.5" height="15.0" fill="rgb(244,180,43)" rx="2" ry="2" />
+        <text  x="14.02" y="207.5" ></text>
+        </g>
+        <g >
+        <title>[unknown] (30,967,891 samples, 0.09%)</title><rect x="12.5" y="277" width="1.0" height="15.0" fill="rgb(210,24,5)" rx="2" ry="2" />
+        <text  x="15.49" y="287.5" ></text>
+        </g>
+        <g >
+        <title>std::locale::facet::_S_get_c_locale (30,967,891 samples, 0.09%)</title><rect x="12.5" y="245" width="1.0" height="15.0" fill="rgb(240,165,39)" rx="2" ry="2" />
+        <text  x="15.49" y="255.5" ></text>
+        </g>
+        <g >
+        <title>Fluid::getRadInfl (92,828,626 samples, 0.26%)</title><rect x="215.9" y="245" width="3.0" height="15.0" fill="rgb(226,96,23)" rx="2" ry="2" />
+        <text  x="218.87" y="255.5" ></text>
+        </g>
+        <g >
+        <title>particles::getDistanceQ (2,372,216,014 samples, 6.62%)</title><rect x="1010.4" y="245" width="78.1" height="15.0" fill="rgb(238,152,36)" rx="2" ry="2" />
+        <text  x="1013.39" y="255.5" >particles..</text>
+        </g>
+        <g >
+        <title>bprm_execve.part.0 (44,629,610 samples, 0.12%)</title><rect x="11.0" y="213" width="1.5" height="15.0" fill="rgb(228,106,25)" rx="2" ry="2" />
+        <text  x="14.02" y="223.5" ></text>
+        </g>
+        <g >
+        <title>Fluid::getDensity (30,830,004 samples, 0.09%)</title><rect x="970.5" y="229" width="1.0" height="15.0" fill="rgb(212,35,8)" rx="2" ry="2" />
+        <text  x="973.46" y="239.5" ></text>
+        </g>
+        <g >
+        <title>__vsnprintf_internal (30,965,165 samples, 0.09%)</title><rect x="1189.0" y="309" width="1.0" height="15.0" fill="rgb(237,150,35)" rx="2" ry="2" />
+        <text  x="1191.98" y="319.5" ></text>
+        </g>
+        <g >
+        <title>sysvec_apic_timer_interrupt (31,021,540 samples, 0.09%)</title><rect x="1171.6" y="229" width="1.1" height="15.0" fill="rgb(220,69,16)" rx="2" ry="2" />
+        <text  x="1174.64" y="239.5" ></text>
+        </g>
+        <g >
+        <title>__mcount_internal (1,206,668,796 samples, 3.37%)</title><rect x="133.2" y="245" width="39.8" height="15.0" fill="rgb(234,133,31)" rx="2" ry="2" />
+        <text  x="136.24" y="255.5" >__m..</text>
+        </g>
+        <g >
+        <title>__mcount_internal (31,141,062 samples, 0.09%)</title><rect x="1179.8" y="197" width="1.0" height="15.0" fill="rgb(234,133,31)" rx="2" ry="2" />
+        <text  x="1182.80" y="207.5" ></text>
+        </g>
+        <g >
+        <title>__irq_exit_rcu (31,021,540 samples, 0.09%)</title><rect x="1171.6" y="197" width="1.1" height="15.0" fill="rgb(227,101,24)" rx="2" ry="2" />
+        <text  x="1174.64" y="207.5" ></text>
+        </g>
+        </g>
+        </svg>
+        @flamegraph_ic_droplet_100.svg
+        ```
+        </details> 
+
+
