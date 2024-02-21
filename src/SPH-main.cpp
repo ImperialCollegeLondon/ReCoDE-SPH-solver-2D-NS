@@ -66,7 +66,7 @@ void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
       "length", po::value<double>(), "take length of the block")(
       "width", po::value<double>(), "take width of the block")(
       "radius", po::value<double>(), "take radius of the droplet")(
-      "n", po::value<unsigned int>(), "take number of particles")(
+      "n", po::value<int>(), "take number of particles")(
       "center_x", po::value<double>(), "take center of the particle mass in x")(
       "center_y", po::value<double>(), "take center of the particle mass in y")(
       "init_x_1", po::value<double>(), "take x_1")(
