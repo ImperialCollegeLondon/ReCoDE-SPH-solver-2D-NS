@@ -63,7 +63,8 @@ class SphSolver {
   }
 
   // Getter Functions
-  std::vector<std::vector<std::pair<int, double>>> getNeighbourParticles();
+  const std::vector<std::vector<std::pair<int, double>>>
+      &getNeighbourParticles() const;
 
   // Neighbour search functions
 
@@ -112,6 +113,9 @@ class SphSolver {
 
  private:
   constexpr static double initialTimestep = 1e-4;
+  constexpr static int maxNeighbourCells = 8;
+  constexpr static double memoryReservationFactor = 1.1;
+  constexpr static double forceGravityX = 0.0;
 
   int numberOfParticles;
   std::vector<std::vector<std::pair<int, double>>> neighbourParticles;
@@ -154,11 +158,6 @@ class SphSolver {
   double forcePressureX, forcePressureY;
   double forceViscousX, forceViscousY;
   double forceGravityY;
-  double forceGravityX = 0.0;
-
-  const int MAX_NEIGHBOUR_CELLS = 8;
-
-  double memoryReservationFactor = 1.1;
 
   // Adaptive timestep related variables
   double maxVelocity = 0.0;      // maximum velocity

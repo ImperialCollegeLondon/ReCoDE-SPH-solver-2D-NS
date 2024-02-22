@@ -1,7 +1,7 @@
 #include "fluid.h"
 
-#include <numeric>
 #include <iostream>
+#include <numeric>
 
 // User defined constructor
 Fluid::Fluid(const unsigned nNew)
@@ -9,7 +9,7 @@ Fluid::Fluid(const unsigned nNew)
 
 // Calculation functions
 void Fluid::calculateMass(
-    std::vector<std::vector<std::pair<int, double>>> neighbours) {
+    const std::vector<std::vector<std::pair<int, double>>>& neighbours) {
   calculateDensity(neighbours);
   double sumDensity = std::accumulate(density.begin(), density.end(), 0.0);
 
@@ -17,17 +17,16 @@ void Fluid::calculateMass(
 }
 
 void Fluid::calculateDensity(
-    std::vector<std::vector<std::pair<int, double>>> neighbours) {
+    const std::vector<std::vector<std::pair<int, double>>>& neighbours) {
   double phi, normalisedDistance, normalisedDistanceSqr;
   // find φ
   for (size_t i = 0; i < nbParticles; i++) {
-
-  density[i] = mass * fourPih2;
+    density[i] = mass * fourPih2;
     for (size_t j = 0; j < neighbours[i].size(); j++) {
       normalisedDistance = neighbours[i][j].second * hInverse;
       normalisedDistanceSqr = (1.0 - normalisedDistance * normalisedDistance);
       phi = fourPih2 * normalisedDistanceSqr * normalisedDistanceSqr *
-              normalisedDistanceSqr;
+            normalisedDistanceSqr;
       density[i] += mass * phi;
     }
   }

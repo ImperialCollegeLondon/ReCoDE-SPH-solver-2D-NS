@@ -41,28 +41,30 @@ void icBlockDrop(std::unique_ptr<Fluid> &fluidPtr, unsigned int nbParticles,
   // Starting position in x
   double positionX = centerX - length / 2.0;
   double positionY;
-  int kx, ky;  // indices
+  size_t particleIndex;  // indices
 
   // Assign the values in x for all particles
-  for (int i = 0; i < n1; i++) {
-    for (int j = 0; j < n2; j++) {
-      kx = i * n2 + j;
+  for (size_t i = 0; i < n1; i++) {
+    for (size_t j = 0; j < n2; j++) {
+      particleIndex = i * n2 + j;
 
-      fluidPtr->setPositionX(kx,
-                             positionX + double(rand()) / RAND_MAX / 100000);
-      fluidPtr->setVelocityX(kx, 0.0);
+      fluidPtr->setPositionX(
+          particleIndex,
+          positionX + static_cast<double>(rand()) / RAND_MAX / 100000.0);
+      fluidPtr->setVelocityX(particleIndex, 0.0);
     }
     positionX += dx;
   }
 
   // Assign the values in y for all particles
-  for (int i = 0; i < n1; i++) {
+  for (size_t i = 0; i < n1; i++) {
     positionY = centerY - width / 2.0;
-    for (int j = 0; j < n2; j++) {
-      ky = i * n2 + j;
-      fluidPtr->setPositionY(ky,
-                             positionY + double(rand()) / RAND_MAX / 100000);
-      fluidPtr->setVelocityY(ky, 0.0);
+    for (size_t j = 0; j < n2; j++) {
+      particleIndex = i * n2 + j;
+      fluidPtr->setPositionY(
+          particleIndex,
+          positionY + static_cast<double>(rand()) / RAND_MAX / 100000.0);
+      fluidPtr->setVelocityY(particleIndex, 0.0);
       positionY += dy;
     }
   }
@@ -78,18 +80,18 @@ void icDroplet(std::unique_ptr<Fluid> &fluidPtr, unsigned int nbParticles,
 
   unsigned int el = std::sqrt(nbParticles);
 
-  int kx;
-
   // For uniform distribution the step in y has to be equal to the step in x
   double step = 2 * radius / (el - 1);
   double positionX = centerX - radius;  // Starting position in x
   double positionY;
+  size_t positionIndex;
 
   for (size_t i = 0; i < el; i++) {
     positionY = centerY - radius;
     for (size_t j = 0; j < el; j++) {
-      positionXStore[i * el + j] = positionX;
-      positionYStore[i * el + j] = positionY;
+      positionIndex = i * el + j;
+      positionXStore[positionIndex] = positionX;
+      positionYStore[positionIndex] = positionY;
       positionY += step;
     }
     positionX += step;
@@ -97,11 +99,12 @@ void icDroplet(std::unique_ptr<Fluid> &fluidPtr, unsigned int nbParticles,
   // After the initial square is created, the number of particles that are in
   // that square and from a distance from the centre less or equal to the radius
   // of the circle is calculated
-  unsigned int count = 0;
+  size_t count = 0;
   for (size_t i = 0; i < el; i++) {
     for (size_t j = 0; j < el; j++) {
-      if (std::hypot(positionYStore[i * el + j] - centerY,
-                     positionXStore[i * el + j] - centerX) <= radius) {
+      positionIndex = i * el + j;
+      if (std::hypot(positionYStore[positionIndex] - centerY,
+                     positionXStore[positionIndex] - centerX) <= radius) {
         count++;
       }
     }
@@ -111,18 +114,21 @@ void icDroplet(std::unique_ptr<Fluid> &fluidPtr, unsigned int nbParticles,
 
   fluidPtr = std::make_unique<Fluid>(nbParticles);
 
-  kx = 0;
+  size_t particleIndex = 0;
   for (size_t i = 0; i < el; i++) {
     for (size_t j = 0; j < el; j++) {
-      if (std::hypot(positionYStore[i * el + j] - centerY,
-                     positionXStore[i * el + j] - centerX) <= radius) {
-        fluidPtr->setPositionX(kx, positionXStore[i * el + j] +
-                                       double(rand()) / RAND_MAX / 100000);
-        fluidPtr->setPositionY(kx, positionYStore[i * el + j] +
-                                       double(rand()) / RAND_MAX / 100000);
-        fluidPtr->setVelocityX(kx, 0.0);
-        fluidPtr->setVelocityY(kx, 0.0);
-        kx++;
+      positionIndex = i * el + j;
+      if (std::hypot(positionYStore[positionIndex] - centerY,
+                     positionXStore[positionIndex] - centerX) <= radius) {
+        fluidPtr->setPositionX(particleIndex, positionXStore[positionIndex] +
+                                                  static_cast<double>(rand()) /
+                                                      RAND_MAX / 100000.0);
+        fluidPtr->setPositionY(particleIndex, positionYStore[positionIndex] +
+                                                  static_cast<double>(rand()) /
+                                                      RAND_MAX / 100000.0);
+        fluidPtr->setVelocityX(particleIndex, 0.0);
+        fluidPtr->setVelocityY(particleIndex, 0.0);
+        particleIndex++;
       }
     }
   }

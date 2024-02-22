@@ -88,11 +88,11 @@ class Fluid : public particles {
   // Function to calculate the mass of the particles before the simulation
   // starts
   void calculateMass(
-      std::vector<std::vector<std::pair<int, double>>> neighboursList);
+      const std::vector<std::vector<std::pair<int, double>>>& neighbours);
 
   // Function to calculate the density
   void calculateDensity(
-      std::vector<std::vector<std::pair<int, double>>> neighboursList);
+      const std::vector<std::vector<std::pair<int, double>>>& neighbours);
 
   // Function to calculate the pressure
   void calculatePressure();
