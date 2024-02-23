@@ -254,8 +254,22 @@ double SphSolver::calculatePressureForce(Fluid &data,
   for (size_t j = 0; j < neighbourParticles[particleIndex].size(); j++) {
     neighbourIndex = neighbourParticles[particleIndex][j].first;
     if (particleIndex != neighbourIndex) {
-      normalisedDistance =
-          neighbourParticles[particleIndex][j].second / radiusOfInfluence;
+      try {
+        normalisedDistance =
+            neighbourParticles[particleIndex][j].second / radiusOfInfluence;
+        // Throw an exception if a singularity is about to appear
+        if (normalisedDistance == 0.0) {
+          throw std::runtime_error(
+              "A singularity appeared. Consider reducing the number of "
+              "particles or increasing the initial distance between the "
+              "particles.");
+        }
+      } catch (std::runtime_error &e) {
+        // Handle the exception by printing the error message and exiting the
+        // program
+        std::cerr << e.what() << std::endl;
+        exit(1);
+      }
 
       sum += (mass / data.getDensity(neighbourIndex)) *
              ((pressure + data.getPressure(neighbourIndex)) / 2.0) *
