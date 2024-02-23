@@ -152,9 +152,8 @@ void SphSolver::neighbourParticlesSearch(Fluid &data) {
 }
 
 void SphSolver::placeParticlesInCells(Fluid &data) {
-  int currentCellSize;
   for (size_t i = 0; i < numberOfCells; i++) {
-    currentCellSize = cells[i].size();
+    int currentCellSize = cells[i].size();
     cells[i].clear();
     cells[i].reserve(
         static_cast<int>(memoryReservationFactor * currentCellSize));

@@ -52,18 +52,18 @@ The first step of the algorithm is to turn the domain to a grid, by splitting it
 /* **************************** sph_solver.cpp **************************** */
 
 void SphSolver::assignNeighbourCells(int cellsRows, int cellsCols) {
-  // Each cell could have at most 8 neighbours (and most of them do), so reserve the memory
-  for (int i = 0; i < numberOfCells; i++) {
-    neighbourCells[i].reserve(MAX_NEIGHBOUR_CELLS);
-  }
-  // Flags to check if the cell is on the edge or in the middle
+  // Each cell could have at most 8 neighbours (and most of them do), so reserve
+  // the memory
+  std::for_each(std::execution::par, neighbourCells.begin(),
+                neighbourCells.end(),
+                [this](auto &&cell) { cell.reserve(this->maxNeighbourCells); });
+  // Flags to check if the cell is on the edge or not
   bool top = false;
   bool left = false;
   bool right = false;
   bool bottom = false;
-  bool middle = false;
 
-  for (int i = 0; i < numberOfCells; i++) {
+  for (size_t i = 0; i < numberOfCells; i++) {
     // Cell has a bottom neighbour
     if (i >= cellsCols) {
       neighbourCells[i].push_back(i - cellsCols);
@@ -76,26 +76,25 @@ void SphSolver::assignNeighbourCells(int cellsRows, int cellsCols) {
       neighbourCells[i].push_back(i - 1 + cellsCols);
       neighbourCells[i].push_back(i + 1 - cellsCols);
       neighbourCells[i].push_back(i + 1 + cellsCols);
-      middle = true;
-    }
-    // If the cell is on the edge, add only specific neighbours
-    if (!middle) {
+      // If the cell is on the edge, add only specific neighbours
+    } else {
       // Add bottom-left diagonal neighbour
       if (bottom && left) {
         neighbourCells[i].push_back(i - 1 - cellsCols);
       }
-    ...
+      // Add bottom-right diagonal neighbour
+      if (bottom && right) {
+      ...
     }
     // Reset the flags
     top = false;
     left = false;
     right = false;
     bottom = false;
-    middle = false;
   }
 }
 ```
-The next step of the algorithm is to assign to each cell all its neighbouring cells. This logic is implemented in the `SphSolver::assignNeighbourCells()` function. Depending on its position in the grid (middle, edge, corner) a cell could have 8, 5, or 3 neighbouring cells accordingly. Note that, since we know this information, we start with reserving the required memory for each cell vector, so that the following `push_backs` do not need to spend time re-allocating memory for the vector and copying the elements to the new memory. In this function, while we iterate over all cells, we use several flags (`top`, `left`, `right`, `bottom`, `middle`), combined with several rules, to find each cell's neighbouring cells. For instance, all cell indices `>=` than the number of cell columns, denote that the cell iterator has passed the first (lowest) row of the grid, a fact that means that the current cell has a "bottom neighbour", and therefore, in the `neighbourCells` container, we add the index of the "bottom cell" (`push_back(i - cellsCols)`) to the current cell's inner vector (`neighbourCells[i]`), and set `bottom` to `true`. Following similar rules, we identify each cell's position and assign the right neigbhouring cells to it, including the diagonal neighbours. Finally, we reset the flags and move to the next cell.
+The next step of the algorithm is to assign to each cell all its neighbouring cells. This logic is implemented in the `SphSolver::assignNeighbourCells()` function. Depending on its position in the grid (middle, edge, corner) a cell could have 8, 5, or 3 neighbouring cells accordingly. Note that, since we know this information, we start with reserving the required memory for each cell vector, so that the following `push_backs` do not need to spend time re-allocating memory for the vector and copying the elements to the new memory. In this function, while we iterate over all cells, we use several flags (`top`, `left`, `right`, `bottom`), combined with several rules, to find each cell's neighbouring cells. For instance, all cell indices `>=` than the number of cell columns, denote that the cell iterator has passed the first (lowest) row of the grid, a fact that means that the current cell has a "bottom neighbour", and therefore, in the `neighbourCells` container, we add the index of the "bottom cell" (`push_back(i - cellsCols)`) to the current cell's inner vector (`neighbourCells[i]`), and set `bottom` to `true`. Following similar rules, we identify each cell's position and assign the right neigbhouring cells to it, including the diagonal neighbours. Finally, we reset the flags and move to the next cell.
 
 Up to this point, the algorithm's steps included logic that does not change during the time integration procedure, and therefore, the aformentioned functions are only used during initialisation (called at the end of `initialise()` in `SPH-main.cpp`). However, the next steps are steps that need to be followed in each iteration, as the particles' positions change.
 
@@ -103,17 +102,18 @@ Up to this point, the algorithm's steps included logic that does not change duri
 /* **************************** sph_solver.cpp **************************** */
 
 void SphSolver::placeParticlesInCells(Fluid &data) {
-  int currentCellSize;
-  for (int i = 0; i < numberOfCells; i++) {
-    currentCellSize = cells[i].size();
+
+  for (size_t i = 0; i < numberOfCells; i++) {
+    int currentCellSize = cells[i].size();
     cells[i].clear();
-    cells[i].reserve(static_cast<int>(memoryReservationFactor * currentCellSize));
+    cells[i].reserve(
+        static_cast<int>(memoryReservationFactor * currentCellSize));
   }
 
   double radiusOfInfluence = data.getRadInfl();
   int cellsCols =
       static_cast<int>(std::ceil((rightWall - leftWall) / radiusOfInfluence));
-  for (int i = 0; i < numberOfParticles; i++) {
+  for (size_t i = 0; i < numberOfParticles; i++) {
     double positionX = data.getPositionX(i);
     double positionY = data.getPositionY(i);
     int j = static_cast<int>(positionX / radiusOfInfluence) +
@@ -129,27 +129,29 @@ The first thing that the algorithm should do in each iteration is to place the e
 /* **************************** sph_solver.cpp **************************** */
 
 void SphSolver::neighbourParticlesSearch(Fluid &data) {
-  int currentNumberOfNeighbours;
-  for (int i = 0; i < numberOfParticles; i++) {
-    currentNumberOfNeighbours = neighbourParticles[i].size();
-    neighbourParticles[i].clear();
-    neighbourParticles[i].reserve(static_cast<int>(memoryReservationFactor * currentNumberOfNeighbours));
-  }
+  std::for_each(
+      std::execution::par, neighbourParticles.begin(), neighbourParticles.end(),
+      [this](auto &&particle) {
+        int currentNumberOfNeighbours = particle.size();
+        particle.clear();
+        particle.reserve(static_cast<int>(this->memoryReservationFactor *
+                                          currentNumberOfNeighbours));
+      });
 
   placeParticlesInCells(data);
 
+  double distance, distanceX, distanceY;
   // For each cell, for each particle in the cell, find neighbour particles in
   // the cell
-  for (int i = 0; i < numberOfCells; i++) {
-    for (int j = 0; j < cells[i].size(); j++) {
-      for (int k = 0; k < cells[i].size(); k++) {
+  for (size_t i = 0; i < numberOfCells; i++) {
+    for (size_t j = 0; j < cells[i].size(); j++) {
+      for (size_t k = 0; k < cells[i].size(); k++) {
         if (cells[i][j] != cells[i][k]) {
-          double distance = sqrt(pow(data.getPositionX(cells[i][j]) -
-                                         data.getPositionX(cells[i][k]),
-                                     2) +
-                                 pow(data.getPositionY(cells[i][j]) -
-                                         data.getPositionY(cells[i][k]),
-                                     2));
+          distanceX =
+              data.getPositionX(cells[i][j]) - data.getPositionX(cells[i][k]);
+          distanceY =
+              data.getPositionY(cells[i][j]) - data.getPositionY(cells[i][k]);
+          distance = sqrt(distanceX * distanceX + distanceY * distanceY);
 
           if (distance <= data.getRadInfl()) {
             neighbourParticles[cells[i][j]].push_back({cells[i][k], distance});
@@ -171,17 +173,21 @@ double SphSolver::calcViscousForce(Fluid &data,
                                    std::function<double(int)> getVelocity,
                                    int particleIndex) {
   double sum = 0.0;  // Initializing the summation
+  double normalisedDistance;
   double velocity = getVelocity(particleIndex);
   double mass = data.getMass();
   double radiusOfInfluence = data.getRadInfl();
+  size_t neighbourIndex;
 
-  for (int j = 0; j < neighbourParticles[particleIndex].size(); j++) {
-    if (particleIndex != neighbourParticles[particleIndex][j].first) {
-      sum +=
-          (mass / data.getDensity(neighbourParticles[particleIndex][j].first)) *
-          (velocity - getVelocity(neighbourParticles[particleIndex][j].first)) *
-          (fourtyPih4 * (1.0 - neighbourParticles[particleIndex][j].second /
-                                   radiusOfInfluence));
+  for (size_t j = 0; j < neighbourParticles[particleIndex].size(); j++) {
+    neighbourIndex = neighbourParticles[particleIndex][j].first;
+
+    if (particleIndex != neighbourIndex) {
+      normalisedDistance =
+          neighbourParticles[particleIndex][j].second / radiusOfInfluence;
+      sum += (mass / data.getDensity(neighbourIndex)) *
+             (velocity - getVelocity(neighbourIndex)) *
+             (fourtyPih4 * (1.0 - normalisedDistance));
     }
   }
 
