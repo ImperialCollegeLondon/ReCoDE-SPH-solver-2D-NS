@@ -54,9 +54,9 @@ The first step of the algorithm is to turn the domain to a grid, by splitting it
 void SphSolver::assignNeighbourCells(int cellsRows, int cellsCols) {
   // Each cell could have at most 8 neighbours (and most of them do), so reserve
   // the memory
-  std::for_each(std::execution::par, neighbourCells.begin(),
-                neighbourCells.end(),
-                [this](auto &&cell) { cell.reserve(this->maxNeighbourCells); });
+  for (int i = 0; i < numberOfCells; i++) {
+    neighbourCells[i].reserve(maxNeighbourCells);
+  }
   // Flags to check if the cell is on the edge or not
   bool top = false;
   bool left = false;
@@ -102,7 +102,6 @@ Up to this point, the algorithm's steps included logic that does not change duri
 /* **************************** sph_solver.cpp **************************** */
 
 void SphSolver::placeParticlesInCells(Fluid &data) {
-
   for (size_t i = 0; i < numberOfCells; i++) {
     int currentCellSize = cells[i].size();
     cells[i].clear();
@@ -129,14 +128,13 @@ The first thing that the algorithm should do in each iteration is to place the e
 /* **************************** sph_solver.cpp **************************** */
 
 void SphSolver::neighbourParticlesSearch(Fluid &data) {
-  std::for_each(
-      std::execution::par, neighbourParticles.begin(), neighbourParticles.end(),
-      [this](auto &&particle) {
-        int currentNumberOfNeighbours = particle.size();
-        particle.clear();
-        particle.reserve(static_cast<int>(this->memoryReservationFactor *
-                                          currentNumberOfNeighbours));
-      });
+  int currentNumberOfNeighbours;
+  for (size_t i = 0; i < numberOfParticles; i++) {
+    currentNumberOfNeighbours = neighbourParticles[i].size();
+    neighbourParticles[i].clear();
+    neighbourParticles[i].reserve(
+        static_cast<int>(memoryReservationFactor * currentNumberOfNeighbours));
+  }
 
   placeParticlesInCells(data);
 
