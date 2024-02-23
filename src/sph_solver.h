@@ -63,8 +63,8 @@ class SphSolver {
   }
 
   // Getter Functions
-  const std::vector<std::vector<std::pair<int, double>>>
-      &getNeighbourParticles() const;
+  const std::vector<std::vector<std::pair<int, double>>> &
+  getNeighbourParticles() const;
 
   // Neighbour search functions
 

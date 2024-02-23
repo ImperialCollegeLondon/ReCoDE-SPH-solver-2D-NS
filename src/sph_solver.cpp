@@ -7,8 +7,8 @@
 #include "main_prog_funcs.h"
 
 // Getter functions
-const std::vector<std::vector<std::pair<int, double>>>
-    &SphSolver::getNeighbourParticles() const {
+const std::vector<std::vector<std::pair<int, double>>> &
+SphSolver::getNeighbourParticles() const {
   return neighbourParticles;
 }
 
