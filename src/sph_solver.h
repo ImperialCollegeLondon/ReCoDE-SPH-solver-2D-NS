@@ -79,7 +79,8 @@ class SphSolver {
   // Calculation functions
 
   // Function to perform the time integration
-  void timeIntegration(Fluid &data, std::ofstream &finalPositionsFile,
+  void timeIntegration(Fluid &data, std::ofstream &simulationPositionsFile,
+                       std::ofstream &finalPositionsFile,
                        std::ofstream &energiesFile);
 
   // Function to perform the particle iterations

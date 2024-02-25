@@ -159,11 +159,11 @@ void handleInputErrors(const po::variables_map& caseVm,
 
 The code makes use of three different classes which are purposed to represent the fluid and the SPH algorithm deployed in this project. More details regarding the classes and the design choices can be found in the `docs/OOP_concepts.md` and the reader is advised to study it before proceeding with this chapter.
 
-Firstly, one SphSolver object and one fluid pointer to an object are being declared in the main program. The pointer declaration is used for the `fluid`, because to initialise the object properly the number of particles is required in the user defined constructor and this information is not yet available since the input files have not been read. These objects are passed as a reference to the `initialise()` function. 
+Firstly, one SphSolver object and one fluid pointer to an object are being declared in the main program. The pointer declaration is used for the `fluid`, because to initialise the object properly the number of particles is required in the user defined constructor and this information is not yet available since the input files have not been read. These objects are passed as a reference to the `initialise()` function.
 
-Once the input values are read and stored, the provided IC is used to determine the number of particles. This means that although the user has already provided a number of particles, this is just an indication, since the IC (droplet and block drop) require specific formation and the particles to be distributed uniformly. These two conditions cannot be satisfied simultaneously by any number of particles and therefore several adjustments need to be made. The functions `closestIntegerSqrt()` and `rectangleN()` from `initial_conditions.h` are functions suitable for this purpose. 
+Once the input values are read and stored, the provided IC is used to determine the number of particles. This means that although the user has already provided a number of particles, this is just an indication, since the IC (droplet and block drop) require specific formation and the particles to be distributed uniformly. These two conditions cannot be satisfied simultaneously by any number of particles and therefore several adjustments need to be made. The functions `closestIntegerSqrt()` and `rectangleN()` from `initial_conditions.h` are functions suitable for this purpose.
 
-The IC functions are being called within the `setInitialConditions()` function and a reference to the pointer of the fluid object is passed as an argument<b>*</b>, as well as the updated number of particles. Inside these functions the user defined constructor of the `fluid` is being called and the memory allocation process for the object's containers is invoked. In this, the containers are declared as `new` raw pointers to arrays, dynamically allocating memory proportional to the number of particles. The function used to initialise the `fluid` class for the simple cases of 1,2,3 and 4 particles is demonstrated below.
+The IC functions are being called within the `setInitialConditions()` function and a reference to the pointer of the fluid object is passed as an argument<b>\*</b>, as well as the updated number of particles. Inside these functions the user defined constructor of the `fluid` is being called and the memory allocation process for the object's containers is invoked. In this, the containers are declared as `new` raw pointers to arrays, dynamically allocating memory proportional to the number of particles. The function used to initialise the `fluid` class for the simple cases of 1,2,3 and 4 particles is demonstrated below.
 
 <b>\*</b> The rationale behind passing the pointer to the fluid object as a reference is identical to the reason an object is passed as a reference to a function. In these functions we are allocating new memory that the pointer should point to. If the pointer was passed by value (`Fluid *fluidPtr`) then a **copy** of the pointer would be pointing to the new memory and our original fluid pointer will still be a `nullptr`. Of course, since the allocation is happening inside the function, the caller is responsible to `delete` the object manually.
 
@@ -299,23 +299,23 @@ Upon successful execution, the program generates two types of files:
 
 - _Energies File_: This file, containing Total, Kinetic, and Potential energies, is updated at each timestep. The results can be visualized by using the script `post/plot_energies.py`.
 
-- _Particle Positions File_: This file captures the positions of the particles at a given timestep, and it can be visualized using the script `post/visualize_particles.py`.
+- _Particle Positions File_: This file captures the positions of the particles at a given timestep, and it can be visualized using the scripts `post/visualize_particles.py`.
 
 ```cpp
 /* **************************** SPH_main.cpp **************************** */
 
-void storeToFile(Fluid& fluid, std::string type, std::ofstream& targetFile,
-                 double dt, double currentTime) {
+void storeToFile(Fluid &fluid, std::string type, std::ofstream &targetFile,
+                 double currentIntegrationTime) {
   if (type == "energy") {
     // Write energies in the Energy-File
-    targetFile << dt << "," << currentTime << "," << fluid.getKineticEnergy()
+    targetFile << currentIntegrationTime << "," << fluid.getKineticEnergy()
                << "," << fluid.getPotentialEnergy() << ","
                << fluid.getPotentialEnergy() + fluid.getKineticEnergy() << "\n";
   } else if (type == "position") {
     // Write positions in the position file
-    for (int k = 0; k < fluid.getNumberOfParticles(); k++) {
-      targetFile << fluid.getPositionX(k) << "," << fluid.getPositionY(k)
-                 << "\n";
+    for (size_t k = 0; k < fluid.getNumberOfParticles(); k++) {
+      targetFile << currentIntegrationTime << "," << fluid.getPositionX(k)
+                 << "," << fluid.getPositionY(k) << "\n";
     }
   }
 }
@@ -326,7 +326,7 @@ void storeToFile(Fluid& fluid, std::string type, std::ofstream& targetFile,
     <img src="images/positions_README.png" alt="Alt Text 2" style="display: inline-block; width: 400px;">
 </div>
 
- ***Energy plots (left) and initial position (right) for a droplet of 60 particles.***
+**_Energy plots (left) and initial position (right) for a droplet of 60 particles._**
 
 ## Time integration
 
@@ -336,11 +336,14 @@ Following the initialisation of the class and the output files, the function `Sp
   /* ***************************** SPH-main.cpp ****************************** */
 
   // Time integration loop
-  SphSolver.timeIntegration(*sphFluid, finalPositionsFile, energiesFile);
+  sphSolver.timeIntegration(*sphFluid, simulationPositionsFile,
+                            finalPositionsFile, energiesFile);
 
   /* **************************** sph_solver.cpp **************************** */
 
-  void SphSolver::timeIntegration(Fluid &data, std::ofstream &finalPositionsFile,
+  void SphSolver::timeIntegration(Fluid &data,
+                                std::ofstream &simulationPositionsFile,
+                                std::ofstream &finalPositionsFile,
                                 std::ofstream &energiesFile) {
   std ::cout << "Time integration started -- OK"
              << "\n";
@@ -362,7 +365,9 @@ Following the initialisation of the class and the output files, the function `Sp
     currentIntegrationTime += dt;
 
     if (t % outputFrequency == 0) {
-      storeToFile(data, "energy", energiesFile, dt, currentIntegrationTime);
+      storeToFile(data, "energy", energiesFile, currentIntegrationTime);
+
+      storeToFile(data, "position", simulationPositionsFile, currentIntegrationTime);
     }
 
     t++;
@@ -372,7 +377,7 @@ Following the initialisation of the class and the output files, the function `Sp
     }
   }
   // Store particles' positions after integration is completed
-  storeToFile(data, "position", finalPositionsFile, dt, currentIntegrationTime);
+  storeToFile(data, "position", finalPositionsFile, currentIntegrationTime);
 
   std ::cout << "Time integration finished -- OK"
              << "\n";

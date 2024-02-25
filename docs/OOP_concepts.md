@@ -43,7 +43,7 @@ class particles {
 };
 ```
 
-The particles class is initialised in the `user defined constructor` by using the number of particles (`nb_particles`) which is required to determine the size of the arrays. 
+The particles class is initialised in the `user defined constructor` by using the number of particles (`nb_particles`) which is required to determine the size of the arrays.
 
 ```cpp
 // User defined constructor
@@ -110,14 +110,13 @@ class fluid : public particles {
   double *pressure;
 
  ...
- 
+
  }
 ```
 
-
 ## Class-sph_solver
 
-In the `sph_solver` class, are implemented the steps of the algorithm described in `SPH.md`. The main function which is called by the main program is the `sph::timeIntegration(fluid &data, std::ofstream &finalPositionsFile, std::ofstream &energiesFile);` where the methods of the class are invoked and perform calculations on the members of the `fluid` object in order to update the positions and the velocities of the particles. Because the members of the `fluid` class have been declared either as protected (from the base class) or private, the solver class does not have direct access to its members and therefore the use of `setter` and `getter` functions and the overloaded `()` symbol is required. This is a good practice when working with OOP techniques because it promotes the idea of data hiding by the classes, and increases the robustness of the code, since the object's members cannot be directly modified from anywhere in the code, apart from inside the class. Below an example on how the `fluid` members are manipulated by one of the `sph_solver's` methods is presented.
+In the `sph_solver` class, are implemented the steps of the algorithm described in `SPH.md`. The main function which is called by the main program is the `sph::timeIntegration(fluid &data, std::ofstream &simulationPositionsFile, std::ofstream &finalPositionsFile, std::ofstream &energiesFile);` where the methods of the class are invoked and perform calculations on the members of the `fluid` object in order to update the positions and the velocities of the particles. Because the members of the `fluid` class have been declared either as protected (from the base class) or private, the solver class does not have direct access to its members and therefore the use of `setter` and `getter` functions and the overloaded `()` symbol is required. This is a good practice when working with OOP techniques because it promotes the idea of data hiding by the classes, and increases the robustness of the code, since the object's members cannot be directly modified from anywhere in the code, apart from inside the class. Below an example on how the `fluid` members are manipulated by one of the `sph_solver's` methods is presented.
 
 ```cpp
 void SphSolver::updatePosition(Fluid &data, int particleIndex) {

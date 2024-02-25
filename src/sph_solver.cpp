@@ -171,7 +171,9 @@ void SphSolver::placeParticlesInCells(Fluid &data) {
 }
 
 // Time integration
-void SphSolver::timeIntegration(Fluid &data, std::ofstream &finalPositionsFile,
+void SphSolver::timeIntegration(Fluid &data,
+                                std::ofstream &simulationPositionsFile,
+                                std::ofstream &finalPositionsFile,
                                 std::ofstream &energiesFile) {
   std ::cout << "Time integration started -- OK"
              << "\n";
@@ -194,6 +196,9 @@ void SphSolver::timeIntegration(Fluid &data, std::ofstream &finalPositionsFile,
 
     if (t % outputFrequency == 0) {
       storeToFile(data, "energy", energiesFile, dt, currentIntegrationTime);
+
+      storeToFile(data, "position", simulationPositionsFile, dt,
+                  currentIntegrationTime);
     }
 
     t++;
