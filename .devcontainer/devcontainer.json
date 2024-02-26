@@ -2,5 +2,17 @@
 	"name": "sph_solver",
 	"build": {
 		"dockerfile": "../Dockerfile.dev"
+	},
+	"customizations": {
+		// Configure properties specific to VS Code.
+		"vscode": {
+			// Add the IDs of extensions you want installed when the container is created.
+			"extensions": [
+				"ms-vscode.cpptools",
+				"llvm-vs-code-extensions.vscode-clangd",
+				"ms-python.python",
+				"ms-python.black-formatter"
+			]
+		}
 	}
 }

@@ -22,6 +22,3 @@ RUN pip install -r requirements.txt
 RUN pre-commit install
 
 WORKDIR /workspaces/ReCoDE-SPH-solver-2D-NS/exec/build
-
-RUN cmake ../../src
-RUN cmake --build .
