@@ -1,10 +1,10 @@
 # Standard Template Library usage
 
-Throughout the previous version of the code base there has been extensive use of C-style arrays and raw pointers (v0-v2 of the project's repository). This could be harmless in the case that the code base stays the same and the developers can be sure about their memory management and ownership semantics. But, as the code base expands, it will be more difficult to track every object, moving from function to function.
+Throughout the previous version of the code base there has been extensive use of C-style arrays and raw pointers (branches `v0` - `v2` of the project's repository). This could be harmless in the case that the code base stays the same and the developers can be sure about their memory management and ownership semantics. But, as the code base expands, it will be more difficult to track every object, moving from function to function.
 
 Modern C++ uses the Standard Template Library (STL) which is a library that comprises a lot of algorithms as well as standard containers, most of which have been optimised in the best possible way (though some of [them](https://stackoverflow.com/a/17797560) still cause problems).
 
-In our attempt to make the code base comply with Modern C++ practises, we have changed all of the dynamically allocated arrays with `std::vector` and all of the raw pointers with `std::unique_ptr`.
+In our attempt to make the code base comply with modern C++ practices, we have changed all of the dynamically allocated arrays with `std::vector` and all of the raw pointers with `std::unique_ptr`.
 
 ## std::vector 
 
