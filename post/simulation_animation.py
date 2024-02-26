@@ -1,5 +1,4 @@
 import math
-import time
 from datetime import datetime
 
 import matplotlib.animation as animation
