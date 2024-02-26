@@ -1,0 +1,27 @@
+# Start with a base image containing Python 3.11. Adjust if a specific OS is needed
+FROM python:3.11
+
+# Install system dependencies (C++ toolchain)
+RUN apt-get update && apt-get install -y \
+  build-essential \
+  libboost-program-options-dev \
+  clang-format \
+  cmake \
+  && rm -rf /var/lib/apt/lists/*
+
+# Navigate to the codespace directory for this repository 
+WORKDIR /workspaces/ReCoDE-SPH-solver-2D-NS/
+
+# Copy all the project files within the current location
+COPY . .
+
+# Use the requirements.txt for Python dependencies
+RUN pip install -r requirements.txt
+
+# Install pre-commit hook
+RUN pre-commit install
+
+WORKDIR /workspaces/ReCoDE-SPH-solver-2D-NS/exec/build
+
+RUN cmake ../../src
+RUN cmake --build .

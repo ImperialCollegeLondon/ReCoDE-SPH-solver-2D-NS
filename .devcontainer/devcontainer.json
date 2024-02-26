@@ -1,0 +1,6 @@
+{
+	"name": "sph_solver",
+	"build": {
+		"dockerfile": "../Dockerfile.dev"
+	}
+}
