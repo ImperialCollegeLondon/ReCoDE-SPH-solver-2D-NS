@@ -196,21 +196,23 @@ This sets the foundation for the creation of the ouput files themselves. These f
 ```cpp
 /* **************************** SPH_main.cpp **************************** */
 
-std::tuple<std::ofstream, std::ofstream, std::ofstream> initOutputFiles(
-    const std::string& outputFolder) {
+std::tuple<std::ofstream, std::ofstream, std::ofstream, std::ofstream>
+initOutputFiles(const std::string &outputFolder) {
   // Create the output folder if it doesn't exist
   createDirectory(outputFolder);
 
   // Declare and initialise the output files
   std::ofstream initialPositions(outputFolder + "/initial-positions.csv",
                                  std::ios::out | std::ios::trunc);
+  std::ofstream simulationPositions(outputFolder + "/simulation-positions.csv",
+                                    std::ios::out | std::ios::trunc);
   std::ofstream finalPositions(outputFolder + "/final-positions.csv",
                                std::ios::out | std::ios::trunc);
   std::ofstream energies(outputFolder + "/energies.csv",
                          std::ios::out | std::ios::trunc);
 
   initialPositions << std::fixed << std::setprecision(5);
-  initialPositions << "Position_X,Position_Y"
+  initialPositions << "Timestamp,Position_X,Position_Y"
                    << "\n";
 ...
 ```

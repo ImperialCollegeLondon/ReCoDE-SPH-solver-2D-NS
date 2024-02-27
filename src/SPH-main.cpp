@@ -24,8 +24,8 @@ int main() {
              << "\n";
 
   // Initialise output files
-  auto [initialPositions, finalPositionsFile, energiesFile] =
-      initOutputFiles(OUTPUT_FOLDER);
+  auto [initialPositions, simulationPositionsFile, finalPositionsFile,
+        energiesFile] = initOutputFiles(OUTPUT_FOLDER);
 
   std ::cout << "Output files created -- OK"
              << "\n";
@@ -34,7 +34,8 @@ int main() {
   storeToFile(*sphFluid, "position", initialPositions);
 
   // Time integration loop
-  sphSolver.timeIntegration(*sphFluid, finalPositionsFile, energiesFile);
+  sphSolver.timeIntegration(*sphFluid, simulationPositionsFile,
+                            finalPositionsFile, energiesFile);
 
   std ::cout << "SPH-SOLVER executed successfully -- OK"
              << "\n";
@@ -42,7 +43,7 @@ int main() {
   return 0;
 }
 
-void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
+void initialise(std::unique_ptr<Fluid> &fluidPtr, SphSolver &sphSolver) {
   // Process to obtain the inputs provided by the user
   po::options_description desc("Allowed options");
   desc.add_options()("init_condition", po::value<std::string>(),
@@ -85,8 +86,8 @@ void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
   std::vector<std::string> fileNames = {"case.txt", "domain.txt",
                                         "constants.txt"};
   po::variables_map caseVm, domainVm, constantsVm, icVm;
-  std::vector<po::variables_map*> variableMaps = {&caseVm, &domainVm,
-                                                  &constantsVm};
+  std::vector<po::variables_map *> variableMaps = {&caseVm, &domainVm,
+                                                   &constantsVm};
 
   for (size_t i = 0; i < fileNames.size(); ++i) {
     retrieveInputsFromFile(fileNames[i], icCase, desc, *(variableMaps[i]));
@@ -132,10 +133,10 @@ void initialise(std::unique_ptr<Fluid>& fluidPtr, SphSolver& sphSolver) {
   return;
 }
 
-void retrieveInputsFromFile(const std::string& fileName,
-                            const std::string& icCase,
-                            const po::options_description& desc,
-                            po::variables_map& vm) {
+void retrieveInputsFromFile(const std::string &fileName,
+                            const std::string &icCase,
+                            const po::options_description &desc,
+                            po::variables_map &vm) {
   std::ifstream caseFile;
   std::string errorMessage = "Error opening file: " + fileName;
   if (fileName == icCase + ".txt") {
@@ -152,7 +153,7 @@ void retrieveInputsFromFile(const std::string& fileName,
       throw std::runtime_error(errorMessage);
     }
     po::store(po::parse_config_file(caseFile, desc), vm);
-  } catch (std::runtime_error& e) {
+  } catch (std::runtime_error &e) {
     // Handle the exception by printing the error message and exiting the
     // program
     std::cerr << e.what() << std::endl;
@@ -161,10 +162,10 @@ void retrieveInputsFromFile(const std::string& fileName,
   po::notify(vm);
 }
 
-void handleInputErrors(const po::variables_map& caseVm,
-                       const po::variables_map& domainVm,
-                       const po::variables_map& constantsVm,
-                       const po::variables_map& icVm) {
+void handleInputErrors(const po::variables_map &caseVm,
+                       const po::variables_map &domainVm,
+                       const po::variables_map &constantsVm,
+                       const po::variables_map &icVm) {
   try {
     // Error handling for the total integration time
     if (caseVm["T"].as<double>() <= 0) {
@@ -202,7 +203,7 @@ void handleInputErrors(const po::variables_map& caseVm,
     } else if (icVm["n"].as<int>() <= 0) {
       throw std::runtime_error("Error: Number of particles must be positive!");
     }
-  } catch (std::runtime_error& e) {
+  } catch (std::runtime_error &e) {
     // Handle the exception by printing the error message and exiting the
     // program
     std::cerr << e.what() << std::endl;
@@ -210,10 +211,10 @@ void handleInputErrors(const po::variables_map& caseVm,
   }
 }
 
-void setInitialConditions(const std::string& icCase,
-                          std::unique_ptr<Fluid>& fluidPtr,
-                          const po::variables_map& icVm,
-                          const po::variables_map& domainVm) {
+void setInitialConditions(const std::string &icCase,
+                          std::unique_ptr<Fluid> &fluidPtr,
+                          const po::variables_map &icVm,
+                          const po::variables_map &domainVm) {
   // Fixed nbParticles ic cases map
   std::map<std::string, int> initConditionToParticlesMap = {
       {"ic-one-particle", 1},
@@ -250,7 +251,7 @@ void setInitialConditions(const std::string& icCase,
               "Error: Particles must be within the domain boundaries! Please "
               "adjust the initial position coordinates.");
         }
-      } catch (std::runtime_error& e) {
+      } catch (std::runtime_error &e) {
         std::cerr << e.what() << std::endl;
         exit(1);
       }
@@ -267,7 +268,7 @@ void setInitialConditions(const std::string& icCase,
       if (length <= 0 || width <= 0) {
         throw std::runtime_error("Error: Length and width must be positive!");
       }
-    } catch (std::runtime_error& e) {
+    } catch (std::runtime_error &e) {
       std::cerr << e.what() << std::endl;
       exit(1);
     }
@@ -283,7 +284,7 @@ void setInitialConditions(const std::string& icCase,
             "Error: The block must be within the domain boundaries! Please "
             "adjust the center coordinates.");
       }
-    } catch (std::runtime_error& e) {
+    } catch (std::runtime_error &e) {
       // Handle the exception by printing the error message and exiting the
       // program
       std::cerr << e.what() << std::endl;
@@ -299,7 +300,7 @@ void setInitialConditions(const std::string& icCase,
       if (radius <= 0) {
         throw std::runtime_error("Error: Radius must be positive!");
       }
-    } catch (std::runtime_error& e) {
+    } catch (std::runtime_error &e) {
       // Handle the exception by printing the error message and exiting the
       // program
       std::cerr << e.what() << std::endl;
@@ -317,7 +318,7 @@ void setInitialConditions(const std::string& icCase,
             "Error: The droplet must be within the domain boundaries! Please "
             "adjust the center coordinates.");
       }
-    } catch (std::runtime_error& e) {
+    } catch (std::runtime_error &e) {
       // Handle the exception by printing the error message and exiting the
       // program
       std::cerr << e.what() << std::endl;
@@ -342,48 +343,55 @@ void createDirectory(std::string folderPath) {
   }
 }
 
-std::tuple<std::ofstream, std::ofstream, std::ofstream> initOutputFiles(
-    const std::string& outputFolder) {
+std::tuple<std::ofstream, std::ofstream, std::ofstream, std::ofstream>
+initOutputFiles(const std::string &outputFolder) {
   // Create the output folder if it doesn't exist
   createDirectory(outputFolder);
 
   // Declare and initialise the output files
   std::ofstream initialPositions(outputFolder + "/initial-positions.csv",
                                  std::ios::out | std::ios::trunc);
+  std::ofstream simulationPositions(outputFolder + "/simulation-positions.csv",
+                                    std::ios::out | std::ios::trunc);
   std::ofstream finalPositions(outputFolder + "/final-positions.csv",
                                std::ios::out | std::ios::trunc);
   std::ofstream energies(outputFolder + "/energies.csv",
                          std::ios::out | std::ios::trunc);
 
   initialPositions << std::fixed << std::setprecision(5);
-  initialPositions << "Position_X,Position_Y"
+  initialPositions << "Timestamp,Position_X,Position_Y"
                    << "\n";
 
+  simulationPositions << std::fixed << std::setprecision(5);
+  simulationPositions << "Timestamp,Position_X,Position_Y"
+                      << "\n";
+
   finalPositions << std::fixed << std::setprecision(5);
-  finalPositions << "Position_X,Position_Y"
+  finalPositions << "Timestamp,Position_X,Position_Y"
                  << "\n";
 
   energies << std::fixed << std::setprecision(5);
-  energies << "dt,t,Ek,Ep,Etotal"
+  energies << "Timestamp,Timestep,Ek,Ep,Etotal"
            << "\n";
 
-  return std::make_tuple(std::move(initialPositions), std::move(finalPositions),
-                         std::move(energies));
+  return std::make_tuple(std::move(initialPositions),
+                         std::move(simulationPositions),
+                         std::move(finalPositions), std::move(energies));
 }
 
-void storeToFile(Fluid& fluid, std::string type, std::ofstream& targetFile,
-                 double dt, double currentTime) {
+void storeToFile(Fluid &fluid, std::string type, std::ofstream &targetFile,
+                 double dt, double currentIntegrationTime) {
   if (type == "energy") {
     // Write energies in the Energy-File
-    targetFile << dt << "," << currentTime << "," << fluid.getKineticEnergy()
-               << "," << fluid.getPotentialEnergy() << ","
-               << fluid.getPotentialEnergy() + fluid.getKineticEnergy() << "\n";
+    targetFile << currentIntegrationTime << "," << dt << ","
+               << fluid.getKineticEnergy() << "," << fluid.getPotentialEnergy()
+               << "," << fluid.getPotentialEnergy() + fluid.getKineticEnergy()
+               << "\n";
   } else if (type == "position") {
     // Write positions in the position file
-    unsigned int nbParticles = fluid.getNumberOfParticles();
-    for (size_t k = 0; k < nbParticles; k++) {
-      targetFile << fluid.getPositionX(k) << "," << fluid.getPositionY(k)
-                 << "\n";
+    for (size_t k = 0; k < fluid.getNumberOfParticles(); k++) {
+      targetFile << currentIntegrationTime << "," << fluid.getPositionX(k)
+                 << "," << fluid.getPositionY(k) << "\n";
     }
   }
 }

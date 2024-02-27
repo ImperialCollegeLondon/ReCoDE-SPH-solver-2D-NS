@@ -15,19 +15,33 @@ if __name__ == "__main__":
     # Read energy values from .csv file
     energy_data = pd.read_csv(f"{OUTPUT_LOCATION}/{FILENAME}")
 
-    time = energy_data["t"]
+    time = energy_data["Timestamp"]
+    timestep = energy_data["Timestep"]
     kinetic_energy = energy_data["Ek"]
     potential_energy = energy_data["Ep"]
     total_energy = energy_data["Etotal"]
 
-    plt.plot(time, total_energy, label="Total Energy")
-    plt.plot(time, kinetic_energy, label="Kinetic Energy")
-    plt.plot(time, potential_energy, label="Potential Energy")
+    _, (nrg_ax, dt_ax) = plt.subplots(
+        1,
+        2,
+        figsize=(15, 5),
+        gridspec_kw={"width_ratios": [1, 1], "height_ratios": [1]},
+    )
 
-    plt.title("Energy")
-    plt.xlabel("Time (s)")
-    plt.ylabel("Energy (J)")
+    nrg_ax.plot(time, total_energy, label="Total Energy")
+    nrg_ax.plot(time, kinetic_energy, label="Kinetic Energy")
+    nrg_ax.plot(time, potential_energy, label="Potential Energy")
 
-    plt.legend()
+    nrg_ax.set_title("Energy")
+    nrg_ax.set_xlabel("Time (s)")
+    nrg_ax.set_ylabel("Energy (J)")
+
+    nrg_ax.legend()
+
+    dt_ax.plot(time, timestep, label="Adaptive Timestep")
+
+    dt_ax.set_title("Adaptive Timestep")
+    dt_ax.set_xlabel("Time (s)")
+    dt_ax.set_ylabel("Timestep (dt)")
+
     plt.show()
-    
