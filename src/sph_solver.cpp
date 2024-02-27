@@ -209,45 +209,6 @@ void SphSolver::timeIntegration(Fluid &data, std::ofstream &finalPositionsFile,
              << "\n";
 }
 
-// Time integration
-void SphSolver::timeIntegration(Fluid &data, std::ofstream &finalPositionsFile,
-                                std::ofstream &energiesFile) {
-  std ::cout << "Time integration started -- OK"
-             << "\n";
-
-  while (currentIntegrationTime < totalTime) {
-    if (adaptiveTimestepBool) {
-      // Reset the adaptive timestep related variables
-      maxVelocity = 0.0;
-      maxAcceleration = 0.0;
-    }
-
-    // In each iteration the distances between the particles are recalculated,
-    // as well as their density and pressure
-    neighbourParticlesSearch(data);
-    data.calculateDensity(neighbourParticles);
-    data.calculatePressure();
-    particleIterations(data);
-
-    currentIntegrationTime += dt;
-
-    if (t % outputFrequency == 0) {
-      storeToFile(data, "energy", energiesFile, dt, currentIntegrationTime);
-    }
-
-    t++;
-
-    if (adaptiveTimestepBool) {
-      adaptiveTimestep(data);
-    }
-  }
-  // Store particles' positions after integration is completed
-  storeToFile(data, "position", finalPositionsFile, dt, currentIntegrationTime);
-
-  std ::cout << "Time integration finished -- OK"
-             << "\n";
-}
-
 void SphSolver::particleIterations(Fluid &data) {
   // Use std::function to store the member functions
   std::function<double(int)> ptrGetPositionX =
@@ -400,10 +361,6 @@ double SphSolver::velocityIntegration(Fluid &data, int particleIndex,
     maxAcceleration = std::max(maxAcceleration, std::abs(acceleration));
   }
 
-  if (adaptiveTimestepBool) {
-    maxAcceleration = std::max(maxAcceleration, std::abs(acceleration));
-  }
-
   return acceleration * dt;
 }
 
@@ -455,12 +412,4 @@ void SphSolver::adaptiveTimestep(Fluid &data) {
   // Update the timestep based on the CFL number
   dt = std::min(coeffCfl1 * h / maxVelocity,
                 coeffCfl2 * pow(h / maxAcceleration, 0.5));
-}
-
-void SphSolver::adaptiveTimestep(Fluid &data) {
-  double h = data.getRadInfl();
-
-  // Update the timestep based on the CFL number
-  dt = std::min(coeffCfl1 * h / maxVelocity,
-                coeffCfl1 * pow(h / maxAcceleration, 0.5));
 }

@@ -4,7 +4,6 @@
 # .o files
 *.o
 
-<<<<<<< Updated upstream
 exec/build/*
 !exec/build/.gitkeep
 
@@ -20,8 +19,3 @@ output/
 
 # Docker
 Dockerfile
-=======
-exec/build/
-
-.vscode
->>>>>>> Stashed changes

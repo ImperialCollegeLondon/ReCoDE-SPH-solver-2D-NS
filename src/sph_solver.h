@@ -19,9 +19,6 @@ class SphSolver {
     this->coeffCfl2 = coeffCfl2;
   }
 
-  // Determine whether to use adaptive timestep or not
-  void setCflCoefficients(double coeffCfl1, double coeffCfl2);
-
   // Assign value to dt
   inline void setTimestep(double dt) {
     if (!adaptiveTimestepBool) {
@@ -33,9 +30,6 @@ class SphSolver {
 
   // Assign value to the total integration time
   inline void setTotalTime(double totalTime) { this->totalTime = totalTime; }
-
-  // Assign value to the total integration time
-  void setTotalTime(double totalTime);
 
   // Assign value to the frequency
   inline void setOutputFrequency(double outputFrequency) {
@@ -71,19 +65,6 @@ class SphSolver {
   // Getter Functions
   const std::vector<std::vector<std::pair<int, double>>> &
   getNeighbourParticles() const;
-
-  // Neighbour search functions
-
-  void createGrid(Fluid &data);
-
-  void assignNeighbourCells(int rows, int cols);
-
-  void placeParticlesInCells(Fluid &data);
-
-  void neighbourParticlesSearch(Fluid &data);
-
-  // Getter Functions
-  std::vector<std::vector<std::pair<int, double>>> getNeighbourParticles();
 
   // Neighbour search functions
 
