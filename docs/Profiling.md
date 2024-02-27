@@ -114,7 +114,7 @@ The `time` command is fairly straightforward to execute:
 time <executable>
 ```
 
-# Profiling and timing- SPH code results
+# Profiling and timing - SPH code results
 
 ## CPU time
 
