@@ -19,7 +19,7 @@ void Fluid::calculateMass(
 void Fluid::calculateDensity(
     const std::vector<std::vector<std::pair<int, double>>>& neighbours) {
   double phi, normalisedDistance, normalisedDistanceSqr;
-  // find φ
+
   for (size_t i = 0; i < nbParticles; i++) {
     density[i] = mass * fourPih2;
     for (size_t j = 0; j < neighbours[i].size(); j++) {
