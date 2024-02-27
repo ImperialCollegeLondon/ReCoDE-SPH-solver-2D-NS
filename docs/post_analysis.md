@@ -1,6 +1,6 @@
 # Documentation for SPH Simulation Visualization Scripts
 
-This document compiles the descriptions and usage instructions for several Python scripts used to visualise the results of an SPH simulation. These scripts analyse and present data captured during the simulation, providing insights into particle movement and energy dynamics.
+This document compiles the descriptions and usage instructions for several Python scripts used to visualise the results of an SPH simulation. These scripts analyse and present data captured during the simulation, providing insights into particle movement, energy dynamics, and adaptive timestep evolution.
 
 There are 3 different post simulation scripts:
 
@@ -10,14 +10,14 @@ There are 3 different post simulation scripts:
 
 ## 1. Position Visualisation
 
-The visualise_particles.{py, ipynb} script generates scatter plots visualising the initial and final positions of particles in an Smoothed Particle Hydrodynamics simulation. The script extracts data from CSV files and uses the simulation boundaries defined in a separate domain file to create informative plots.
+The _visualise_particles.{py, ipynb}_ script generates scatter plots visualising the initial and final positions of particles in an Smoothed Particle Hydrodynamics simulation. The script extracts data from CSV files and uses the simulation boundaries defined in a separate domain file to create informative plots.
 
-The script uses two Python modules; the _pandas_ Python module to read the position data from the CSV files they are stored in and the _matplotlib_ module to create and display the visualisations of the initial and final positions of the particles.
+The script uses two Python modules; the _pandas_ module to read the position data from the CSV files they are stored in and the _matplotlib_ module to create and display the visualisations of the initial and final positions of the particles.
 
 ### Usage:
 
 - Ensure you have the following libraries installed: [pandas](https://pypi.org/project/pandas/), [matplotlib](https://pypi.org/project/matplotlib/).
-- You can run the script from the command line, using the command _python visualise_positions.py._, or as a Jupyter notebook, by executing the notebook cells of the _visualise_positions.ipynb_ file.
+- You can run the script from the command line, using the command `python visualise_positions.py.`, or as a Jupyter notebook, by executing the notebook cells of the `visualise_positions.ipynb` file.
 
 ### Inputs:
 
@@ -35,51 +35,51 @@ Separate scatter plots displaying the initial and final particle positions.
 
 ## 2. Energy Plots
 
-This plot_energies.{py, ipynb} script visualises the total, kinetic, and potential energies of particles throughout an SPH simulation by plotting them against time. The data is extracted from a CSV file containing energy values at different simulation timesteps.
+This _plot_energies.{py, ipynb}_ script visualises the total, kinetic, and potential energies of particles throughout an SPH simulation by plotting them against time. Additionally, it plots the evolution of the adaptive timestep used in the simulation over time. The data is extracted from a CSV file containing energy and timestep values at different simulation moments.
 
-The script uses two Python modules; the _pandas_ Python module to read the energy data from the generated CSV file and the _matplotlib_ module to create and display the visualisations of all the types of energies measured during the simulation in a single plot.
+The script uses two Python modules; the _pandas_ module to read the energy and timestep data from the generated CSV file and the _matplotlib_ module to create and display the visualisations of all the types of energies measured during the simulation in a single plot.
 
 ### Usage:
 
 - Ensure you have the following libraries installed: [pandas](https://pypi.org/project/pandas/), [matplotlib](https://pypi.org/project/matplotlib/).
-- You can run the script from the command line, using the command _python plot_energies.py._, or as a Jupyter notebook, by executing the notebook cells of the plot*energies.ipynb*.
+- You can run the script from the command line, using the command `python plot_energies.py.`, or as a Jupyter notebook, by executing the notebook cells of the `plot_energies.ipynb`.
 
 ### Inputs:
 
-- CSV file (energies.csv) containing columns for time (t), kinetic energy (Ek), potential energy (Ep), and total energy (Etotal).
+- CSV file (energies.csv) containing columns for time (Timestamp), timestep (Timestep), kinetic energy (Ek), potential energy (Ep), and total energy (Etotal).
 
 ### Outputs:
 
-- A single line plot displaying the total, kinetic, and potential energies of particles as functions of time.
+- Two line plots side-by-side. The left one displays the total, kinetic, and potential energies of particles as functions of time, while the right one displays the adaptive timestep of the simulation over time.
 
 ### Assumptions:
 
-- The expected CSV file format adheres to the specified column names (t, Ek, Ep, Etotal).
+- The expected CSV file format adheres to the specified column names (Timestamp, Timestep, Ek, Ep, Etotal).
 
 ## 3. Simulation Animation
 
-This simulation_animation.{py, ipynb} script generates an animation visualising the positions and energy evolution of particles in an SPH simulation. It dynamically reads data from CSV files containing particle positions and energy values at different time steps. The animation depicts both a scatter plot for particle positions and a line plot for total, kinetic, and potential energies over time.
+This _simulation_animation.{py, ipynb}_ script generates an animation visualising the positions and energy evolution of particles, along with the progression of the size of the adaptive timestep used in an SPH simulation across its duration. It dynamically reads data from CSV files containing particle positions and energy and timestep values at different time points of the simulation. The animation depicts both a scatter plot for particle positions and line plots, one for the total, kinetic, and potential energies over time and one for the adaptive timestep.
 
-The script uses two Python modules; the _pandas_ Python module to read the data from the CSV files they are stored in and the _matplotlib_ module to create and display the dynamic visualisations of the initial and final positions and the energies of the particles.
+The script uses two Python modules; the _pandas_ module to read the data from the CSV files they are stored in and the _matplotlib_ module to create and display the dynamic visualisations of the initial and final positions and the energies of the particles.
 
-The number of animation frames is automatically calculated based on the _desired_animation_duration_, which is automatically calculated based on the simulated time, and the set _frame_rate_, resulting in a smooth and informative representation of the simulation's progress. This dynamic and adaptable approach ensures the animation effectively captures the key aspects of the SPH simulation for analysis and visualisation purposes.
+The number of animation frames is automatically calculated based on the `desired_animation_duration`, which is automatically calculated based on the simulated time, and the set `frame_rate`, resulting in a smooth and informative representation of the simulation's progress. This dynamic and adaptable approach ensures the animation effectively captures the key aspects of the SPH simulation for analysis and visualisation purposes.
 
 The code of this scirpt is structured in different functions to provide a concrete separation of concerns for each part of the code.
 
-- get_axes_limits: gets the axes limits for the positions plot from the input domain.txt file
-- calculate_num_particles: dynamically determines the number of particles used in the SPH simulation using the generated simulation-positions.csv file. This is required as the number of particles can be potentially different than the one provided by the application user, when it is decided this is needed to properly perform the simualtion, such as when the intitial condition is set to \_droplet\.
-- create_figure: builds the final plot figure that will show the animated position and energy data
-- update: this function is utilised by the _FuncAnimation_ function of the matplotlib.animation class to update the plot at each frame of the animation
-- create_animation: coordinates the creation of the animation of the paricles' positions and energies and stores the generated plot in an MP4 file
+- **get_axes_limits**: gets the axes limits for the positions plot from the input _domain.txt_ file
+- **calculate_num_particles**: dynamically determines the number of particles used in the SPH simulation using the generated simulation-positions.csv file. This is required as the number of particles can be potentially different than the one provided by the application user, when it is decided this is needed to properly perform the simualtion, such as when the intitial condition is set to _droplet_.
+- **create_figure**: builds the final plot figure that shows the animated position and energy and adaptive timestep data
+- **update**: this function is utilised by the `FuncAnimation` function of the matplotlib.animation class to update the plot at each frame of the animation
+- **create_animation**: coordinates the creation of the animation of the paricles' positions, energies, and adaptive timesteps and stores the generated plot in an MP4 file
 
 ### Usage:
 
-- Ensure you have the following libraries installed: pandas, matplotlib, matplotlib.animation.
-- You can run the script from the command line, using the command _python simulation_animation.py._, or as a Jupyter notebook, by executing the notebook cells of the _simulation_animation.ipynb_ file.
+- Ensure you have the following libraries installed: [pandas](https://pypi.org/project/pandas/), [matplotlib](https://pypi.org/project/matplotlib/).
+- You can run the script from the command line, using the command `python simulation_animation.py.`, or as a Jupyter notebook, by executing the notebook cells of the `simulation_animation.ipynb` file.
 
 ### Output:
 
-- An animated MP4 file named fluid*simulation*<timestamp>.mp4 is saved in the script's directory (i.e. _/post/_), visualising the SPH simulation dynamics.
+- An animated MP4 file named _fluid_simulation\_\<timestamp\>.mp4_ is saved in the script's directory (i.e. _/post/_), visualising the SPH simulation dynamics.
 
 ### Details:
 
@@ -90,5 +90,5 @@ This script leverages dynamic particle count determination and customisable styl
 
 ### Assumptions:
 
-- The expected CSV file formats conform to specified column names (Position_X, Position_Y, t, Ek, Ep, Etotal).
+- The expected CSV file formats conform to specified column names (Position_X, Position_Y, Timestamp, Timestep, Ek, Ep, Etotal).
 - The number of timesteps is the same between the two files holding the position and energy data, i.e. simulation-positions.csv and energies.csv
