@@ -394,6 +394,7 @@ The steps of the aforementioned algorithm are executed by the function `SphSolve
 The density of the fluid associated with each particle $i$ is approximated as:
 
 ```cpp
+/* **************************** fluid.cpp **************************** */
 void Fluid::calculateDensity(
   const std::vector<std::vector<std::pair<int, double>>>& neighbours) {
   double phi, normalisedDistance, normalisedDistanceSqr;
@@ -423,6 +424,8 @@ where:
 The pressure is calculated based on the ideal gas law
 
 ```cpp
+/* **************************** fluid.cpp **************************** */
+
 void Fluid::calculatePressure() {
   for (size_t i = 0; i < nbParticles; i++) {
     pressure[i] = gasConstant * (density[i] - densityResting);
@@ -440,6 +443,8 @@ where:
 The force exerted on the particle due to pressure from neighboring fluid particles is calculated as
 
 ```cpp
+/* **************************** sph_solver.cpp **************************** */
+
 double SphSolver::calculatePressureForce(Fluid &data,
                                          std::function<double(int)> getPosition,
                                          int particleIndex) {
@@ -506,6 +511,8 @@ Also, in this function, an error handling occurs, to check whether a singularity
 The force acting on each particle due to viscous effects is calculated as
 
 ```cpp
+/* **************************** sph_solver.cpp **************************** */
+
 double SphSolver::calcViscousForce(Fluid &data,
                                    std::function<double(int)> getVelocity,
                                    int particleIndex) {
@@ -545,6 +552,8 @@ For the reasons explained for ```SphSolver::calculatePressureForce()```, a point
 Finally, the force due to gravity is calculated as:
 
 ```cpp
+/* **************************** sph_solver.cpp **************************** */
+
 double SphSolver::calcGravityForce(Fluid &data, int particleIndex) {
   return -data.getDensity(particleIndex) * data.getAccelerationGravity();
 }
@@ -559,6 +568,8 @@ Where:
 The acceleration of each particle is calculated as:
 
 ```cpp
+/* **************************** sph_solver.cpp **************************** */
+
 double acceleration = (forcePressure + forceViscous + forceGravity) /
                         data.getDensity(particleIndex);
 ```
@@ -570,6 +581,8 @@ We solve the equation as a function of time by finding the velocity and position
 We begin with the initial conditions of the system, which are the positions and velocities of the particles at time $t = 0$. We iteratively use the state of the system at time step $t$ to find the state of the system at time step $t + 1$ using a leap-frog scheme, which provides improved stability characteristics. For the x-directions we do the following:
 
 ```cpp
+/* **************************** sph_solver.cpp **************************** */
+
 // x-direction
 newVelocity = data.getVelocityX(particleIndex) +
               integrationCoeff *
@@ -585,6 +598,8 @@ data.setPositionX(particleIndex, newPosition);
 We normally use ```integrationCoeff=1.0```, but because the velocity is calculated at half-steps, we need to initialise the scheme on the first time step using ```integrationCoeff=0.5```:
 
 ```cpp
+/* **************************** sph_solver.cpp **************************** */
+
 // First step to initialise the scheme
 if (t == 0) {
   integrationCoeff = 0.5;
