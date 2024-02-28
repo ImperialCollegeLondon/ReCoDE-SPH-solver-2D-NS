@@ -4,7 +4,7 @@ The profiling of this project was done in par with the refactoring. In order to 
 
 ## Valgrind
 
-Valgrind is an instrumentation framework that can be used to detect memory leaks, memory corruption, and undefined memory usage in C and C++ programs. It achieves this by running the program in a virtual environment and monitoring the memory operations. Valgrind provides several tools, including Memcheck (for memory debugging), Cachegrind (for cache profiling), and Callgrind (for call graph profiling). Callgrind is a Valgrind tool designed to profile the call structure of a program. It collects information about the functions called, the number of instructions executed in each function, and the call relationships between functions. This information can be used to identify performance bottlenecks and optimise the code.
+Valgrind is an instrumentation framework that can be used to detect memory leaks, memory corruption, and undefined memory usage in C and C++ programs. It achieves this by running the program in a virtual environment and monitoring the memory operations. Valgrind provides several tools, including Memcheck (for memory debugging), Cachegrind (for cache profiling), and Callgrind (for call graph profiling). Callgrind is a Valgrind tool designed to profile the call structure of a program. It collects information about the functions called, the number of instructions executed in each function, and the call relationships between functions. This information can be used to identify performance bottlenecks and optimize the code.
 
 ### Usage
 
@@ -88,14 +88,33 @@ Valgrind is an instrumentation framework that can be used to detect memory leaks
 
     3. **View Flamegraph**:
 
-        Open the generated SVG file (`flamegraph.svg`) in a web browser to explore the flame graph visually. The width of each box in the graph represents the proportional time spent in each function. An example is shown below (unfortunately Github doesn't allow interactive `.svg` with scripts due to exploits like XSS attacks, so the images below is not interactive):
+        Open the generated SVG file (`flamegraph.svg`) in a web browser to explore the flame graph visually. The width of each box in the graph represents the proportional time spent in each function. An example is shown below (unfortunately Github doesn't allow interactive `.svg` with scripts due to exploits like XSS attacks, so the image below is not interactive):
 
         ![Flamegraph](images/flamegraph_ic_droplet_100.svg)
-        
-        ***Flamegraph for v3.***
+         ***Flamegraph for v3.***
 
 
-# Profiling and timing- SPH code results
+## Timing
+
+In order to validate that the changes provided a significant decrease in execution time, the developers also measured the time of execution for a variety of cases. To time the execution the Linux command `time` was used. The results of `time` are usually of the given format:
+```
+real	0m1.806s
+user	0m1.805s
+sys	    0m0.000s
+```
+
+- `real`:  Refers to the actual elapsed time from the start to the finish of the command's execution. This is the "wall-clock" time, including any time spent waiting for external resources(e.g. disk I/O, network operations or waiting for other processes)
+- `user`: Refers to the amount of CPU time spent executing the code within the process itself while in user mode. This means the time the CPU dedicated to running the program's instructions
+- `sys`: Refers to the amount of CPU time the process spent in kernel mode. This is the time the CPU spends executing system calls on behalf of the processes, such as file operations, memory management or system services.
+
+### Usage
+
+The `time` command is fairly straightforward to execute:
+```bash
+time <executable>
+```
+
+# Profiling and timing - SPH code results
 
 ## CPU time
 
