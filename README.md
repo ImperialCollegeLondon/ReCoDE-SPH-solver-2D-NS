@@ -1,5 +1,4 @@
 <!-- Your Project title, make it sound catchy! -->
-<div style="text-align: center;">
 
 # RECODE-SPH-SOLVER-2D-NS
 
@@ -8,7 +7,6 @@
 [![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 
 <!-- Provide a short description to your project -->
-</div>
 
 ## Description
 
