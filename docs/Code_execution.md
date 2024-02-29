@@ -7,25 +7,29 @@ The list of requirements for the source code is:
 
 To compile the code, the user has to change the working directory to `exec/build` and then run the following instructions in the terminal:
 
-```
+```bash
+
 cmake ../../src
 ```
 
 and then:
 
-```
+```bash
+
 cmake --build .
 ```
 
 This produces an executable file, called `SPH-SOLVER`, in the `exec/build` folder. To execute the code, the user needs to run the following:
 
-```
+```bash
+
 ./SPH-SOLVER
 ```
 
 To clean the `build` directory, the user can use the following command:
 
-```
+```bash
+
 cmake --build . --target clean
 ```
 
@@ -33,7 +37,10 @@ This will effectively delete the binary from the `build` directory.
 
 # Setting up a case
 
-To set up a case the user has to set the parameters of the problem by using the `.txt` files which can be found in the `exec/input` directory. In `case.txt` the user can specify the type of initial condition, the total simulated time (in seconds), the timestep, and the desired output frequency. The initial condition (IC) can be one of the following
+This code can simulate a range of different scenarios. To set up a case to be run, the user has to set the parameters of the problem by using the `.txt` files in the `exec/input` directory. These files specify a number of parameters of the problem. Each line of each file contains the name of the parameter being set, an equals sign, then the value of the parameter. Optionally, these lines may contain comments beginning with `#` characters, which are ignored by the code.
+
+In `case.txt` the user can specify the type of initial condition, which specifies the initial configuration of particles. The initial condition (IC) can be one of the following
+
 
 - A single particle (`ic-one-particle`) : to test the correctness of time integration and gravity forcing, as well as the bottom boundary condition.
 
@@ -49,19 +56,29 @@ To set up a case the user has to set the parameters of the problem by using the 
 
 After selecting the desired IC, the user has to specify its parameters (number and position of the particles) in the homonymous to the IC `.txt` file. The domain is rectangular and two-dimensional with corners which have coordinates that can be specified in `domain.txt`. Finally, the constant parameters of the problem which characterize the fluid and the solver set-up can be specified in `constants.txt`.
 
-- `case.txt`
-  - initial condition (`init_condition`)
+The different input files each require different parameters to be set. These are:
+
+- `case.txt` defines the simulation configuration:
+  - initial condition (`init_condition`) (see above for options)
   - simulation time (`T`)
   - time-step (`dt`)
+  - adaptive timestep flag (`adaptive_timestep`)
+  - CFL coefficient 1 (`coeffCfl1`)
+  - CFL coefficient 2 (`coeffCfl2`)
   - -output frequency (`output_frequency`)
-- `constants.txt`:
+- `constants.txt` defines physical constants:
+
   - radius of influence (`h`)
   - gas constant (`gas_constant`)
   - resting density (`density_resting`)
   - viscosity (`viscosity`)
   - acceleration due to gravity (`acceleration_gravity`)
-  - coefficient of restituion (`coeff_restitution`)
+  - coefficient of restitution (`coeff_restitution`)
 - `domain.txt`: defines the dimensions of the domain utilised in the simulation
+
+In addition, depending on the initial condition selected, one of the following files is required:
+
+
 - `ic-one-particle.txt`: sets the initial positions when the selected initial condition is "ic-one-particle"
 - `ic-{two, three, four}-particles.txt`: sets the initial positions for the corresponding cases
 - `ic-block-drop.txt`: sets initial conditions for SPH, including the number of particles, the length and width of the block, and the initial axes positions for the center of the block
