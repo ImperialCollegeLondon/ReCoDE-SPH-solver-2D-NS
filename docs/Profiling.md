@@ -1,6 +1,6 @@
 # Profiling and timing - Background
 
-The profiling of this project was done in par with the refactoring. In order to make decisions regarding different algorithms and containers to be used, the developers profiled the codebase for each version separately. The profiling included tools like `valgrind`, `perf` and also the usual `time` in Linux distros in order to get an overall execution timing of the code.
+The profiling of this project was done in par with the refactoring. In order to make decisions regarding different algorithms and containers to be used, the developers profiled the codebase for each version separately. The profiling included tools like `valgrind`, `perf` and also the usual `time` in Linux distributions in order to get an overall execution timing of the code.
 
 ## Valgrind
 
