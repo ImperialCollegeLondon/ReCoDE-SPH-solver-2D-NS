@@ -59,21 +59,21 @@ After selecting the desired IC, the user has to specify its parameters (number a
 The different input files each require different parameters to be set. These are:
 
 - `case.txt` defines the simulation configuration:
-  - initial condition (`init_condition`) (see above for options)
-  - simulation time (`T`)
-  - time-step (`dt`)
-  - adaptive timestep flag (`adaptive_timestep`)
-  - CFL coefficient 1 (`coeffCfl1`)
-  - CFL coefficient 2 (`coeffCfl2`)
-  - -output frequency (`output_frequency`)
+  - initial condition : `init_condition`  (see above for options)
+  - simulation time ($s$) : `T`
+  - time-step ($s$) : `dt`
+  - adaptive timestep flag : `adaptive_timestep`
+  - CFL coefficient 1 : `coeffCfl1`
+  - CFL coefficient 2 : `coeffCfl2`
+  - -output frequency : `output_frequency`
 - `constants.txt` defines physical constants:
 
-  - radius of influence (`h`)
-  - gas constant (`gas_constant`)
-  - resting density (`density_resting`)
-  - viscosity (`viscosity`)
-  - acceleration due to gravity (`acceleration_gravity`)
-  - coefficient of restitution (`coeff_restitution`)
+  - radius of influence ($m$) : `h`
+  - gas constant ($J/kg ^ {-1} K ^ {-1}$) : `gas_constant`
+  - resting density ($kg / m^3$) : `density_resting`
+  - viscosity ($Pa * s$) : `viscosity`
+  - acceleration due to gravity ($m / s ^ {2}$) : `acceleration_gravity`
+  - coefficient of restitution : `coeff_restitution`
 - `domain.txt`: defines the dimensions of the domain utilised in the simulation
 
 In addition, depending on the initial condition selected, one of the following files is required:
