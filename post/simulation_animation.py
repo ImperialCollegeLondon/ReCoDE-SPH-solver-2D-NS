@@ -95,7 +95,7 @@ def create_figure():
         )
         LINES_ENERGY.append(line_energy)
 
-    LINE_TIMESTEP = (axs[2].plot([], [], lw=2, color="#40C9A2"))[0]
+    LINE_TIMESTEP = (axs[2].plot([], [], lw=2, color="k"))[0]
 
     # Set up the positions axis attributes
     x_min, x_max, y_min, y_max = get_axes_limits()
@@ -188,7 +188,7 @@ def create_animation():
 
     # Save the animation
     animation_filename = (
-        f'fluid_simulation_{datetime.now().strftime("%Y%m%d_%H%M%S")}.mp4'
+        f'SPH_simulation_{datetime.now().strftime("%Y%m%d_%H%M%S")}.mp4'
     )
     ani.save(animation_filename, fps=frame_rate)
 

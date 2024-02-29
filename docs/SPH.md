@@ -93,7 +93,7 @@ The acceleration of each particle is calculated as:
 
 $$ \mathbf{a} _i = \frac{\mathbf{F} _{pi} + \mathbf{F} _{vi} + \mathbf{F} _{gi}}{\rho_i} $$
 
-## Time integration
+## Time marching
 
 We solve the equation as a function of time by finding the velocity and position of each particle at each of a number of time steps. We denote a property $x$ of particle $i$ at time step $t$ as $`x^{t}_i`$. The state of the property half way between time steps $t$ and $t + 1$ is denoted as $`x^{t + \frac{1}{2}}_i`$.
 

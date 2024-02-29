@@ -1,0 +1,31 @@
+# Further practice
+
+A codebase can never be perfect. One can always identify and propose new improvements or modifications which suit their different tastes and programming styles. The present project is no different, and therefore additions to the functionality and improvement of the performance are of course possible. The following set of exercises, proposes possible directions which can be followed in order to further improve the code.
+
+## Inputs - Ouputs
+
+- Although most inputs of the code are being stored in input files and read by the program at runtime, the initial velocity of the particles is always set to 0.0 through a hardcoded value in the ```ic``` functions. The purpose of this exercise is for you to attempt to create new input variables which will be read by the program and initialize the velocities of the particles.
+
+- Most scientific codes which involve time integration processes, have the functionality of restarting the solution from a previously computed state. In that way, the user doesn't always have to start from scratch. To achieve that you have to:
+
+    1) In the function initOutputFiles create new output files dedicated to restarting the process.
+    2) Introduce a new boolean variable to inform the program whether to restart or not.
+    3) Write a new function which will read the restart files and initialize the particles velocities and positions.
+
+In the case of restart, do you need to invoke the ```ic``` functions?
+
+## Object Oriented Programming
+
+- The ```initialise()``` function of the main program incorporates a lot of different functions with discrete functionalities. Could these functions be considered as member functions encapsulated in a new class which will handle the initialization process?
+
+It is recommended to read what an abstract class is. Would this idea be applicable to the previously described class and the ```SphSolver``` class?
+
+## STL and Profiling
+
+- The use of ```std::vectors``` is associated with an overhead compared to the use of C style arrays due to the former's more complicated structure. There are several vectors in the present code that are only used to store their data and none of their methods is invoked. You may attempt to change them to C style arrays **but with the use of ```std::unique_pointers```, to avoid introducing memory leaks**. Use the proposed profiling tools and processes to observe any effects on the computational efficiency of the code.
+
+- In the ```SphSolver``` class and the functioncs ```SphSolver::neighbourParticlesSearch``` and ```SphSolver::placeParticlesInCells```, we make use of the variable ```memoryReservationFactor```. Try tweaking this parameter, and by using the timing and profiling tools, observe the impact of that in the performance of the code in big cases.
+
+## Post Processing
+
+- In scientific papers one of the most important selling points are your figures and their presentation. You can attempt to modify the generated visualizations and plots, by changing the color and size of the particles, of the lines and of the text on the figures.

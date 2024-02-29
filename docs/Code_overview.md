@@ -384,3 +384,226 @@ Following the initialisation of the class and the output files, the function `Sp
 }
 
 ```
+
+# Implementation of the SPH algorithm
+
+The steps of the aforementioned algorithm are executed by the function `SphSolver::timeIntegration()` and are implemented as follows.
+
+### Density
+
+The density of the fluid associated with each particle $i$ is approximated as:
+
+```cpp
+/* **************************** fluid.cpp **************************** */
+void Fluid::calculateDensity(
+  const std::vector<std::vector<std::pair<int, double>>>& neighbours) {
+  double phi, normalisedDistance, normalisedDistanceSqr;
+
+  for (size_t i = 0; i < nbParticles; i++) {
+    density[i] = mass * fourPih2;
+    for (size_t j = 0; j < neighbours[i].size(); j++) {
+      normalisedDistance = neighbours[i][j].second * hInverse;
+      normalisedDistanceSqr = (1.0 - normalisedDistance * normalisedDistance);
+      phi = fourPih2 * normalisedDistanceSqr * normalisedDistanceSqr *
+            normalisedDistanceSqr;
+      density[i] += mass * phi;
+    }
+  }
+}
+```
+
+where:
+
+- ```mass``` is the mass of a particle ($m$).
+- ```phi``` is the kernel density function for density ($\phi_ {d}(\mathbf{r}_ {ij},h)$).
+- ```normalisedDistance``` is the distance between particle $i$ and particle $j$, normalised by the interaction radius ($q_ {ij}$).
+- ```hInverse``` is the inverse of the interaction radius ($h$) which is constant throughout the simulation and is calculated once and stored in a variable.
+
+### Pressure
+
+The pressure is calculated based on the ideal gas law
+
+```cpp
+/* **************************** fluid.cpp **************************** */
+
+void Fluid::calculatePressure() {
+  for (size_t i = 0; i < nbParticles; i++) {
+    pressure[i] = gasConstant * (density[i] - densityResting);
+  }
+}
+```
+
+where:
+
+- ```densityResting``` is the fluid's resting density ($\rho_ {0}$). 
+- ```gasConstant``` is the gas constant ($k$).
+
+### Pressure force
+
+The force exerted on the particle due to pressure from neighboring fluid particles is calculated as
+
+```cpp
+/* **************************** sph_solver.cpp **************************** */
+
+double SphSolver::calculatePressureForce(Fluid &data,
+                                         std::function<double(int)> getPosition,
+                                         int particleIndex) {
+  double sum = 0.0;  // Initializing the summation
+  double normalisedDistance;
+  double position = getPosition(particleIndex);
+  double pressure = data.getPressure(particleIndex);
+  double mass = data.getMass();
+  double radiusOfInfluence = data.getRadInfl();
+  size_t neighbourIndex;
+
+  for (size_t j = 0; j < neighbourParticles[particleIndex].size(); j++) {
+    neighbourIndex = neighbourParticles[particleIndex][j].first;
+    if (particleIndex != neighbourIndex) {
+      try {
+        normalisedDistance =
+            neighbourParticles[particleIndex][j].second / radiusOfInfluence;
+        // Throw an exception if a singularity is about to appear
+        if (normalisedDistance == 0.0) {
+          throw std::runtime_error(
+              "A singularity appeared. Consider reducing the number of "
+              "particles or increasing the initial distance between the "
+              "particles.");
+        }
+      } catch (std::runtime_error &e) {
+        // Handle the exception by printing the error message and exiting the
+        // program
+        std::cerr << e.what() << std::endl;
+        exit(1);
+      }
+
+      sum += (mass / data.getDensity(neighbourIndex)) *
+             ((pressure + data.getPressure(neighbourIndex)) / 2.0) *
+             (thirtyPih3 * (position - getPosition(neighbourIndex))) *
+             (((1.0 - normalisedDistance) * (1.0 - normalisedDistance)) /
+              normalisedDistance);
+    }
+  }
+  return -sum;
+}
+```
+
+Where:
+
+- ``` thirtyPih3 ``` is a constant precalculated value ($\frac{30}{\pi h^3}$) which assists in the calculation of the nabla of the kernel density function for pressure ($$\nabla \phi_p (\mathbf{r} _{ij}, h)$$).
+- ```pressure``` is the pressure of the $i^{th}$ particle.
+- ```data.getPressure(neighbourIndex)``` is used to retrieve the pressure of the neighbouring $j^{th}$ particle.
+- ```data.getDensity(neighbourIndex)``` is used to retrieve the density of the neighbouring $j^{th}$ particle.
+
+It is important to note that the function admits as an argument the ```std::function<double(int)> getPosition``` which is a pointer to a function of the ```Fluid``` class. This is done because the ```SphSolver::calculatePressureForce()``` function needs to be called twice for each particle. Once for the x component and once for the y component of the pressure force.
+
+```cpp
+forcePressureX = calculatePressureForce(data, ptrGetPositionX, i);
+
+forcePressureY = calculatePressureForce(data, ptrGetPositionY, i);
+```
+
+In this way, the function for the calculation of pressure forces remains generic and direction agnostic which means that we do not have to duplicate any piece of code.
+
+Also, in this function, an error handling occurs, to check whether a singularity appears if two particles come very close to each other. This would make the normalized distance nearly zero and `NaN` values would appear in the code. Herein we choose to inform the users about that incident and advise them to adjust the case parameters in order to avoid such behaviour.
+
+### Viscous force
+
+The force acting on each particle due to viscous effects is calculated as
+
+```cpp
+/* **************************** sph_solver.cpp **************************** */
+
+double SphSolver::calcViscousForce(Fluid &data,
+                                   std::function<double(int)> getVelocity,
+                                   int particleIndex) {
+  double sum = 0.0;  // Initializing the summation
+  double normalisedDistance;
+  double velocity = getVelocity(particleIndex);
+  double mass = data.getMass();
+  double radiusOfInfluence = data.getRadInfl();
+  size_t neighbourIndex;
+
+  for (size_t j = 0; j < neighbourParticles[particleIndex].size(); j++) {
+    neighbourIndex = neighbourParticles[particleIndex][j].first;
+
+    if (particleIndex != neighbourIndex) {
+      normalisedDistance =
+          neighbourParticles[particleIndex][j].second / radiusOfInfluence;
+      sum += (mass / data.getDensity(neighbourIndex)) *
+             (velocity - getVelocity(neighbourIndex)) *
+             (fourtyPih4 * (1.0 - normalisedDistance));
+    }
+  }
+
+  return -data.getViscosity() * sum;
+}
+```
+
+Where:
+
+- ``` fourtyPih4 ``` is a constant precalculated value ($\frac{40} {\pi h^4}$) which assists in the calculation of the nabla of the kernel density function for the visocsity ($\nabla^{2} \phi_v(\mathbf{r}_i, h)$).
+- ```velocity``` is the velocity of the $i^{th}$ particle.
+- ```getVelocity(neighbourIndex)``` is used to retrieve the velocity of the neighbouring $j^{th}$ particle.
+
+For the reasons explained for ```SphSolver::calculatePressureForce()```, a pointer to a function is required as an argument.
+
+### Gravity force:
+
+Finally, the force due to gravity is calculated as:
+
+```cpp
+/* **************************** sph_solver.cpp **************************** */
+
+double SphSolver::calcGravityForce(Fluid &data, int particleIndex) {
+  return -data.getDensity(particleIndex) * data.getAccelerationGravity();
+}
+```
+
+Where:
+
+- ``` data.getAccelerationGravity()``` is used to retrieve the value of the acceleration of gravity.
+
+### Acceleration
+
+The acceleration of each particle is calculated as:
+
+```cpp
+/* **************************** sph_solver.cpp **************************** */
+
+double acceleration = (forcePressure + forceViscous + forceGravity) /
+                        data.getDensity(particleIndex);
+```
+
+### Time marching
+
+We solve the equation as a function of time by finding the velocity and position of each particle at each of a number of time steps. We denote a property $x$ of particle $i$ at time step $t$ as $`x^{t}_i`$. The state of the property half way between time steps $t$ and $t + 1$ is denoted as $`x^{t + \frac{1}{2}}_i`$.
+
+We begin with the initial conditions of the system, which are the positions and velocities of the particles at time $t = 0$. We iteratively use the state of the system at time step $t$ to find the state of the system at time step $t + 1$ using a leap-frog scheme, which provides improved stability characteristics. For the x-directions we do the following:
+
+```cpp
+/* **************************** sph_solver.cpp **************************** */
+
+// x-direction
+newVelocity = data.getVelocityX(particleIndex) +
+              integrationCoeff *
+                  velocityIntegration(data, particleIndex, forcePressureX,
+                                      forceViscousX, forceGravityX);
+data.setVelocityX(particleIndex, newVelocity);
+
+newPosition = data.getPositionX(particleIndex) + newVelocity * dt;
+
+data.setPositionX(particleIndex, newPosition);
+```
+
+We normally use ```integrationCoeff=1.0```, but because the velocity is calculated at half-steps, we need to initialise the scheme on the first time step using ```integrationCoeff=0.5```:
+
+```cpp
+/* **************************** sph_solver.cpp **************************** */
+
+// First step to initialise the scheme
+if (t == 0) {
+  integrationCoeff = 0.5;
+}
+```
+
+

@@ -64,13 +64,13 @@ The script uses two Python modules; the _pandas_ module to read the data from th
 
 The number of animation frames is automatically calculated based on the `desired_animation_duration`, which is automatically calculated based on the simulated time, and the set `frame_rate`, resulting in a smooth and informative representation of the simulation's progress. This dynamic and adaptable approach ensures the animation effectively captures the key aspects of the SPH simulation for analysis and visualisation purposes.
 
-The code of this scirpt is structured in different functions to provide a concrete separation of concerns for each part of the code.
+The code of this script is structured in different functions to provide a concrete separation of concerns for each part of the code.
 
 - **get_axes_limits**: gets the axes limits for the positions plot from the input _domain.txt_ file
-- **calculate_num_particles**: dynamically determines the number of particles used in the SPH simulation using the generated simulation-positions.csv file. This is required as the number of particles can be potentially different than the one provided by the application user, when it is decided this is needed to properly perform the simualtion, such as when the intitial condition is set to _droplet_.
+- **calculate_num_particles**: dynamically determines the number of particles used in the SPH simulation using the generated simulation-positions.csv file. This is required as the number of particles can be potentially different than the one provided by the application user, when it is decided this is needed to properly perform the simualtion, such as when the initial condition is set to _droplet_.
 - **create_figure**: builds the final plot figure that shows the animated position and energy and adaptive timestep data
 - **update**: this function is utilised by the `FuncAnimation` function of the matplotlib.animation class to update the plot at each frame of the animation
-- **create_animation**: coordinates the creation of the animation of the paricles' positions, energies, and adaptive timesteps and stores the generated plot in an MP4 file
+- **create_animation**: coordinates the creation of the animation of the particles' positions, energies, and adaptive timesteps and stores the generated plot in an MP4 file
 
 ### Usage:
 
