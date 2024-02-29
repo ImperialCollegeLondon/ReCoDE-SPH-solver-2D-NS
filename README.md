@@ -1,12 +1,11 @@
 <!-- Your Project title, make it sound catchy! -->
-<div align="center">
+<div style="text-align: center;">
 
 # RECODE-SPH-SOLVER-2D-NS
 
 [![C++](https://img.shields.io/badge/C++-00599C?logo=c%2B%2B&logoColor=white)](https://cplusplus.com/)
 [![Boost](https://img.shields.io/badge/Boost-00599C?logo=boost&logoColor=white)](https://www.boost.org/)
 [![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-
 
 <!-- Provide a short description to your project -->
 </div>
