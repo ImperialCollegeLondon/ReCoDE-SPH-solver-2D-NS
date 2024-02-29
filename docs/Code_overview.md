@@ -1,19 +1,18 @@
 # Code overview
 
-The code herein contains a serial C++ implementation of the SPH methodology described in `SPH.md`. The variables associated with the particles' positions, velocities and forces, are stored as members of an object called `fluid`, while the methods of another class called `SphSolver` manifest the steps of the algorithm.
+The code herein contains a serial C++ implementation of the SPH methodology described earlier. The variables associated with the particles' positions, velocities and forces, are stored as members of an object called `fluid`, while the methods of another class called `SphSolver` manifest the steps of the algorithm.
 
 ## Files
 
 The `src` directory comprises five `*.cpp` files and their corresponding header (`*.h`) files, as well as the files to build the code.
 
-- `src/SPH-main.cpp`
-- `src/sph.{h, cpp}`
-- `src/initial_conditions.{h, cpp}`
-- `src/main_prog_func.h`
-- `src/particles.{h, cpp}`
-- `src/fluid.{h, cpp}`
-- `src/sph_solver.{h, cpp}`
-- `src/CMakeLists.txt`
+- `src/SPH-main.cpp` : Contains the source code of the main program which is responsible for instrumenting the execution of the SPH simulation.
+- `src/initial_conditions.{h, cpp}` : Contain the functions which are required in order to create the intial conditions.
+- `src/main_prog_func.h` : Header file for the declarations of the main program fucntions.
+- `src/particles.{h, cpp}` : Contains a class describing the positions and velocities of particles.
+- `src/fluid.{h, cpp}`  : Contains a class which extends the functionality described in the `src/particles.{h, cpp}` to represend a cluster of particles which form a fluid.
+- `src/sph_solver.{h, cpp}` : Contains a class which manifests the implementation of the SPH methodology described in this project.
+- `src/CMakeLists.txt` : Contains the instructions to compile the code.
 
 ## Reading Inputs
 
@@ -157,7 +156,7 @@ void handleInputErrors(const po::variables_map& caseVm,
 
 ## Class initialisation
 
-The code makes use of three different classes which are purposed to represent the fluid and the SPH algorithm deployed in this project. More details regarding the classes and the design choices can be found in the `docs/OOP_concepts.md` and the reader is advised to study it before proceeding with this chapter.
+The code makes use of three different classes which are purposed to represent the fluid and the SPH algorithm deployed in this project. 
 
 Firstly, one SphSolver object and one fluid pointer to an object are being declared in the main program. The pointer declaration is used for the `fluid`, because to initialise the object properly the number of particles is required in the user defined constructor and this information is not yet available since the input files have not been read. These objects are passed as a reference to the `initialise()` function.
 
@@ -293,7 +292,7 @@ Finally, after the object initialisation, the rest of the parameters which are r
 
 ## Output files
 
-The output files are being initialised with the use of the `initOutputFiles()`. The outputs are exported in `.csv` format which displays good readability and facilitates data manipulation compared to `.txt` files. They are stored in a centralised location, specifically within the `/exec/output/` directory. This centralisation simplifies data organisation and retrieval, making it easier for users to access and analyse output data.
+The output files are being initialised with the use of the `initOutputFiles()`, after the ```Fluid``` class initialisation and before the time integration procedure is invoked. This is done because during the time integration, the code will produce runtime outputs and therefore the corresponding files need to have been created beforehand. The outputs are exported in `.csv` format which displays good readability and facilitates data manipulation compared to `.txt` files. They are stored in a centralised location, specifically within the `/exec/output/` directory. This centralisation simplifies data organisation and retrieval, making it easier for users to access and analyse output data.
 
 Upon successful execution, the program generates two types of files:
 

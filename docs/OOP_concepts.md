@@ -1,8 +1,8 @@
-# Object Oriented Programming
+# Object-Oriented Programming
 
-Object Oriented Programming (OOP) is a style of programming adopted by many programming languages (e.g. C++,Java, Python) and allows the developers to define a user defined data type known as a class. A user may create instances of these classes, known as objects, and use them to store and manipulate data. The contents of the class will define the data that is stored in instances of the class in member variables, and functions known as methods which can access, manipulate, and perform calculations on the data.
+Object-oriented programming (OOP) is a style of programming adopted by many programming languages (e.g. C++,Java, Python). It allows developers to create a user-defined data type known as a class. A user may create instances of these classes, known as objects, and use them to store and manipulate data. The contents of the class will define the data that is stored in instances of the class in member variables, and member functions which can access, manipulate, and perform calculations on the data.
 
-The complexity of a class can be very simple, such as a variable type (i.e. integer, double, array etc.) or very complicated, such as a solver for complex non-linear problems. Every class comprises several components which are the members, the methods, the constructors and the destructor.
+The complexity of a class can be very simple, such as a variable type (i.e. integer, double, array etc.) or very complicated, such as a solver for complex non-linear problems. Every class comprises several components which are the data members, the member functions, the constructors and the destructor.
 
 ## Inheritance
 
@@ -12,113 +12,96 @@ Depending on the application, a developer can create families of objects which u
 
 In this project we chose object orientation which is widely supported by C++ in order to facilitate the implementation of the SPH algorithm and exploit all the benefits that accompany the use of OOP. The basic design idea is built around three classes.
 
-## Class-particles
+## Class `particles`
 
-The first class is used to represent the building blocks of the SPH approach which are the particles. A particle however is not only relevant in the context of SPH, but it can also be used in other applications such as in the representation of multiphase flows where the particles can be droplets whose motion is two-way coupled with a carrier gas phase. Therefore, the "particles" class was decided to be kept as simple (and generic) as possible and to encapsulate only the information which can be applicable to every application that incorporates the use of cluster of particles. Therefore, the members of the "particles" class are only related to the particles' positions and velocities.
+The first class is used to represent the building blocks of the SPH approach, which are the particles. A particle, however, is not only relevant in the context of SPH, but it can also be used in other applications such as in the representation of multiphase flows where the particles can be droplets whose motion is two-way coupled with a carrier gas phase. Therefore, the `particles` class was decided to be kept as simple (and generic) as possible and to encapsulate only the information which can be applicable to every application that incorporates the use of cluster of particles. Therefore, the members of the "particles" class are only related to the particles' positions and velocities.
 
-It is important to emphasize that an instance of the "particles" class contains data pertaining to all the particles involved in the simulation (therefore represents the entirety of the cluster), rather than information exclusive to a single particle.
+It is important to emphasize that an instance of the `particles` class contains data pertaining to all the particles involved in the simulation (and therefore represents the entirety of the cluster), rather than information exclusive to a single particle.
 
 ```cpp
+
+/* **************************** particles.h **************************** */
 class particles {
- protected:
-  unsigned int nb_particles;  // size of the Matrix
-
-  // Positions
-  double *positionX;
-  double *positionY;
-
-  // Velocities
-  double *velocityX;
-  double *velocityY;
-
-  double *particle_speed_sq;
-
-  // Distances
-  double *distance;    // Array to store the distances between the particles
-  double *distanceQ;  // Array to store the values of the normalised distance q
 
   ...
+
+ protected:
+  unsigned int nbParticles;  // number of particles and characteristic size of
+                             // the class arrays
+
+  // Positions
+  std::vector<double> positionX;
+  std::vector<double> positionY;
+
+  // Velocities
+  std::vector<double> velocityX;
+  std::vector<double> velocityY;
+
+  std::vector<double> particleSpeedSq;  // u(i)^2+v(i)^2
 
 
 };
 ```
 
-The particles class is initialised in the `user defined constructor` by using the number of particles (`nb_particles`) which is required to determine the size of the arrays.
+The particles class is initialised in the "user defined constructor" by using the number of particles (`nb_particles`) which is required to determine the size of the arrays.
 
 ```cpp
+/* **************************** particles.cpp **************************** */
+
 // User defined constructor
-particles::particles(const unsigned n_new) : nb_particles(n_new) {
-  positionX = new double[nb_particles];
-  positionY = new double[nb_particles];
-  velocityX = new double[nb_particles];
-  velocityY = new double[nb_particles];
-
-  distance = new double[nb_particles * nb_particles];
-  distanceQ = new double[nb_particles * nb_particles];
-
-  particle_speed_sq = new double[nb_particles];
-}
+particles::particles(const unsigned nNew)
+    : nbParticles(nNew),
+      positionX(nNew, 0.0),
+      positionY(nNew, 0.0),
+      velocityX(nNew, 0.0),
+      velocityY(nNew, 0.0),
+      particleSpeedSq(nNew, 0.0) {}
 ```
 
-The operator `()` has been overloaded to place the particles in their initial conditions and to set their initial velocities to the corresponding arrays.
+
+## Class `Fluid`
+
+A cluster of particles, depending on its behaviour, can represent a variety of concepts. One of these concepts is what we will refer to herein as a "fluid", which apart from being discretized in particles also has other attributes such as density, mass and pressure. Therefore, the class `Fluid` is a child class of the particles class which is extended in order to encapsulate more members to fully characterize the simulated fluid, and its state during every timestep. In the main program the base class will never be invoked explicitly, but only implicitly through the instantiation of a `Fluid` object. However, from the developer's perspective, using this approach makes the code more modular and allows for the derivation of multiple children from the base class if needed.
 
 ```cpp
-// Overloading of ()
-double &particles::operator()(unsigned row, unsigned col) {
-  switch (row) {
-    case 0:
-      return this->position_x[col];
-      break;
-    case 1:
-      return this->position_y[col];
-      break;
-    case 2:
-      return this->velocity_x[col];
-      break;
-    case 3:
-      return this->velocity_y[col];
-      break;
-    default:
-      std::cerr << "ERROR: Out of bounds on row selection" << std::endl;
-      abort();
-  }
-}
-```
+/* **************************** fluid.h **************************** */
 
-## Class-sph-fluid
-
-A cluster of particles, depending on its behavior can represent a variety of concepts. One of these concepts is what we will refer to herein as an SPH-fluid, which apart from being discretized in particles also has other attributes such as density, mass and pressure. Therefore, the class sph-fluid is a child class of the particles class which is extended in order to encapsulate more member variables and methods to fully characterize the simulated fluid, and it's state during every timestep. In the main program the base class will never be invoked explicitly, but only implicitly through the instantiation of a sph-fluid object. However, from the developer's perspective, by using this approach the code becomes more modular and allows for the derivation of multiple children from the base class if needed.
-
-```cpp
 class fluid : public particles {
+  
+ ...
+
  private:
   // Constants of the problem
-  double gas_constant;
-  double density_resting;
+  double gasConstant;
+  double densityResting;
   double viscosity;
-  double acceleration_gravity;
-
-  double h;  // Radius of influence
+  double accelerationGravity;
+  double radiusOfInfluence;
+  // Helper member variables
+  double hInverse;
+  double fourPih2;
 
   // Mass
-  double mass_assumed = 1.0;
+  double mass = 1.0;
 
   // Density
-  double *density;
+  std::vector<double> density;
 
   // Pressure
-  double *pressure;
-
- ...
+  std::vector<double> pressure;
 
  }
 ```
 
-## Class-sph_solver
 
-In the `sph_solver` class, are implemented the steps of the algorithm described in `SPH.md`. The main function which is called by the main program is the `sph::timeIntegration(fluid &data, std::ofstream &simulationPositionsFile, std::ofstream &finalPositionsFile, std::ofstream &energiesFile);` where the methods of the class are invoked and perform calculations on the members of the `fluid` object in order to update the positions and the velocities of the particles. Because the members of the `fluid` class have been declared either as protected (from the base class) or private, the solver class does not have direct access to its members and therefore the use of `setter` and `getter` functions and the overloaded `()` symbol is required. This is a good practice when working with OOP techniques because it promotes the idea of data hiding by the classes, and increases the robustness of the code, since the object's members cannot be directly modified from anywhere in the code, apart from inside the class. Below an example on how the `fluid` members are manipulated by one of the `sph_solver's` methods is presented.
+## Class `SphSolver`
+
+The `SphSolver` class contains the implementation of the steps of the algorithm described in this project. The main function, which is called by the main program, is the `sphSolver::timeIntegration(Fluid &data, std::ofstream &finalPositionsFile, std::ofstream &energiesFile);` where the member functions of the class are invoked and perform calculations on the data members of the `Fluid` object in order to update the positions and the velocities of the particles. Because the members of the `Fluid` class have been declared either as protected (from the base class) or private, the solver class does not have direct access to its members and therefore the use of `setter` and `getter` functions and the overloaded `()` operator is required. This is a good practice when working with OOP techniques because it promotes the idea of data hiding by the classes, and increases the robustness of the code, since the object's members cannot be directly modified from anywhere in the code, apart from inside the class. Below an example on how the `Fluid` members are manipulated by one of the `SphSolver's` member functions is presented.
 
 ```cpp
+
+/* **************************** sph_solver.cpp **************************** */
+
 void SphSolver::updatePosition(Fluid &data, int particleIndex) {
   double newVelocity;
   double newPosition;
