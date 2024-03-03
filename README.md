@@ -162,6 +162,8 @@ in a tree node.
     ├── sph_solver.cpp
     └── sph_solver.h
 ```
+<!-- readme: collaborators -start -->
+<!-- readme: collaborators -end -->
 
 <!-- readme: contributors -start -->
 <!-- readme: contributors -end -->
