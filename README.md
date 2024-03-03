@@ -163,6 +163,9 @@ in a tree node.
     └── sph_solver.h
 ```
 
+<!-- readme: contributors -start -->
+<!-- readme: contributors -end -->
+
 <!-- Change this to your License. Make sure you have added the file on GitHub -->
 
 ## License
