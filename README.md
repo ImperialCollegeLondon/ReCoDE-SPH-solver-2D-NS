@@ -163,6 +163,66 @@ in a tree node.
     └── sph_solver.h
 ```
 <!-- readme: collaborators -start -->
+<table>
+<tr>
+    <td align="center">
+        <a href="https://github.com/cmcooling">
+            <img src="https://avatars.githubusercontent.com/u/12444767?v=4" width="100;" alt="cmcooling"/>
+            <br />
+            <sub><b>Chris Cooling</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/ChrisPetalotis">
+            <img src="https://avatars.githubusercontent.com/u/17175412?v=4" width="100;" alt="ChrisPetalotis"/>
+            <br />
+            <sub><b>Christos Petalotis</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/kmichali">
+            <img src="https://avatars.githubusercontent.com/u/25386647?v=4" width="100;" alt="kmichali"/>
+            <br />
+            <sub><b>Katerina Michalickova</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/dc2917">
+            <img src="https://avatars.githubusercontent.com/u/45606273?v=4" width="100;" alt="dc2917"/>
+            <br />
+            <sub><b>Dan Cummins</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/ByronAV">
+            <img src="https://avatars.githubusercontent.com/u/54893888?v=4" width="100;" alt="ByronAV"/>
+            <br />
+            <sub><b>Vyron Avramidis</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/Vasilis421">
+            <img src="https://avatars.githubusercontent.com/u/62700983?v=4" width="100;" alt="Vasilis421"/>
+            <br />
+            <sub><b>Vasileios Christou</b></sub>
+        </a>
+    </td></tr>
+<tr>
+    <td align="center">
+        <a href="https://github.com/geoefsta">
+            <img src="https://avatars.githubusercontent.com/u/62747725?v=4" width="100;" alt="geoefsta"/>
+            <br />
+            <sub><b>George Efstathiou</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/ge420">
+            <img src="https://avatars.githubusercontent.com/u/116084464?v=4" width="100;" alt="ge420"/>
+            <br />
+            <sub><b>George Efstathiou</b></sub>
+        </a>
+    </td></tr>
+</table>
 <!-- readme: collaborators -end -->
 
 <!-- readme: contributors -start -->
