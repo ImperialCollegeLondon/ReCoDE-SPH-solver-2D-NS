@@ -166,6 +166,51 @@ in a tree node.
 <!-- readme: collaborators -end -->
 
 <!-- readme: contributors -start -->
+<table>
+<tr>
+    <td align="center">
+        <a href="https://github.com/ge420">
+            <img src="https://avatars.githubusercontent.com/u/116084464?v=4" width="100;" alt="ge420"/>
+            <br />
+            <sub><b>Null</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/Vasilis421">
+            <img src="https://avatars.githubusercontent.com/u/62700983?v=4" width="100;" alt="Vasilis421"/>
+            <br />
+            <sub><b>Vasileios Christou</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/ByronAV">
+            <img src="https://avatars.githubusercontent.com/u/54893888?v=4" width="100;" alt="ByronAV"/>
+            <br />
+            <sub><b>Vyron Avramidis</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/ChrisPetalotis">
+            <img src="https://avatars.githubusercontent.com/u/17175412?v=4" width="100;" alt="ChrisPetalotis"/>
+            <br />
+            <sub><b>Christos Petalotis</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/geoefsta">
+            <img src="https://avatars.githubusercontent.com/u/62747725?v=4" width="100;" alt="geoefsta"/>
+            <br />
+            <sub><b>Null</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/cmcooling">
+            <img src="https://avatars.githubusercontent.com/u/12444767?v=4" width="100;" alt="cmcooling"/>
+            <br />
+            <sub><b>Chris Cooling</b></sub>
+        </a>
+    </td></tr>
+</table>
 <!-- readme: contributors -end -->
 
 <!-- Change this to your License. Make sure you have added the file on GitHub -->
