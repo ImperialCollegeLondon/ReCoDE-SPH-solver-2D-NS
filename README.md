@@ -8,6 +8,10 @@
 
 <!-- Provide a short description to your project -->
 
+<div style="text-align:center;">
+<img src="docs/images/SPH_simulation.gif" alt="sph_simulation" width="300" height="500">
+</div>
+
 ## Description
 
 In this project we present a numerical code in C++ which solves the two-dimensional Navier-Stokes equations using the smoothed-particle hydrodynamics (SPH) approach. The focus lies in the implementation (and documentation) of good C++ practices and the development of skills related to efficient, robust, extensible and readable scientific code. The learning process regarding this project can be twofold:
