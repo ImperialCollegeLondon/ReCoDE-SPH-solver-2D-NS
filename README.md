@@ -6,9 +6,10 @@
 [![Boost](https://img.shields.io/badge/Boost-00599C?logo=boost&logoColor=white)](https://www.boost.org/)
 [![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 
+| ![sph_simulation](docs/images/SPH_simulation.gif) |
+|:--:|
+| *SPH simulation* |
 <!-- Provide a short description to your project -->
-
-![sph_simulation](docs/images/SPH_simulation.gif)
 
 ## Description
 
