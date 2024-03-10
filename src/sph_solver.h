@@ -140,6 +140,9 @@ class SphSolver {
   double coeffCfl1;  // CFL coefficients
   double coeffCfl2;  // CFL coefficients
 
+  bool termination_flag = false;  // Flag to terminate the integration function
+                                  // when the particles stop moving
+
   // Boundaries
   double coeffRestitution;
 

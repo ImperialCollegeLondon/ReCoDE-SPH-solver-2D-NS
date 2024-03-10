@@ -4,11 +4,11 @@
 #include <functional>
 #include <vector>
 
-class particles {
+class Particles {
  public:
   /******** CONSTRUCTORS/DESTRUCTOR********/
 
-  explicit particles(
+  explicit Particles(
       const unsigned
           nNew);  // User defined constructor for allocating
                   // the dimensions of the arrays. One parameter

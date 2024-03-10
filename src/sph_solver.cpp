@@ -178,7 +178,7 @@ void SphSolver::timeIntegration(Fluid &data,
   std ::cout << "Time integration started -- OK"
              << "\n";
 
-  while (currentIntegrationTime < totalTime) {
+  while (currentIntegrationTime < totalTime && termination_flag == false) {
     if (adaptiveTimestepBool) {
       // Reset the adaptive timestep related variables
       maxVelocity = 0.0;
@@ -414,7 +414,25 @@ void SphSolver::boundaries(Fluid &data, int particleIndex) {
 void SphSolver::adaptiveTimestep(Fluid &data) {
   double h = data.getRadInfl();
 
-  // Update the timestep based on the CFL number
-  dt = std::min(coeffCfl1 * h / maxVelocity,
-                coeffCfl2 * pow(h / maxAcceleration, 0.5));
+  if (maxVelocity == 0.0 || maxAcceleration == 0.0) {
+    if (maxVelocity == 0.0 && maxAcceleration == 0.0) {
+      // Set the timestep to the default value to avoid division with zero
+      dt = 1e-4;
+      // Terminate the integration process because the particles will not move
+      // any further
+      termination_flag = true;
+
+    } else if (maxVelocity == 0.0) {
+      // Update the timestep based on the CFL number
+      dt = coeffCfl2 * pow(h / maxAcceleration, 0.5);
+
+    } else if (maxAcceleration == 0.0) {
+      // Update the timestep based on the CFL number
+      dt = coeffCfl1 * h / maxVelocity;
+    }
+  } else {
+    // Update the timestep based on the CFL number
+    dt = std::min(coeffCfl1 * h / maxVelocity,
+                  coeffCfl2 * pow(h / maxAcceleration, 0.5));
+  }
 }
