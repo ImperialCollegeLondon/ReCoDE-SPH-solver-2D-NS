@@ -70,7 +70,7 @@ If there is an existing exemplar in the ReCoDE repositories link to that.
 For manual installation of the program and its dependencies, you will need the following:
 
 - Python 3.11 installed
-- a C++ toolchain along with the necessary development libraries: 
+- A C++ toolchain along with the necessary development libraries: 
     - build-essential 
     - libboost-program-options-dev, 
     - clang-format
