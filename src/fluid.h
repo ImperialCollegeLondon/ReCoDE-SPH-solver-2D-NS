@@ -8,7 +8,7 @@
 
 #include "particles.h"
 
-class Fluid : public particles {
+class Fluid : public Particles {
  public:
   explicit Fluid(const unsigned nNew);
 

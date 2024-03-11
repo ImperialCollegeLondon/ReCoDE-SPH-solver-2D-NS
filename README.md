@@ -6,11 +6,10 @@
 [![Boost](https://img.shields.io/badge/Boost-00599C?logo=boost&logoColor=white)](https://www.boost.org/)
 [![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 
-<!-- Provide a short description to your project -->
-
-| ![sph_simulation](docs/images/SPH_simulation.gif) | 
-|:--:| 
+| ![sph_simulation](docs/images/SPH_simulation.gif) |
+|:--:|
 | *SPH simulation* |
+<!-- Provide a short description to your project -->
 
 ## Description
 
@@ -34,8 +33,8 @@ Provide your best estimate -->
 
 | Task       | Time    |
 | ---------- | ------- |
-| Reading    | 10 hours |
-| Practicing | 4 hours |
+| Reading    | 15 hours |
+| Practicing | 10 hours |
 
 ## Requirements
 
@@ -63,22 +62,29 @@ If there is an existing exemplar in the ReCoDE repositories link to that.
 
 
 
-<!-- List the system requirements and how to obtain them, that can be as simple
-as adding a hyperlink to as detailed as writing step-by-step instructions.
-How detailed the instructions should be will vary on a case-by-case basis.
-
-Here are some examples:
-
-- 50 GB of disk space to hold Dataset X
-- Anaconda
-- Python 3.11 or newer
-- Access to the HPC
-- PETSc v3.16
-- gfortran compiler
-- Paraview
+<!-- List the system requirements and how to obtain them.
 -->
 
 ### System
+
+For manual installation of the program and its dependencies, you will need the following:
+
+- Python 3.11 installed
+- A C++ toolchain along with the necessary development libraries: 
+    - build-essential 
+    - libboost-program-options-dev, 
+    - clang-format
+    - cmake. 
+
+You will also need to install the required Python packages by running the command 
+
+- "pip install -r requirements.txt."
+
+If you haven't already, set up the pre-commit hook by executing the 
+
+- "pre-commit install" command.
+
+Following these steps manually will establish the environment necessary for the program to run successfully. Alternatively, to streamline the process, consider using the provided Dockerfile to create a Docker image and deploy the program in a containerized environment, or you can simply use the github codespaces functionality by following the instructions provided in the section [GitHub Codespaces](docs/A2.GH_Codespaces.md).
 
 <!-- Instructions on how the student should start going through the exemplar.
 
@@ -99,6 +105,11 @@ Solutions to the above can be found in `solutions`.
 -->
 
 ## Getting Started
+
+To better comprehend this exemplar, it's recommended to follow the outlined procedure by sequentially reviewing the chapters. The suggested workflow ensures a step-by-step understanding, beginning with the foundational SPH algorithm elucidated in the code ([Smoothed-Particle Hydrodynamics (SPH)](docs/1.SPH.md)-[Adaptive timestep](docs/8.Adaptive_Timestep.md)), followed by an exploration of its implementation aspects ([Code overview](docs/2.Code_Overview.md) - [Efficient programming](docs/8.Efficient_Programming.md)). Once you've grasped the code intricacies, it's time to put it into action. In the sections [Code execution](docs/A1.Code_Execution.md) - [Profiling](docs/A4.Post_Analysis.md) you will learn how to run the code, assess its performance and post process the data it generates. Depending on your learning preference, you may opt for a reversed approach, initiating with code execution and subsequently delving under the hood to explore the C++ code. It works both ways!
+
+For additional study and practice, delve into [Clang format](docs/B1.Clang_Format.md), [Building with Cmake](docs/B2.CMake.md) and [Exercises](docs/C1.Exercises.md). These sections offer deeper insights into the project's good practices and provide opportunities to enhance your coding skills.
+
 
 <!-- An overview of the files and folder in the exemplar.
 Not all files and directories need to be listed, just the important

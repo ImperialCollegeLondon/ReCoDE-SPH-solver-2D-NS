@@ -4,7 +4,7 @@
 #include <iostream>
 
 // User defined constructor
-particles::particles(const unsigned nNew)
+Particles::Particles(const unsigned nNew)
     : nbParticles(nNew),
       positionX(nNew, 0.0),
       positionY(nNew, 0.0),

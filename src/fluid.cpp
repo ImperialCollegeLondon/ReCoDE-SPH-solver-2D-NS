@@ -5,7 +5,7 @@
 
 // User defined constructor
 Fluid::Fluid(const unsigned nNew)
-    : particles(nNew), density(nNew, 0.0), pressure(nNew, 0.0) {}
+    : Particles(nNew), density(nNew, 0.0), pressure(nNew, 0.0) {}
 
 // Calculation functions
 void Fluid::calculateMass(
